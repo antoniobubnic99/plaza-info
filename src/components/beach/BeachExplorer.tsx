@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { beachName, type Beach, type SurfaceType } from '@/lib/beaches';
+import { beachName, type Beach, type CrowdLevel, type SurfaceType } from '@/lib/beaches';
 import {
+  crowdColor,
   EMPTY_FILTERS,
   filterBeaches,
   formatDistance,
@@ -15,9 +16,13 @@ import {
   type BeachFilterState,
   type FilterFlag,
 } from '@/lib/beachFilters';
+import { getLatestCrowdLevels } from '@/lib/queries';
+import { reportCrowd } from '@/lib/crowd';
 import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
 import BeachList from './BeachList';
+
+const CROWD_LEVELS: CrowdLevel[] = ['empty', 'moderate', 'packed'];
 
 // MapLibre je isključivo klijentski (koristi window/WebGL) → bez SSR-a.
 const MapView = dynamic(() => import('./MapView'), {
@@ -38,6 +43,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const t = useTranslations('Map');
   const tSurface = useTranslations('Surface');
   const tFlags = useTranslations('Flags');
+  const tCrowd = useTranslations('Crowd');
 
   const [filters, setFilters] = useState<BeachFilterState>(EMPTY_FILTERS);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -46,6 +52,42 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const [geoError, setGeoError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
+  const [crowdLevels, setCrowdLevels] = useState<Record<string, CrowdLevel>>({});
+  const [reporting, setReporting] = useState(false);
+  const [reportedId, setReportedId] = useState<string | null>(null);
+
+  // Dohvat zadnjih razina gužve (klijentski, RPC latest_crowd_levels) uz osvježavanje svakih 60 s.
+  useEffect(() => {
+    let active = true;
+    const load = () => {
+      getLatestCrowdLevels()
+        .then((levels) => {
+          if (active) setCrowdLevels(levels);
+        })
+        .catch(() => {});
+    };
+    load();
+    const id = window.setInterval(load, 60_000);
+    return () => {
+      active = false;
+      window.clearInterval(id);
+    };
+  }, []);
+
+  async function handleReport(level: CrowdLevel) {
+    if (!selectedId || reporting) return;
+    const beachId = selectedId;
+    setReporting(true);
+    const ok = await reportCrowd(beachId, level, userLocation);
+    setReporting(false);
+    if (ok) {
+      setCrowdLevels((prev) => ({ ...prev, [beachId]: level }));
+      setReportedId(beachId);
+      getLatestCrowdLevels()
+        .then(setCrowdLevels)
+        .catch(() => {});
+    }
+  }
 
   const filtered = useMemo(() => filterBeaches(beaches, filters), [beaches, filters]);
 
@@ -174,6 +216,39 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
                 ))}
             </div>
 
+            <div className="mt-3">
+              <p className="text-xs font-medium text-sea-800/70">
+                {crowdLevels[selectedBeach.id]
+                  ? `${tCrowd('question')} ${tCrowd(crowdLevels[selectedBeach.id])}`
+                  : tCrowd('question')}
+              </p>
+              <div className="mt-1.5 flex gap-1.5">
+                {CROWD_LEVELS.map((lvl) => {
+                  const isCurrent = crowdLevels[selectedBeach.id] === lvl;
+                  return (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => handleReport(lvl)}
+                      disabled={reporting}
+                      aria-pressed={isCurrent}
+                      className="flex-1 rounded-full px-2 py-1.5 text-xs font-medium text-white transition disabled:opacity-60"
+                      style={{
+                        background: crowdColor(lvl),
+                        outline: isCurrent ? '2px solid #0d2b4a' : 'none',
+                        outlineOffset: '1px',
+                      }}
+                    >
+                      {tCrowd(lvl)}
+                    </button>
+                  );
+                })}
+              </div>
+              {reportedId === selectedBeach.id && (
+                <p className="mt-1 text-xs text-crowd-empty">{tCrowd('thanks')}</p>
+              )}
+            </div>
+
             <div className="mt-3 flex gap-2">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${selectedBeach.lat},${selectedBeach.lng}`}
@@ -211,6 +286,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
       <div className="h-[45vh] w-full shrink-0 md:h-full md:flex-1">
         <MapView
           beaches={filtered}
+          crowdLevels={crowdLevels}
           selectedId={selectedId}
           onSelect={handleSelect}
           focus={focus}

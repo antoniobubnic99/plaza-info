@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { Beach } from '@/lib/beaches';
-import { surfaceColor } from '@/lib/beachFilters';
+import type { Beach, CrowdLevel } from '@/lib/beaches';
+import { markerColor } from '@/lib/beachFilters';
 import { getMapStyleUrl, PILOT_CENTER, PILOT_ZOOM } from '@/lib/mapStyle';
 
 export interface MapFocus {
@@ -16,6 +16,7 @@ export interface MapFocus {
 
 interface MapViewProps {
   beaches: Beach[];
+  crowdLevels: Record<string, CrowdLevel>;
   selectedId: string | null;
   onSelect: (id: string) => void;
   focus: MapFocus | null;
@@ -40,6 +41,7 @@ function makeMarkerEl(color: string): HTMLDivElement {
 
 export default function MapView({
   beaches,
+  crowdLevels,
   selectedId,
   onSelect,
   focus,
@@ -50,11 +52,16 @@ export default function MapView({
   const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const onSelectRef = useRef(onSelect);
+  const crowdRef = useRef(crowdLevels);
 
   // Drži zadnji onSelect u refu (izbjegava presoždavanje markera na svaki render).
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
+
+  useEffect(() => {
+    crowdRef.current = crowdLevels;
+  }, [crowdLevels]);
 
   // Init karte (jednom).
   useEffect(() => {
@@ -95,7 +102,7 @@ export default function MapView({
     // Dodaj nove.
     for (const beach of beaches) {
       if (markers.has(beach.id)) continue;
-      const el = makeMarkerEl(surfaceColor(beach.surfaceType));
+      const el = makeMarkerEl(markerColor(beach.surfaceType, crowdRef.current[beach.id]));
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         onSelectRef.current(beach.id);
@@ -106,6 +113,17 @@ export default function MapView({
       markers.set(beach.id, marker);
     }
   }, [beaches]);
+
+  // Preboji markere kad se promijeni gužva (ili skup plaža).
+  useEffect(() => {
+    const surfaceById = new Map(beaches.map((b) => [b.id, b.surfaceType]));
+    for (const [id, marker] of markersRef.current) {
+      marker.getElement().style.background = markerColor(
+        surfaceById.get(id) ?? null,
+        crowdLevels[id],
+      );
+    }
+  }, [crowdLevels, beaches]);
 
   // Istakni odabrani marker.
   useEffect(() => {

@@ -41,7 +41,8 @@
     "empty": "Prazno",
     "moderate": "Umjereno",
     "packed": "Krcato",
-    "question": "Kakva je gužva sada?"
+    "question": "Gužva sada:",
+    "thanks": "Hvala na prijavi!"
   },
   "NotFound": {
     "title": "Stranica nije pronađena",

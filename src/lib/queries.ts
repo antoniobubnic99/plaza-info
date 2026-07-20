@@ -1,6 +1,6 @@
 // PlažaInfo — dohvat plaža (server + klijent kompatibilno; koristi anon Supabase klijent).
 import { supabase } from './supabase';
-import { dbToBeach, type Beach, type BeachRow } from './beaches';
+import { dbToBeach, type Beach, type BeachRow, type CrowdLevel } from './beaches';
 
 /**
  * Sve plaže iz `beaches_geo` viewa (statični podaci + lat/lng).
@@ -21,4 +21,22 @@ export async function getBeaches(): Promise<Beach[]> {
     return [];
   }
   return (data as BeachRow[]).map(dbToBeach);
+}
+
+/**
+ * Zadnja prijavljena razina gužve po plaži (RPC `latest_crowd_levels`, default prozor 2h).
+ * Vraća mapu beachId → razina. Prazno ako nema prijava ili Supabase nije konfiguriran.
+ */
+export async function getLatestCrowdLevels(): Promise<Record<string, CrowdLevel>> {
+  if (!supabase) return {};
+  const { data, error } = await supabase.rpc('latest_crowd_levels', {});
+  if (error) {
+    console.error('[queries] getLatestCrowdLevels:', error.message);
+    return {};
+  }
+  const map: Record<string, CrowdLevel> = {};
+  for (const row of (data ?? []) as { beach_id: string; level: CrowdLevel }[]) {
+    map[row.beach_id] = row.level;
+  }
+  return map;
 }

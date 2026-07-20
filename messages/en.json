@@ -41,7 +41,8 @@
     "empty": "Empty",
     "moderate": "Moderate",
     "packed": "Packed",
-    "question": "How busy is it right now?"
+    "question": "Crowd now:",
+    "thanks": "Thanks for reporting!"
   },
   "NotFound": {
     "title": "Page not found",

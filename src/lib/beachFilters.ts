@@ -1,6 +1,6 @@
 // PlažaInfo — čiste funkcije za filtriranje/sortiranje plaža i vizualne oznake.
 // Bez React/DOM ovisnosti — lako testabilno i dijeljeno između liste i karte.
-import { beachName, type Beach, type SurfaceType } from './beaches';
+import { beachName, type Beach, type CrowdLevel, type SurfaceType } from './beaches';
 
 export const SURFACE_TYPES: SurfaceType[] = ['sand', 'pebble', 'rock', 'concrete'];
 
@@ -19,6 +19,25 @@ const UNKNOWN_SURFACE_COLOR = '#1f7fd4'; // sea-600
 
 export function surfaceColor(surface: SurfaceType | null): string {
   return surface ? SURFACE_COLORS[surface] : UNKNOWN_SURFACE_COLOR;
+}
+
+// Boje gužve — usklađene s tokenima --color-crowd-* u globals.css.
+const CROWD_COLORS: Record<CrowdLevel, string> = {
+  empty: '#10a37f',
+  moderate: '#c8860b',
+  packed: '#c0392b',
+};
+
+export function crowdColor(level: CrowdLevel): string {
+  return CROWD_COLORS[level];
+}
+
+/** Boja markera: gužva ima prednost (aktualnija), inače podloga. */
+export function markerColor(
+  surface: SurfaceType | null,
+  crowd: CrowdLevel | undefined,
+): string {
+  return crowd ? crowdColor(crowd) : surfaceColor(surface);
 }
 
 export interface BeachFilterState {
