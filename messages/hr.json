@@ -1,0 +1,50 @@
+{
+  "Meta": {
+    "title": "PlažaInfo — pronađi savršenu plažu na Jadranu",
+    "description": "Karta plaža, službena kakvoća mora i gužva uživo za hrvatsku obalu."
+  },
+  "Nav": {
+    "map": "Karta",
+    "favorites": "Favoriti"
+  },
+  "Home": {
+    "title": "PlažaInfo",
+    "tagline": "Pronađi savršenu plažu na Jadranu",
+    "searchPlaceholder": "Plaže blizu mene…",
+    "nearMe": "Plaže blizu mene"
+  },
+  "Map": {
+    "searchPlaceholder": "Traži plažu, mjesto…",
+    "nearMe": "Blizu mene",
+    "locating": "Tražim…",
+    "geoError": "Ne mogu dohvatiti lokaciju. Provjeri dopuštenje.",
+    "geoUnsupported": "Uređaj ne podržava geolokaciju.",
+    "resultsCount": "{count, plural, =0 {Nema plaža} one {# plaža} few {# plaže} other {# plaža}}",
+    "resetFilters": "Očisti",
+    "noResults": "Nema plaža za odabrane filtre.",
+    "surfaceUnknown": "Nepoznata podloga",
+    "close": "Zatvori",
+    "directions": "Upute"
+  },
+  "Surface": {
+    "sand": "Pijesak",
+    "pebble": "Šljunak",
+    "rock": "Stijene",
+    "concrete": "Beton"
+  },
+  "Flags": {
+    "dogs": "Psi dozvoljeni",
+    "nudist": "Naturizam",
+    "accessible": "Pristupačno"
+  },
+  "Crowd": {
+    "empty": "Prazno",
+    "moderate": "Umjereno",
+    "packed": "Krcato",
+    "question": "Kakva je gužva sada?"
+  },
+  "NotFound": {
+    "title": "Stranica nije pronađena",
+    "back": "Natrag na početnu"
+  }
+}

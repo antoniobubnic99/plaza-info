@@ -1,0 +1,50 @@
+{
+  "Meta": {
+    "title": "PlažaInfo — find the perfect beach on the Adriatic",
+    "description": "Beach map, official sea water quality and live crowd levels for the Croatian coast."
+  },
+  "Nav": {
+    "map": "Map",
+    "favorites": "Favorites"
+  },
+  "Home": {
+    "title": "PlažaInfo",
+    "tagline": "Find the perfect beach on the Adriatic",
+    "searchPlaceholder": "Beaches near me…",
+    "nearMe": "Beaches near me"
+  },
+  "Map": {
+    "searchPlaceholder": "Search beach, place…",
+    "nearMe": "Near me",
+    "locating": "Locating…",
+    "geoError": "Couldn't get your location. Check permissions.",
+    "geoUnsupported": "Geolocation isn't supported on this device.",
+    "resultsCount": "{count, plural, =0 {No beaches} one {# beach} other {# beaches}}",
+    "resetFilters": "Clear",
+    "noResults": "No beaches match these filters.",
+    "surfaceUnknown": "Unknown surface",
+    "close": "Close",
+    "directions": "Directions"
+  },
+  "Surface": {
+    "sand": "Sand",
+    "pebble": "Pebble",
+    "rock": "Rocks",
+    "concrete": "Concrete"
+  },
+  "Flags": {
+    "dogs": "Dogs allowed",
+    "nudist": "Naturist",
+    "accessible": "Accessible"
+  },
+  "Crowd": {
+    "empty": "Empty",
+    "moderate": "Moderate",
+    "packed": "Packed",
+    "question": "How busy is it right now?"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "back": "Back to home"
+  }
+}
