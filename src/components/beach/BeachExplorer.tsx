@@ -11,12 +11,13 @@ import {
   filterBeaches,
   formatDistance,
   haversineKm,
+  seaQualityColor,
   sortByDistance,
   sortByName,
   type BeachFilterState,
   type FilterFlag,
 } from '@/lib/beachFilters';
-import { getLatestCrowdLevels } from '@/lib/queries';
+import { getBeachSeaQuality, getLatestCrowdLevels, type SeaQualitySample } from '@/lib/queries';
 import { reportCrowd } from '@/lib/crowd';
 import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
@@ -44,6 +45,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const tSurface = useTranslations('Surface');
   const tFlags = useTranslations('Flags');
   const tCrowd = useTranslations('Crowd');
+  const tSea = useTranslations('SeaQuality');
 
   const [filters, setFilters] = useState<BeachFilterState>(EMPTY_FILTERS);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -55,6 +57,8 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const [crowdLevels, setCrowdLevels] = useState<Record<string, CrowdLevel>>({});
   const [reporting, setReporting] = useState(false);
   const [reportedId, setReportedId] = useState<string | null>(null);
+  // Cache kakvoće mora po plaži (undefined = još nedohvaćeno, null = nema podatka).
+  const [seaQuality, setSeaQuality] = useState<Record<string, SeaQualitySample | null>>({});
 
   // Dohvat zadnjih razina gužve (klijentski, RPC latest_crowd_levels) uz osvježavanje svakih 60 s.
   useEffect(() => {
@@ -73,6 +77,20 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
       window.clearInterval(id);
     };
   }, []);
+
+  // Kakvoća mora (IZOR) za odabranu plažu — dohvat jednom po plaži, pa cache.
+  useEffect(() => {
+    if (!selectedId || selectedId in seaQuality) return;
+    let active = true;
+    getBeachSeaQuality(selectedId)
+      .then((sample) => {
+        if (active) setSeaQuality((prev) => ({ ...prev, [selectedId]: sample }));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [selectedId, seaQuality]);
 
   async function handleReport(level: CrowdLevel) {
     if (!selectedId || reporting) return;
@@ -215,6 +233,34 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
                   </span>
                 ))}
             </div>
+
+            {(() => {
+              const sea = seaQuality[selectedBeach.id];
+              if (!sea || !sea.assessment) return null;
+              const sampled = new Date(sea.sampledAt).toLocaleDateString(
+                locale === 'hr' ? 'hr-HR' : 'en-GB',
+              );
+              return (
+                <div className="mt-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
+                      style={{ background: seaQualityColor(sea.assessment) }}
+                    >
+                      {tSea('heading')}: {tSea(sea.assessment)}
+                    </span>
+                    {sea.seaTemp != null && (
+                      <span className="text-xs text-sea-800/70">
+                        {tSea('seaTemp', { temp: sea.seaTemp })}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-[11px] leading-tight text-sea-800/55">
+                    {tSea('note')} · {tSea('sampled', { date: sampled })}
+                  </p>
+                </div>
+              );
+            })()}
 
             <div className="mt-3">
               <p className="text-xs font-medium text-sea-800/70">
