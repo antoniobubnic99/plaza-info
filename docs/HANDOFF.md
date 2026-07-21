@@ -16,8 +16,10 @@ Aplikacija je **LIVE u produkciji:** **https://plaza-info.vercel.app/**
 - **Fix bijele karte** (`62ed8b8`): vidi § 4.
 - **Badge kakvoće mora u panelu karte** (`1f4befc`): `BeachExplorer` panel odabrane plaže prikazuje IZOR ocjenu (boja + temp + datum), dohvat po odabiru uz cache.
 - **Korisničke recenzije** (`b3f8ca7`): vidi § 5.
+- **Admin / moderacija recenzija** (`cbdac2a`): PIN-auth (stateless HMAC token, `ADMIN_PIN` kao ključ, TTL 12h) → `/api/admin/verify-pin`. `/api/admin/reviews` GET pending (+join plaže) i PATCH approve/reject preko service_role, zaštićeno `x-admin-token`, idempotentno (samo iz `pending`), `revalidatePath` na odobrenje. UI: `/[locale]/admin` (force-dynamic + noindex) — `AdminPanel.tsx` (login PIN → lista pending → approve/reject). Klijent: `src/lib/adminApi.ts` (token u localStorage `pi_admin_token`). i18n namespace `Admin` (hr/en). E2E lokalno provjereno (login/401/approve/idempotent/cleanup).
+  - **⚠ PRODUKCIJA — OBAVEZNO prije korištenja admina:** postavi pravi `ADMIN_PIN` env u **Vercelu** (Settings → Environment Variables) i redeploy. U `.env.local` je bio **prazan** (`ADMIN_PIN=`); lokalno je privremeno postavljen na `1234` (dev). Bez postavljenog `ADMIN_PIN` `/api/admin/verify-pin` vraća **503**.
 
-`npm run build` zelen (149 stranica), `eslint` čist.
+`npm run build` zelen (153 stranice), `eslint` čist.
 
 ---
 
@@ -88,13 +90,12 @@ npx eslint "src/**/*.{ts,tsx}"
 
 ## 6. Sljedeći zadaci (redom) — ODAVDE PREUZIMA IDUĆA SESIJA
 
-### A. Admin / moderacija UI  *(preporučeno prvo — recenzije čekaju ručnu moderaciju)*
-- Cilj: iz aplikacije odobravati/odbijati recenzije (i kasnije fotke) umjesto ručnog REST-a.
-- Auth opcije: **(1)** PIN-admin (env `ADMIN_PIN` već predviđen — kao meridijan: `/api/admin/verify-pin` → token → `x-admin-token` header), ili **(2)** Supabase Auth (uvodi i "prijavljene recenzije" pa `user_id` više nije null i RLS radi bez service_role).
-- Minimum: stranica `/[locale]/admin` (lazy) + `/api/admin/reviews` (GET pending, PATCH approve/reject) preko service_role, zaštićeno tokenom.
-- Nakon odobrenja: `revalidatePath` detalj-stranice ili osloni se na ISR 1h.
+### A. Admin / moderacija UI  ✅ GOTOVO (`cbdac2a`)
+- Odabrana opcija **(1) PIN-admin** (stateless HMAC token). Vidi § 1 za detalje.
+- **Preostaje operativno:** postaviti pravi `ADMIN_PIN` u Vercelu + redeploy (vidi ⚠ u § 1) i pushati commit `cbdac2a` (auto-deploy). Nakon toga admin je `/hr/admin` ili `/en/admin`.
+- Opcija (2) Supabase Auth (prijavljene recenzije, `user_id` ≠ null, RLS bez service_role) ostaje moguća buduća nadogradnja.
 
-### B. Fotke plaža  *(veća infra runda; tablica `photos` postoji, `url` NOT NULL)*
+### B. Fotke plaža  *(SLJEDEĆE — veća infra runda; tablica `photos` postoji, `url` NOT NULL)*
 - Treba **Supabase Storage bucket** (npr. `beach-photos`, javno-čitljiv) + upload. Bucket se može stvoriti preko service_role Storage API-ja (nema DDL problema): `POST /storage/v1/bucket`.
 - Tok: klijent upload u Storage (potpisani URL ili preko `/api/photos` servera), spremi `url` + `beach_id`, `status='pending'` (kao recenzije), moderacija u istom admin UI (A).
 - RLS već postoji: `photos read approved or is_official`, `photos insert own` (za auth); za anon ide preko service_role kao recenzije.
