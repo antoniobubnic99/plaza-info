@@ -1,14 +1,15 @@
 # PlažaInfo — Handoff za sljedeću sesiju
 
-Zadnje ažurirano: 2026-07-20. Grana: **`master`** (ne `main`). Radni dir: `C:\Users\anton\plaza-info`.
+Zadnje ažurirano: 2026-07-21. Grana: **`master`** (ne `main`). Radni dir: `C:\Users\anton\plaza-info`.
 
 ## Gdje smo stali
 
 Gotovo i commitano:
 - **Faza 0–2** (`9133f2d`): Next.js 16 + next-intl (HR default + EN), Tailwind v4, Supabase schema + seed (**71 plaža** iz OSM-a), MapLibre karta (OpenFreeMap), chip-filteri (podloga/zastavice), pretraga, near-me (geolokacija + haversine).
 - **Faza 3.1 — gužva uživo** (`775250c`): `/api/crowd` (POST, Zod, upis preko service_role), `lib/crowd.ts`, `queries.getLatestCrowdLevels()`, one-tap gumbi u kartici plaže, bojanje markera po gužvi, osvježavanje svakih 60 s. E2e provjereno protiv baze.
+- **Zadatak 1 — detalj-stranica plaže** (`42b7ab8`): `src/app/[locale]/plaza/[slug]/page.tsx` (SSG, 71×2=142 puta, revalidate 1h). `generateMetadata`: title, ICU opis, canonical + hreflang, OpenGraph. JSON-LD schema.org `Beach` (geo+address). `queries.getBeachSlugs`/`getBeachBySlug`. Klijentski `BeachDetail.tsx`: mini-karta (reuse `MapView`, 1 marker) + gužva uživo (prijava/prikaz). Prikaz podloge/zastavica/sadržaja/opisa/duljine. Link s karte (odabrana plaža) → detalj. Novi i18n namespace `Beach` + `Amenities` (hr/en), `Map.details`. Verificirano curl-om (h1, `<title>`, meta description, hreflang, og, JSON-LD ispravni).
 
-`npm run build` zelen, `eslint` čist.
+`npm run build` zelen (148 stranica), `eslint` čist.
 
 ## Pokretanje / provjera
 
@@ -31,12 +32,9 @@ npx eslint "src/**/*.{ts,tsx}"
 
 ## Sljedeći zadaci (redom)
 
-### 1. Detalj-stranica plaže (`/[locale]/plaza/[slug]`) — SEO prioritet
-- Novi `src/app/[locale]/plaza/[slug]/page.tsx`, SSG + `generateStaticParams` iz slugova (`getBeaches()` u `src/lib/queries.ts`).
-- Prikaz: naziv, podloga, zastavice, upute (Google Maps link), mini-karta (može reuse `MapView` ili statični marker), gužva (`getLatestCrowdLevels` ili novi `beach_crowd_summary` RPC), kakvoća mora (kad bude — vidi #2).
-- `generateMetadata` po plaži (title/description/OG) za SEO.
-- Dodati link s liste/kartice (`BeachList`/`BeachExplorer`) na detalj (`Link` iz `@/i18n/navigation`).
-- i18n: novi namespace `Beach` u `messages/hr.json` + `messages/en.json`.
+### 1. Detalj-stranica plaže (`/[locale]/plaza/[slug]`) — ✅ GOTOVO (`42b7ab8`)
+Vidi "Gdje smo stali" gore. Kad dođe kakvoća mora (#2), dodati badge u `page.tsx` (details grid) i po želji u `BeachDetail`.
+Napomena: link vodi samo s karte (panel odabrane plaže); nije stavljen na svaki red liste jer je red `<button>` za odabir na karti (ugniježđeni `<a>` = nevaljan HTML). Ako zatreba link po redu, prebaci red na `<Link>` s odvojenim gumbom za fokus karte.
 
 ### 2. IZOR kakvoća mora
 - Popuniti `scripts/data/izor-points.json` — niz `{ izorPointId, lat, lng, assessment }` (assessment ∈ `excellent|good|satisfactory|unsatisfactory`) iz IZOR "Vrtlac" izvora (vrtlac.izor.hr). Sezona 1.6.–15.9., ~2 tj. razmak, NIJE real-time.
