@@ -90,6 +90,22 @@
     "error": "Greška pri slanju. Pokušajte ponovno.",
     "moderationNote": "Recenzije se objavljuju nakon moderacije."
   },
+  "Admin": {
+    "title": "Moderacija recenzija",
+    "pinLabel": "Admin PIN",
+    "pinPlaceholder": "Unesi PIN",
+    "login": "Prijava",
+    "loginError": "Neispravan PIN.",
+    "logout": "Odjava",
+    "refresh": "Osvježi",
+    "pendingCount": "{count, plural, =0 {Nema recenzija na čekanju} one {# recenzija na čekanju} few {# recenzije na čekanju} other {# recenzija na čekanju}}",
+    "empty": "Nema recenzija na čekanju. 🎉",
+    "approve": "Odobri",
+    "reject": "Odbij",
+    "unknownBeach": "Nepoznata plaža",
+    "loadError": "Greška pri dohvaćanju. Pokušaj ponovno.",
+    "sessionExpired": "Sesija je istekla. Prijavi se ponovno."
+  },
   "NotFound": {
     "title": "Stranica nije pronađena",
     "back": "Natrag na početnu"

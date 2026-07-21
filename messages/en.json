@@ -90,6 +90,22 @@
     "error": "Failed to send. Please try again.",
     "moderationNote": "Reviews are published after moderation."
   },
+  "Admin": {
+    "title": "Review moderation",
+    "pinLabel": "Admin PIN",
+    "pinPlaceholder": "Enter PIN",
+    "login": "Log in",
+    "loginError": "Invalid PIN.",
+    "logout": "Log out",
+    "refresh": "Refresh",
+    "pendingCount": "{count, plural, =0 {No reviews pending} one {# review pending} other {# reviews pending}}",
+    "empty": "No reviews pending. 🎉",
+    "approve": "Approve",
+    "reject": "Reject",
+    "unknownBeach": "Unknown beach",
+    "loadError": "Failed to load. Please try again.",
+    "sessionExpired": "Session expired. Please log in again."
+  },
   "NotFound": {
     "title": "Page not found",
     "back": "Back to home"
