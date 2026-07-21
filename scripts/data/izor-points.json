@@ -1,0 +1,698 @@
+[
+  {
+    "izorPointId": "2066",
+    "lat": 43.54671291,
+    "lng": 16.33160591,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "K. Štafilić-Gabine"
+  },
+  {
+    "izorPointId": "2064",
+    "lat": 43.55038326,
+    "lng": 16.34690523,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Đardin"
+  },
+  {
+    "izorPointId": "2063",
+    "lat": 43.55065541,
+    "lng": 16.35452271,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Hotel Palace"
+  },
+  {
+    "izorPointId": "2062",
+    "lat": 43.5507254,
+    "lng": 16.35658264,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Miljenko i Dobrila"
+  },
+  {
+    "izorPointId": "2061",
+    "lat": 43.55060098,
+    "lng": 16.3608098,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Šulavi"
+  },
+  {
+    "izorPointId": "2154",
+    "lat": 43.54979228,
+    "lng": 16.36902809,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Puntica (Poštanski)"
+  },
+  {
+    "izorPointId": "2060",
+    "lat": 43.54825262,
+    "lng": 16.37871623,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Baletna škola"
+  },
+  {
+    "izorPointId": "2059",
+    "lat": 43.5481621,
+    "lng": 16.39122436,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Torac"
+  },
+  {
+    "izorPointId": "2058",
+    "lat": 43.54721696,
+    "lng": 16.39763602,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Kamp"
+  },
+  {
+    "izorPointId": "2057",
+    "lat": 43.54504596,
+    "lng": 16.4280409,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Gojača"
+  },
+  {
+    "izorPointId": "2067",
+    "lat": 43.54050702,
+    "lng": 16.31507277,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Resnik"
+  },
+  {
+    "izorPointId": "2163",
+    "lat": 43.53251772,
+    "lng": 16.46291077,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Vranjic plaža"
+  },
+  {
+    "izorPointId": "2077",
+    "lat": 43.51713979,
+    "lng": 16.22101307,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Hotel Jadran"
+  },
+  {
+    "izorPointId": "2159",
+    "lat": 43.51729928,
+    "lng": 16.22577667,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Staro Selo"
+  },
+  {
+    "izorPointId": "2953",
+    "lat": 43.51654109,
+    "lng": 16.25910644,
+    "assessment": "satisfactory",
+    "sampledAt": "2026-07-07",
+    "name": "Hotel  Brown Beach House"
+  },
+  {
+    "izorPointId": "2160",
+    "lat": 43.51976944,
+    "lng": 16.25972271,
+    "assessment": "satisfactory",
+    "sampledAt": "2026-07-07",
+    "name": "Brigi"
+  },
+  {
+    "izorPointId": "2071",
+    "lat": 43.51793337,
+    "lng": 16.26422882,
+    "assessment": "satisfactory",
+    "sampledAt": "2026-07-07",
+    "name": "Duhanska Stanica"
+  },
+  {
+    "izorPointId": "2070",
+    "lat": 43.51513246,
+    "lng": 16.27633095,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Miševac"
+  },
+  {
+    "izorPointId": "2056",
+    "lat": 43.51645513,
+    "lng": 16.42533302,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Gusar"
+  },
+  {
+    "izorPointId": "2147",
+    "lat": 43.51002826,
+    "lng": 16.20552063,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Apartmani Medena"
+  },
+  {
+    "izorPointId": "2078",
+    "lat": 43.51093086,
+    "lng": 16.21118546,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Hotel Medena"
+  },
+  {
+    "izorPointId": "2072",
+    "lat": 43.510464,
+    "lng": 16.25092506,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Saldun"
+  },
+  {
+    "izorPointId": "2073",
+    "lat": 43.50666671,
+    "lng": 16.25822067,
+    "assessment": "good",
+    "sampledAt": "2026-07-07",
+    "name": "Marinova Draga"
+  },
+  {
+    "izorPointId": "2069",
+    "lat": 43.51391091,
+    "lng": 16.28685594,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Tri sestrice"
+  },
+  {
+    "izorPointId": "2068",
+    "lat": 43.51419102,
+    "lng": 16.29150152,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Sv. Križ"
+  },
+  {
+    "izorPointId": "2053",
+    "lat": 43.50652525,
+    "lng": 16.40024628,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Kašjuni"
+  },
+  {
+    "izorPointId": "2054",
+    "lat": 43.51438256,
+    "lng": 16.4012672,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Bene"
+  },
+  {
+    "izorPointId": "2074",
+    "lat": 43.50237114,
+    "lng": 16.25783443,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Uvala Milićevo"
+  },
+  {
+    "izorPointId": "2075",
+    "lat": 43.49668992,
+    "lng": 16.25972271,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Toć"
+  },
+  {
+    "izorPointId": "2055",
+    "lat": 43.49977185,
+    "lng": 16.33913755,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Slatine"
+  },
+  {
+    "izorPointId": "2052",
+    "lat": 43.50353844,
+    "lng": 16.41730785,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Ježinac"
+  },
+  {
+    "izorPointId": "2051",
+    "lat": 43.50276024,
+    "lng": 16.42136335,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Zvončac"
+  },
+  {
+    "izorPointId": "2049",
+    "lat": 43.50060139,
+    "lng": 16.4460667,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Bačvice - zapad"
+  },
+  {
+    "izorPointId": "2050",
+    "lat": 43.50224067,
+    "lng": 16.44769358,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Bačvice - ulaz"
+  },
+  {
+    "izorPointId": "2047",
+    "lat": 43.50081249,
+    "lng": 16.44924606,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Bačvice - istok"
+  },
+  {
+    "izorPointId": "2046",
+    "lat": 43.50028549,
+    "lng": 16.4535284,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Firule"
+  },
+  {
+    "izorPointId": "2162",
+    "lat": 43.50163183,
+    "lng": 16.46632791,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Trstenik-Radoševac"
+  },
+  {
+    "izorPointId": "2045",
+    "lat": 43.50150468,
+    "lng": 16.47063133,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Hotel Split"
+  },
+  {
+    "izorPointId": "2044",
+    "lat": 43.50142792,
+    "lng": 16.47602472,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Žnjan - zapad"
+  },
+  {
+    "izorPointId": "2022",
+    "lat": 43.50201637,
+    "lng": 16.47862646,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Žnjan (Hotel Fanat)"
+  },
+  {
+    "izorPointId": "2043",
+    "lat": 43.50147023,
+    "lng": 16.48093356,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Žnjan - istok"
+  },
+  {
+    "izorPointId": "2161",
+    "lat": 43.50139837,
+    "lng": 16.49398685,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Duilovo"
+  },
+  {
+    "izorPointId": "2042",
+    "lat": 43.50264372,
+    "lng": 16.52686327,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Stobreč, ušće"
+  },
+  {
+    "izorPointId": "2041",
+    "lat": 43.49904668,
+    "lng": 16.53401194,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Uvala Strožanac"
+  },
+  {
+    "izorPointId": "2085",
+    "lat": 43.49412153,
+    "lng": 16.20564938,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Kava - zapad"
+  },
+  {
+    "izorPointId": "2086",
+    "lat": 43.49223797,
+    "lng": 16.20743036,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Kava - istok"
+  },
+  {
+    "izorPointId": "2076",
+    "lat": 43.49351444,
+    "lng": 16.25558138,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Kuzmića Uvala"
+  },
+  {
+    "izorPointId": "2084",
+    "lat": 43.49047889,
+    "lng": 16.27238274,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Uvala Mavarčica"
+  },
+  {
+    "izorPointId": "2172",
+    "lat": 43.49317874,
+    "lng": 16.53660422,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Le Meridien Lav"
+  },
+  {
+    "izorPointId": "2040",
+    "lat": 43.49264061,
+    "lng": 16.5366426,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Hotel Lav"
+  },
+  {
+    "izorPointId": "2191",
+    "lat": 43.48155203,
+    "lng": 16.24182953,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-07",
+    "name": "Uvala Duga"
+  },
+  {
+    "izorPointId": "2039",
+    "lat": 43.47400644,
+    "lng": 16.5656662,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-06",
+    "name": "Sv. Martin"
+  },
+  {
+    "izorPointId": "2038",
+    "lat": 43.46078476,
+    "lng": 16.59401715,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Bajnice"
+  },
+  {
+    "izorPointId": "2037",
+    "lat": 43.46042653,
+    "lng": 16.60203695,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Krilo"
+  },
+  {
+    "izorPointId": "2036",
+    "lat": 43.45147411,
+    "lng": 16.6252327,
+    "assessment": "good",
+    "sampledAt": "2026-07-09",
+    "name": "Sumpetar"
+  },
+  {
+    "izorPointId": "2035",
+    "lat": 43.44456906,
+    "lng": 16.638515,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Dugi Rat - Plaža"
+  },
+  {
+    "izorPointId": "2034",
+    "lat": 43.43892915,
+    "lng": 16.64542437,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Dugi Rat - Glavica"
+  },
+  {
+    "izorPointId": "2033",
+    "lat": 43.44120387,
+    "lng": 16.65166855,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Duće - Luka"
+  },
+  {
+    "izorPointId": "2187",
+    "lat": 43.44044952,
+    "lng": 16.65660635,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Hotel Plaža, Duće"
+  },
+  {
+    "izorPointId": "2032",
+    "lat": 43.43902263,
+    "lng": 16.67001486,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Duće-Golubinka"
+  },
+  {
+    "izorPointId": "2190",
+    "lat": 43.43877661,
+    "lng": 16.67688913,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Dočine"
+  },
+  {
+    "izorPointId": "2031",
+    "lat": 43.43896031,
+    "lng": 16.6792202,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Autokamp - zapad"
+  },
+  {
+    "izorPointId": "2030",
+    "lat": 43.43908496,
+    "lng": 16.688447,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Punta - početak"
+  },
+  {
+    "izorPointId": "2029",
+    "lat": 43.44070531,
+    "lng": 16.69115067,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Punta - sredina"
+  },
+  {
+    "izorPointId": "2028",
+    "lat": 43.43525202,
+    "lng": 16.70157909,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Brzet"
+  },
+  {
+    "izorPointId": "2027",
+    "lat": 43.42178808,
+    "lng": 16.70926094,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Nemira"
+  },
+  {
+    "izorPointId": "2026",
+    "lat": 43.41483678,
+    "lng": 16.72325134,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Vela Luka"
+  },
+  {
+    "izorPointId": "2025",
+    "lat": 43.40810291,
+    "lng": 16.74900055,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Ruskamen"
+  },
+  {
+    "izorPointId": "2088",
+    "lat": 43.39980926,
+    "lng": 16.2012291,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Maslinica"
+  },
+  {
+    "izorPointId": "2087",
+    "lat": 43.39338557,
+    "lng": 16.30126476,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Rogač"
+  },
+  {
+    "izorPointId": "2091",
+    "lat": 43.38685752,
+    "lng": 16.47715984,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Lučica"
+  },
+  {
+    "izorPointId": "2092",
+    "lat": 43.38572421,
+    "lng": 16.48165732,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Bunta"
+  },
+  {
+    "izorPointId": "2094",
+    "lat": 43.38704191,
+    "lng": 16.53980761,
+    "assessment": "good",
+    "sampledAt": "2026-07-13",
+    "name": "Hotel Kaktus"
+  },
+  {
+    "izorPointId": "2148",
+    "lat": 43.38683645,
+    "lng": 16.54695511,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Banj - sredina"
+  },
+  {
+    "izorPointId": "2096",
+    "lat": 43.38713273,
+    "lng": 16.54749155,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Banj 1"
+  },
+  {
+    "izorPointId": "2095",
+    "lat": 43.38634408,
+    "lng": 16.54805272,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Banj 2"
+  },
+  {
+    "izorPointId": "2097",
+    "lat": 43.38517371,
+    "lng": 16.55100793,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Vlačica"
+  },
+  {
+    "izorPointId": "2098",
+    "lat": 43.38516787,
+    "lng": 16.55832767,
+    "assessment": "good",
+    "sampledAt": "2026-07-13",
+    "name": "Vrilo"
+  },
+  {
+    "izorPointId": "2146",
+    "lat": 43.38359476,
+    "lng": 16.3234064,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-09",
+    "name": "Glavna plaža Nečujam"
+  },
+  {
+    "izorPointId": "2093",
+    "lat": 43.38382168,
+    "lng": 16.53798907,
+    "assessment": "good",
+    "sampledAt": "2026-07-13",
+    "name": "Velika Luka"
+  },
+  {
+    "izorPointId": "2099",
+    "lat": 43.37760295,
+    "lng": 16.60655706,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Baldazar"
+  },
+  {
+    "izorPointId": "2194",
+    "lat": 43.37777777,
+    "lng": 16.62388888,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Grand hotel View"
+  },
+  {
+    "izorPointId": "2102",
+    "lat": 43.37705591,
+    "lng": 16.63092552,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Zastivanje"
+  },
+  {
+    "izorPointId": "2170",
+    "lat": 43.3753531,
+    "lng": 16.63927614,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Mala Lozna"
+  },
+  {
+    "izorPointId": "2100",
+    "lat": 43.37499714,
+    "lng": 16.62111936,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Prvlja"
+  },
+  {
+    "izorPointId": "2171",
+    "lat": 43.36942407,
+    "lng": 16.66648505,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Uvala Lovrečina"
+  },
+  {
+    "izorPointId": "2145",
+    "lat": 43.35634838,
+    "lng": 16.74092442,
+    "assessment": "excellent",
+    "sampledAt": "2026-07-13",
+    "name": "Treće lučice"
+  }
+]

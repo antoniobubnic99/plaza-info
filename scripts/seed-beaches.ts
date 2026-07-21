@@ -36,6 +36,7 @@ type IzorPoint = {
   lat: number;
   lng: number;
   assessment?: 'excellent' | 'good' | 'satisfactory' | 'unsatisfactory';
+  sampledAt?: string; // YYYY-MM-DD (stvarni datum IZOR uzorkovanja); popuni scripts/fetch-izor.ts
 };
 
 function slugify(input: string): string {
@@ -170,13 +171,14 @@ async function main(): Promise<void> {
     }
 
     if (izor?.assessment && data) {
+      const sampledAt = izor.sampledAt ?? new Date().toISOString().slice(0, 10);
       await supabase.from('sea_quality').upsert(
         {
           beach_id: data as string,
           izor_point_id: izor.izorPointId,
           assessment: izor.assessment,
-          sampled_at: new Date().toISOString().slice(0, 10),
-          season_year: new Date().getFullYear(),
+          sampled_at: sampledAt,
+          season_year: Number(sampledAt.slice(0, 4)),
           source: 'izor',
         },
         { onConflict: 'beach_id,sampled_at' },
