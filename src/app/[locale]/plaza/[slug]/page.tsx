@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { getBeachBySlug, getBeachSlugs } from '@/lib/queries';
+import { getBeachBySlug, getBeachSeaQuality, getBeachSlugs } from '@/lib/queries';
 import { beachName, type Beach } from '@/lib/beaches';
+import { seaQualityColor } from '@/lib/beachFilters';
 import BeachDetail from '@/components/beach/BeachDetail';
 
 // Podaci plaža se rijetko mijenjaju — ISR: regeneriraj najviše jednom na sat.
@@ -80,6 +81,12 @@ export default async function BeachPage({
   const tSurface = await getTranslations({ locale, namespace: 'Surface' });
   const tFlags = await getTranslations({ locale, namespace: 'Flags' });
   const tAmenities = await getTranslations({ locale, namespace: 'Amenities' });
+  const tSea = await getTranslations({ locale, namespace: 'SeaQuality' });
+
+  const seaQuality = await getBeachSeaQuality(beach.id);
+  const sampledLabel =
+    seaQuality &&
+    new Date(seaQuality.sampledAt).toLocaleDateString(locale === 'hr' ? 'hr-HR' : 'en-GB');
 
   const name = beachName(beach, locale);
   const place = placeOf(beach);
@@ -162,6 +169,31 @@ export default async function BeachPage({
       <div className="mt-6">
         <BeachDetail beach={beach} locale={locale} />
       </div>
+
+      {seaQuality && seaQuality.assessment && (
+        <section aria-labelledby="sea-heading" className="mt-8">
+          <h2 id="sea-heading" className="text-lg font-semibold text-sea-950">
+            {tSea('heading')}
+          </h2>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <span
+              className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-white"
+              style={{ background: seaQualityColor(seaQuality.assessment) }}
+            >
+              {tSea(seaQuality.assessment)}
+            </span>
+            {seaQuality.seaTemp != null && (
+              <span className="text-sm text-sea-800/80">
+                {tSea('seaTemp', { temp: seaQuality.seaTemp })}
+              </span>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-sea-800/60">
+            {tSea('note')}
+            {sampledLabel ? ` · ${tSea('sampled', { date: sampledLabel })}` : ''}
+          </p>
+        </section>
+      )}
 
       <section aria-labelledby="about-heading" className="mt-8">
         <h2 id="about-heading" className="text-lg font-semibold text-sea-950">

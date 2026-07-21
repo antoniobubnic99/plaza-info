@@ -1,6 +1,20 @@
 // PlažaInfo — dohvat plaža (server + klijent kompatibilno; koristi anon Supabase klijent).
 import { supabase } from './supabase';
-import { dbToBeach, type Beach, type BeachRow, type CrowdLevel } from './beaches';
+import {
+  dbToBeach,
+  type Beach,
+  type BeachRow,
+  type CrowdLevel,
+  type SeaAssessment,
+} from './beaches';
+
+/** Zadnji službeni uzorak kakvoće mora (IZOR) za jednu plažu. */
+export interface SeaQualitySample {
+  assessment: SeaAssessment | null;
+  sampledAt: string; // YYYY-MM-DD
+  seaTemp: number | null;
+  source: string;
+}
 
 /**
  * Sve plaže iz `beaches_geo` viewa (statični podaci + lat/lng).
@@ -55,6 +69,41 @@ export async function getBeachBySlug(slug: string): Promise<Beach | null> {
     return null;
   }
   return data ? dbToBeach(data as BeachRow) : null;
+}
+
+/**
+ * Zadnji službeni uzorak kakvoće mora za plažu (IZOR). Najnoviji po `sampled_at`.
+ * Vraća null ako nema podatka ili Supabase nije konfiguriran. Anon smije čitati (public read policy).
+ */
+export async function getBeachSeaQuality(
+  beachId: string,
+): Promise<SeaQualitySample | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('sea_quality')
+    .select('assessment, sampled_at, sea_temp, source')
+    .eq('beach_id', beachId)
+    .order('sampled_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[queries] getBeachSeaQuality:', error.message);
+    return null;
+  }
+  if (!data) return null;
+  const row = data as {
+    assessment: SeaAssessment | null;
+    sampled_at: string;
+    sea_temp: number | null;
+    source: string;
+  };
+  return {
+    assessment: row.assessment,
+    sampledAt: row.sampled_at,
+    seaTemp: row.sea_temp,
+    source: row.source,
+  };
 }
 
 /**

@@ -1,6 +1,12 @@
 // PlažaInfo — čiste funkcije za filtriranje/sortiranje plaža i vizualne oznake.
 // Bez React/DOM ovisnosti — lako testabilno i dijeljeno između liste i karte.
-import { beachName, type Beach, type CrowdLevel, type SurfaceType } from './beaches';
+import {
+  beachName,
+  type Beach,
+  type CrowdLevel,
+  type SeaAssessment,
+  type SurfaceType,
+} from './beaches';
 
 export const SURFACE_TYPES: SurfaceType[] = ['sand', 'pebble', 'rock', 'concrete'];
 
@@ -30,6 +36,18 @@ const CROWD_COLORS: Record<CrowdLevel, string> = {
 
 export function crowdColor(level: CrowdLevel): string {
   return CROWD_COLORS[level];
+}
+
+// Boje ocjene kakvoće mora (IZOR) — od izvrsne (plavo-zelena) do nezadovoljavajuće (crvena).
+const SEA_QUALITY_COLORS: Record<SeaAssessment, string> = {
+  excellent: '#0d9488',
+  good: '#10a37f',
+  satisfactory: '#c8860b',
+  unsatisfactory: '#c0392b',
+};
+
+export function seaQualityColor(assessment: SeaAssessment): string {
+  return SEA_QUALITY_COLORS[assessment];
 }
 
 /** Boja markera: gužva ima prednost (aktualnija), inače podloga. */

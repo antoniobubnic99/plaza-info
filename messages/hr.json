@@ -68,6 +68,16 @@
     "loungers": "Ležaljke",
     "lifeguard": "Spasilac"
   },
+  "SeaQuality": {
+    "heading": "Kakvoća mora",
+    "excellent": "Izvrsna",
+    "good": "Dobra",
+    "satisfactory": "Zadovoljavajuća",
+    "unsatisfactory": "Nezadovoljavajuća",
+    "note": "Službeni podatak (IZOR), nije mjerenje uživo",
+    "sampled": "Uzorkovano {date}",
+    "seaTemp": "More {temp} °C"
+  },
   "NotFound": {
     "title": "Stranica nije pronađena",
     "back": "Natrag na početnu"

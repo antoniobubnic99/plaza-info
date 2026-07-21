@@ -68,6 +68,16 @@
     "loungers": "Sunbeds",
     "lifeguard": "Lifeguard"
   },
+  "SeaQuality": {
+    "heading": "Sea water quality",
+    "excellent": "Excellent",
+    "good": "Good",
+    "satisfactory": "Satisfactory",
+    "unsatisfactory": "Unsatisfactory",
+    "note": "Official data (IZOR), not a live measurement",
+    "sampled": "Sampled {date}",
+    "seaTemp": "Sea {temp} °C"
+  },
   "NotFound": {
     "title": "Page not found",
     "back": "Back to home"
