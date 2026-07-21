@@ -5,7 +5,11 @@ const DEFAULT_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
 
 export function getMapStyleUrl(): string {
   const fromEnv = process.env.NEXT_PUBLIC_MAP_STYLE_URL?.trim();
-  return fromEnv && fromEnv.length > 0 ? fromEnv : DEFAULT_STYLE_URL;
+  // Koristi override SAMO ako je stvarni http(s) URL — inače (npr. slučajno
+  // upisan label poput "OpenFreeMap") padni na default umjesto da MapLibre
+  // pokuša dohvatiti nevaljan relativni URL (rezultat: bijela karta / 404).
+  if (fromEnv && /^https?:\/\//i.test(fromEnv)) return fromEnv;
+  return DEFAULT_STYLE_URL;
 }
 
 // Pilot regija: Srednja Dalmacija (Split i okolica).
