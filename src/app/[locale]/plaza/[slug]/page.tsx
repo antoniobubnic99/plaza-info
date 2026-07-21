@@ -3,10 +3,11 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { getBeachBySlug, getBeachSeaQuality, getBeachSlugs } from '@/lib/queries';
+import { getBeachBySlug, getBeachReviews, getBeachSeaQuality, getBeachSlugs } from '@/lib/queries';
 import { beachName, type Beach } from '@/lib/beaches';
 import { seaQualityColor } from '@/lib/beachFilters';
 import BeachDetail from '@/components/beach/BeachDetail';
+import ReviewsSection from '@/components/beach/ReviewsSection';
 
 // Podaci plaža se rijetko mijenjaju — ISR: regeneriraj najviše jednom na sat.
 export const revalidate = 3600;
@@ -84,6 +85,7 @@ export default async function BeachPage({
   const tSea = await getTranslations({ locale, namespace: 'SeaQuality' });
 
   const seaQuality = await getBeachSeaQuality(beach.id);
+  const reviews = await getBeachReviews(beach.id);
   const sampledLabel =
     seaQuality &&
     new Date(seaQuality.sampledAt).toLocaleDateString(locale === 'hr' ? 'hr-HR' : 'en-GB');
@@ -231,6 +233,8 @@ export default async function BeachPage({
           )}
         </dl>
       </section>
+
+      <ReviewsSection beachId={beach.id} initialReviews={reviews} locale={locale} />
 
       <div className="mt-8">
         <a

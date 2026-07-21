@@ -123,3 +123,34 @@ export async function getLatestCrowdLevels(): Promise<Record<string, CrowdLevel>
   }
   return map;
 }
+
+/** Odobrena korisnička recenzija plaže (javno vidljiva). */
+export interface BeachReview {
+  id: string;
+  rating: number; // 1–5
+  body: string | null;
+  createdAt: string; // ISO timestamptz
+}
+
+/**
+ * Odobrene recenzije za plažu (najnovije prve). Anon smije čitati samo `approved`
+ * (RLS policy). Vraća [] ako nema odobrenih ili Supabase nije konfiguriran.
+ */
+export async function getBeachReviews(beachId: string): Promise<BeachReview[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('id, rating, body, created_at')
+    .eq('beach_id', beachId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('[queries] getBeachReviews:', error.message);
+    return [];
+  }
+  return (data as { id: string; rating: number; body: string | null; created_at: string }[]).map(
+    (r) => ({ id: r.id, rating: r.rating, body: r.body, createdAt: r.created_at }),
+  );
+}

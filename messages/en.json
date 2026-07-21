@@ -78,6 +78,18 @@
     "sampled": "Sampled {date}",
     "seaTemp": "Sea {temp} °C"
   },
+  "Reviews": {
+    "heading": "Reviews",
+    "empty": "No reviews yet. Be the first!",
+    "addTitle": "Write a review",
+    "ratingLabel": "Rating",
+    "bodyPlaceholder": "Share your impression of the beach (optional)",
+    "sending": "Sending…",
+    "submit": "Submit review",
+    "thanksPending": "Thanks! Your review is awaiting approval.",
+    "error": "Failed to send. Please try again.",
+    "moderationNote": "Reviews are published after moderation."
+  },
   "NotFound": {
     "title": "Page not found",
     "back": "Back to home"

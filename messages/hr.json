@@ -78,6 +78,18 @@
     "sampled": "Uzorkovano {date}",
     "seaTemp": "More {temp} °C"
   },
+  "Reviews": {
+    "heading": "Recenzije",
+    "empty": "Još nema recenzija. Budite prvi!",
+    "addTitle": "Napišite recenziju",
+    "ratingLabel": "Ocjena",
+    "bodyPlaceholder": "Podijelite dojam o plaži (nije obavezno)",
+    "sending": "Šaljem…",
+    "submit": "Pošalji recenziju",
+    "thanksPending": "Hvala! Recenzija čeka odobrenje.",
+    "error": "Greška pri slanju. Pokušajte ponovno.",
+    "moderationNote": "Recenzije se objavljuju nakon moderacije."
+  },
   "NotFound": {
     "title": "Stranica nije pronađena",
     "back": "Natrag na početnu"
