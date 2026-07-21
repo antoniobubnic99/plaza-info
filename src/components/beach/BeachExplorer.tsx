@@ -250,11 +250,17 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
             </div>
 
             <div className="mt-3 flex gap-2">
+              <Link
+                href={`/plaza/${selectedBeach.slug}`}
+                className="rounded-full bg-sea-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sea-800"
+              >
+                {t('details')}
+              </Link>
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${selectedBeach.lat},${selectedBeach.lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-sea-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sea-800"
+                className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-sea-800 ring-1 ring-sea-200 hover:bg-sea-50"
               >
                 {t('directions')}
               </a>

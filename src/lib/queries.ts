@@ -11,9 +11,7 @@ export async function getBeaches(): Promise<Beach[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('beaches_geo')
-    .select(
-      'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags',
-    )
+    .select(BEACH_COLUMNS)
     .order('name_hr', { ascending: true });
 
   if (error) {
@@ -21,6 +19,42 @@ export async function getBeaches(): Promise<Beach[]> {
     return [];
   }
   return (data as BeachRow[]).map(dbToBeach);
+}
+
+// Zajednički skup stupaca za `beaches_geo` (statični podaci + lat/lng).
+const BEACH_COLUMNS =
+  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags';
+
+/**
+ * Slugovi svih plaža — lagani dohvat za `generateStaticParams` detalj-stranice.
+ * Vraća [] ako Supabase nije konfiguriran.
+ */
+export async function getBeachSlugs(): Promise<string[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('beaches_geo').select('slug');
+  if (error) {
+    console.error('[queries] getBeachSlugs:', error.message);
+    return [];
+  }
+  return (data as { slug: string }[]).map((r) => r.slug);
+}
+
+/**
+ * Jedna plaža po slugu (za detalj-stranicu). Vraća null ako ne postoji ili Supabase nije konfiguriran.
+ */
+export async function getBeachBySlug(slug: string): Promise<Beach | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('beaches_geo')
+    .select(BEACH_COLUMNS)
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[queries] getBeachBySlug:', error.message);
+    return null;
+  }
+  return data ? dbToBeach(data as BeachRow) : null;
 }
 
 /**

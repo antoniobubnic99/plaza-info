@@ -24,7 +24,8 @@
     "noResults": "No beaches match these filters.",
     "surfaceUnknown": "Unknown surface",
     "close": "Close",
-    "directions": "Directions"
+    "directions": "Directions",
+    "details": "More about this beach"
   },
   "Surface": {
     "sand": "Sand",
@@ -43,6 +44,29 @@
     "packed": "Packed",
     "question": "Crowd now:",
     "thanks": "Thanks for reporting!"
+  },
+  "Beach": {
+    "backToMap": "← All beaches",
+    "aboutHeading": "About the beach",
+    "noDescription": "A description of this beach isn't available yet.",
+    "detailsHeading": "Details",
+    "surfaceLabel": "Surface",
+    "locationLabel": "Location",
+    "lengthLabel": "Shore length",
+    "lengthValue": "{m} m",
+    "amenitiesHeading": "Amenities",
+    "crowdHeading": "Live crowd",
+    "crowdNote": "Visitor reports, unofficial",
+    "directions": "Directions to the beach",
+    "metaDescription": "{name} — {surface} beach in {place}. Check sea water quality, live crowd levels and directions on PlažaInfo.",
+    "metaDescriptionNoPlace": "{name} — {surface} beach on the Adriatic. Check sea water quality, live crowd levels and directions on PlažaInfo."
+  },
+  "Amenities": {
+    "showers": "Showers",
+    "wc": "Toilets",
+    "bar": "Bar / café",
+    "loungers": "Sunbeds",
+    "lifeguard": "Lifeguard"
   },
   "NotFound": {
     "title": "Page not found",

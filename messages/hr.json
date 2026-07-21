@@ -24,7 +24,8 @@
     "noResults": "Nema plaža za odabrane filtre.",
     "surfaceUnknown": "Nepoznata podloga",
     "close": "Zatvori",
-    "directions": "Upute"
+    "directions": "Upute",
+    "details": "Više o plaži"
   },
   "Surface": {
     "sand": "Pijesak",
@@ -43,6 +44,29 @@
     "packed": "Krcato",
     "question": "Gužva sada:",
     "thanks": "Hvala na prijavi!"
+  },
+  "Beach": {
+    "backToMap": "← Sve plaže",
+    "aboutHeading": "O plaži",
+    "noDescription": "Opis ove plaže još nije dostupan.",
+    "detailsHeading": "Detalji",
+    "surfaceLabel": "Podloga",
+    "locationLabel": "Lokacija",
+    "lengthLabel": "Duljina obale",
+    "lengthValue": "{m} m",
+    "amenitiesHeading": "Sadržaji",
+    "crowdHeading": "Gužva uživo",
+    "crowdNote": "Prijave posjetitelja, neslužbeno",
+    "directions": "Upute do plaže",
+    "metaDescription": "{name} — {surface} plaža u {place}. Provjeri kakvoću mora, gužvu uživo i upute do plaže na PlažaInfo.",
+    "metaDescriptionNoPlace": "{name} — {surface} plaža na Jadranu. Provjeri kakvoću mora, gužvu uživo i upute do plaže na PlažaInfo."
+  },
+  "Amenities": {
+    "showers": "Tuševi",
+    "wc": "WC",
+    "bar": "Bar / kafić",
+    "loungers": "Ležaljke",
+    "lifeguard": "Spasilac"
   },
   "NotFound": {
     "title": "Stranica nije pronađena",
