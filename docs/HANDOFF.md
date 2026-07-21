@@ -36,10 +36,11 @@ npx eslint "src/**/*.{ts,tsx}"
 Vidi "Gdje smo stali" gore. Kad dođe kakvoća mora (#2), dodati badge u `page.tsx` (details grid) i po želji u `BeachDetail`.
 Napomena: link vodi samo s karte (panel odabrane plaže); nije stavljen na svaki red liste jer je red `<button>` za odabir na karti (ugniježđeni `<a>` = nevaljan HTML). Ako zatreba link po redu, prebaci red na `<Link>` s odvojenim gumbom za fokus karte.
 
-### 2. IZOR kakvoća mora
-- Popuniti `scripts/data/izor-points.json` — niz `{ izorPointId, lat, lng, assessment }` (assessment ∈ `excellent|good|satisfactory|unsatisfactory`) iz IZOR "Vrtlac" izvora (vrtlac.izor.hr). Sezona 1.6.–15.9., ~2 tj. razmak, NIJE real-time.
-- Re-run seed: `set -a && . ./.env.local && set +a && npx tsx scripts/seed-beaches.ts` (merge po blizini ≤200 m → tablica `sea_quality`; helper već postoji u seedu).
-- `queries.getBeachSeaQuality(beachId)` (zadnji uzorak) → badge u kartici/detalju. Jasno označiti "službeno, nije real-time".
+### 2. IZOR kakvoća mora — ✅ GOTOVO (`166c69d` + `4562de0`)
+- Izvor: službeni JSON `https://vrtlac.izor.hr/ords/kakvoca/kakvoce_sve_json?p_jezik=hr&p_god=<god>` (koristi ga i njihov SPA). Polja: `lat,lng,lsta`(ID),`locj`(ocjena 1–4: 1=izvrsna…4=nezadovoljavajuća),`lkad`(datum),`lpla`(naziv).
+- **Osvježavanje po sezoni:** `npx tsx scripts/fetch-izor.ts 2026` (→ `scripts/data/izor-points.json`), pa `set -a && . ./.env.local && set +a && npx tsx scripts/seed-sea-quality.ts` (decoupled merge ≤200 m; NE ovisi o Overpassu — `seed-beaches.ts` zna pasti na Overpass 504).
+- Prikaz: `queries.getBeachSeaQuality` → badge + datum uzorkovanja na detalj-stranici (namespace `SeaQuality`, boje `beachFilters.seaQualityColor`). Označeno "službeno IZOR, nije mjerenje uživo".
+- Pilot rezultat: 32/71 plaža ima kakvoću mora. TODO kasnije: badge i u kartici na karti (`BeachExplorer` panel) + recenzije/fotke.
 
 ### 3. Deploy na Vercel
 - Vlastiti Vercel projekt (izolacija). Env varijable iz `.env.local` u Vercel dashboard (uklj. `SUPABASE_SERVICE_ROLE_KEY` kao server-only).
