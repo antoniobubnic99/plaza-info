@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseServer } from '@/lib/supabaseServer';
 
-// Recenzije se unose anonimno (PlažaInfo još nema auth). RLS na `reviews` traži
-// auth.uid() = user_id, pa upis ide serverski preko service_role (zaobilazi RLS).
-// Status ostaje 'pending' — javno se prikazuju tek nakon moderacije (odobrenja).
+// Upis ide serverski preko service_role (zaobilazi RLS), status ostaje 'pending'
+// (javno se prikazuje tek nakon moderacije). ADITIVNI AUTH: ako je korisnik
+// prijavljen (Google, sesija u kolačiću), unos se veže uz njegov user_id;
+// anonimni unos (user_id = null) i dalje radi kad korisnik nije prijavljen.
 export const runtime = 'nodejs';
 
 const bodySchema = z.object({
@@ -34,11 +36,19 @@ export async function POST(request: Request) {
   }
   const { beachId, rating, body } = parsed.data;
 
+  // Aditivna atribucija: pročitaj prijavljenog korisnika iz kolačić-sesije (ako ga ima).
+  let userId: string | null = null;
+  const sb = await getSupabaseServer();
+  if (sb) {
+    const { data } = await sb.auth.getUser();
+    userId = data.user?.id ?? null;
+  }
+
   const { error } = await supabaseAdmin.from('reviews').insert({
     beach_id: beachId,
     rating,
     body: body && body.length > 0 ? body : null,
-    // user_id ostaje null (anonimno), status default 'pending' — čeka moderaciju.
+    user_id: userId, // null ako anonimno; status default 'pending' — čeka moderaciju.
   });
 
   if (error) {

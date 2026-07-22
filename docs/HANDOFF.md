@@ -118,7 +118,7 @@ Decoupled od Overpassa (ne pada ako OSM 504). Sezona 1.6.–15.9. Zadnje: 87 pil
 - **Širenje izvan pilot regije (Split)** — ✅ GOTOVO (`ead313c`): prošireni bbox → **844 plaže (cijela obala)**, build 1701 str.
 - Obrisati suvišni `NEXT_PUBLIC_MAP_STYLE_URL` env u Vercelu — **ostaje ručno preko Vercel dashboarda** (Vercel MCP nema env-CRUD alat; bezopasno jer kod validira http(s), samo uredno). Koraci: Vercel → projekt `plaza-info` → Settings → Environment Variables → obriši `NEXT_PUBLIC_MAP_STYLE_URL`.
 - Custom domena umjesto `plaza-info.vercel.app` (Vercel dashboard → Domains) — **traži kupnju/posjedovanje domene (odluka korisnika)**.
-- Supabase Auth (prijavljeni uploadi/recenzije bez service_role) — **veća nadogradnja** (mijenja RLS + uklanja service_role upise); nije blocker, čeka odluku o opsegu.
+- **Google prijava (Supabase Auth)** — ✅ KOD GOTOV I DEPLOYAN (aditivno, ne lomi anonimni unos): `@supabase/ssr`, browser/server klijenti, `/auth/callback`, `AuthButton` u formama recenzija/fotki, `/api/reviews`+`/api/photos` vežu `user_id` kad je korisnik prijavljen. RLS već podržava (`0002_rls.sql`). **Preostaju 2 ručna dashboard koraka** (Google Cloud OAuth creds + Supabase provider enable) — vidi **`docs/AUTH-SETUP.md`**. Do tada prijava tiho ne radi, anonimni unos normalan. Opcija „obavezan login" = mala kasnija izmjena.
 
 ---
 

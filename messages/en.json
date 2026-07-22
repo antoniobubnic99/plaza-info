@@ -103,6 +103,12 @@
     "error": "Upload failed. Please try again.",
     "moderationNote": "Photos are published after moderation."
   },
+  "Auth": {
+    "signInGoogle": "Sign in with Google",
+    "signOut": "Sign out",
+    "signedInAs": "Signed in: {email}",
+    "optionalNote": "Signing in is optional — it links your submission to your account."
+  },
   "Admin": {
     "title": "Moderation",
     "tabReviews": "Reviews",

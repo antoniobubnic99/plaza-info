@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseServer } from '@/lib/supabaseServer';
 import {
   PHOTO_BUCKET,
   MAX_PHOTO_BYTES,
@@ -9,9 +10,10 @@ import {
   isAllowedPhotoType,
 } from '@/lib/photoConfig';
 
-// Fotke plaža šalju se anonimno (PlažaInfo još nema auth). RLS na `photos` traži
-// auth.uid() = user_id, pa upload ide serverski preko service_role (zaobilazi RLS):
-// bajtovi u javni Storage bucket, red u tablicu sa status='pending' (čeka moderaciju).
+// Upload ide serverski preko service_role (zaobilazi RLS): bajtovi u javni Storage
+// bucket, red u tablicu sa status='pending' (čeka moderaciju). ADITIVNI AUTH: ako
+// je korisnik prijavljen (Google, sesija u kolačiću), fotka se veže uz njegov
+// user_id; anonimni upload (user_id = null) i dalje radi kad nije prijavljen.
 export const runtime = 'nodejs';
 
 const beachIdSchema = z.string().uuid();
@@ -75,10 +77,18 @@ export async function POST(request: Request) {
     data: { publicUrl },
   } = supabaseAdmin.storage.from(PHOTO_BUCKET).getPublicUrl(path);
 
+  // Aditivna atribucija: prijavljeni korisnik iz kolačić-sesije (ako ga ima).
+  let userId: string | null = null;
+  const sb = await getSupabaseServer();
+  if (sb) {
+    const { data } = await sb.auth.getUser();
+    userId = data.user?.id ?? null;
+  }
+
   const { error: insertErr } = await supabaseAdmin.from('photos').insert({
     beach_id: beachId,
     url: publicUrl,
-    // user_id ostaje null (anonimno), is_official false, status default 'pending'.
+    user_id: userId, // null ako anonimno; is_official false, status default 'pending'.
   });
   if (insertErr) {
     // Počisti osiroćeni objekt da Storage ne nakuplja neuvezane bajtove.

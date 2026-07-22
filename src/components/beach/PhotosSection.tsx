@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import type { BeachPhoto } from '@/lib/queries';
 import { submitPhoto, type SubmitPhotoResult } from '@/lib/photos';
 import { ALLOWED_PHOTO_TYPES } from '@/lib/photoConfig';
+import AuthButton from '@/components/auth/AuthButton';
 
 interface PhotosSectionProps {
   beachId: string;
@@ -16,6 +17,7 @@ const ACCEPT = Object.keys(ALLOWED_PHOTO_TYPES).join(',');
 
 export default function PhotosSection({ beachId, beachName, initialPhotos }: PhotosSectionProps) {
   const t = useTranslations('Photos');
+  const tAuth = useTranslations('Auth');
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<'idle' | 'sending' | SubmitPhotoResult>('idle');
 
@@ -67,6 +69,10 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
       {/* Upload */}
       <div className="mt-5 rounded-lg bg-sea-50/60 p-4">
         <p className="text-sm font-medium text-sea-950">{t('addTitle')}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <AuthButton />
+          <span className="text-[11px] leading-tight text-sea-800/55">{tAuth('optionalNote')}</span>
+        </div>
         <input
           ref={inputRef}
           type="file"

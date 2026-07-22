@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { BeachReview } from '@/lib/queries';
 import { submitReview } from '@/lib/reviews';
+import AuthButton from '@/components/auth/AuthButton';
 
 interface ReviewsSectionProps {
   beachId: string;
@@ -23,6 +24,7 @@ function Stars({ value }: { value: number }) {
 
 export default function ReviewsSection({ beachId, initialReviews, locale }: ReviewsSectionProps) {
   const t = useTranslations('Reviews');
+  const tAuth = useTranslations('Auth');
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [body, setBody] = useState('');
@@ -69,7 +71,12 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
       <form onSubmit={handleSubmit} className="mt-5 rounded-lg bg-sea-50/60 p-4">
         <p className="text-sm font-medium text-sea-950">{t('addTitle')}</p>
 
-        <div className="mt-2 flex items-center gap-1" role="radiogroup" aria-label={t('ratingLabel')}>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <AuthButton />
+          <span className="text-[11px] leading-tight text-sea-800/55">{tAuth('optionalNote')}</span>
+        </div>
+
+        <div className="mt-3 flex items-center gap-1" role="radiogroup" aria-label={t('ratingLabel')}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}

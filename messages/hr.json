@@ -103,6 +103,12 @@
     "error": "Greška pri slanju. Pokušajte ponovno.",
     "moderationNote": "Fotografije se objavljuju nakon moderacije."
   },
+  "Auth": {
+    "signInGoogle": "Prijava Google računom",
+    "signOut": "Odjava",
+    "signedInAs": "Prijavljen: {email}",
+    "optionalNote": "Prijava je opcionalna — povezuje unos uz tvoj račun."
+  },
   "Admin": {
     "title": "Moderacija",
     "tabReviews": "Recenzije",
