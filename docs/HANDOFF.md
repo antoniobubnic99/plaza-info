@@ -16,8 +16,7 @@ Aplikacija je **LIVE u produkciji:** **https://plaza-info.vercel.app/**
 - **Fix bijele karte** (`62ed8b8`): vidi § 4.
 - **Badge kakvoće mora u panelu karte** (`1f4befc`): `BeachExplorer` panel odabrane plaže prikazuje IZOR ocjenu (boja + temp + datum), dohvat po odabiru uz cache.
 - **Korisničke recenzije** (`b3f8ca7`): vidi § 5.
-- **Admin / moderacija recenzija** (`cbdac2a`): PIN-auth (stateless HMAC token, `ADMIN_PIN` kao ključ, TTL 12h) → `/api/admin/verify-pin`. `/api/admin/reviews` GET pending (+join plaže) i PATCH approve/reject preko service_role, zaštićeno `x-admin-token`, idempotentno (samo iz `pending`), `revalidatePath` na odobrenje. UI: `/[locale]/admin` (force-dynamic + noindex) — `AdminPanel.tsx` (login PIN → lista pending → approve/reject). Klijent: `src/lib/adminApi.ts` (token u localStorage `pi_admin_token`). i18n namespace `Admin` (hr/en). E2E lokalno provjereno (login/401/approve/idempotent/cleanup).
-  - **⚠ PRODUKCIJA — OBAVEZNO prije korištenja admina:** postavi pravi `ADMIN_PIN` env u **Vercelu** (Settings → Environment Variables) i redeploy. U `.env.local` je bio **prazan** (`ADMIN_PIN=`); lokalno je privremeno postavljen na `1234` (dev). Bez postavljenog `ADMIN_PIN` `/api/admin/verify-pin` vraća **503**.
+- **Admin / moderacija recenzija — ✅ LIVE U PRODUKCIJI** (`cbdac2a`, pushano `53564e8`): PIN-auth (stateless HMAC token, `ADMIN_PIN` kao ključ, TTL 12h) → `/api/admin/verify-pin`. `/api/admin/reviews` GET pending (+join plaže) i PATCH approve/reject preko service_role, zaštićeno `x-admin-token`, idempotentno (samo iz `pending`), `revalidatePath` na odobrenje. UI: **`https://plaza-info.vercel.app/hr/admin`** (force-dynamic + noindex) — `AdminPanel.tsx` (login PIN → lista pending → approve/reject). Klijent: `src/lib/adminApi.ts` (token u localStorage `pi_admin_token`). i18n namespace `Admin` (hr/en). E2E lokalno + produkcijski verificirano (login/401/approve/idempotent/cleanup; prod: `/hr/admin` 200, admin API 401 bez tokena, krivi PIN 401 → `ADMIN_PIN` postavljen u Vercelu). Lokalni dev PIN u `.env.local` (gitignored).
 
 `npm run build` zelen (153 stranice), `eslint` čist.
 
@@ -90,9 +89,8 @@ npx eslint "src/**/*.{ts,tsx}"
 
 ## 6. Sljedeći zadaci (redom) — ODAVDE PREUZIMA IDUĆA SESIJA
 
-### A. Admin / moderacija UI  ✅ GOTOVO (`cbdac2a`)
-- Odabrana opcija **(1) PIN-admin** (stateless HMAC token). Vidi § 1 za detalje.
-- **Preostaje operativno:** postaviti pravi `ADMIN_PIN` u Vercelu + redeploy (vidi ⚠ u § 1) i pushati commit `cbdac2a` (auto-deploy). Nakon toga admin je `/hr/admin` ili `/en/admin`.
+### A. Admin / moderacija UI  ✅ GOTOVO I DEPLOYANO (`cbdac2a`+`53564e8`)
+- Odabrana opcija **(1) PIN-admin** (stateless HMAC token). Live: **`https://plaza-info.vercel.app/hr/admin`**. `ADMIN_PIN` postavljen i u Vercelu i u `.env.local`. Vidi § 1 za detalje.
 - Opcija (2) Supabase Auth (prijavljene recenzije, `user_id` ≠ null, RLS bez service_role) ostaje moguća buduća nadogradnja.
 
 ### B. Fotke plaža  *(SLJEDEĆE — veća infra runda; tablica `photos` postoji, `url` NOT NULL)*
