@@ -90,8 +90,23 @@
     "error": "Failed to send. Please try again.",
     "moderationNote": "Reviews are published after moderation."
   },
+  "Photos": {
+    "heading": "Photos",
+    "empty": "No photos yet. Share the first one!",
+    "photoAlt": "Photo of {name} beach",
+    "addTitle": "Add a photo",
+    "sending": "Uploading…",
+    "thanksPending": "Thanks! Your photo is awaiting approval.",
+    "tooLarge": "File is too large (5 MB max).",
+    "unsupported": "Supported formats: JPG, PNG, WebP.",
+    "error": "Upload failed. Please try again.",
+    "moderationNote": "Photos are published after moderation."
+  },
   "Admin": {
-    "title": "Review moderation",
+    "title": "Moderation",
+    "tabReviews": "Reviews",
+    "tabPhotos": "Photos",
+    "emptyPhotos": "No photos pending. 🎉",
     "pinLabel": "Admin PIN",
     "pinPlaceholder": "Enter PIN",
     "login": "Log in",

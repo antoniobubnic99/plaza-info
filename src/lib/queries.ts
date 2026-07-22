@@ -154,3 +154,29 @@ export async function getBeachReviews(beachId: string): Promise<BeachReview[]> {
     (r) => ({ id: r.id, rating: r.rating, body: r.body, createdAt: r.created_at }),
   );
 }
+
+export interface BeachPhoto {
+  id: string;
+  url: string;
+}
+
+/**
+ * Odobrene fotke za plažu (najnovije prve). Anon smije čitati samo `approved` ili
+ * `is_official` (RLS policy). Vraća [] ako nema odobrenih ili Supabase nije konfiguriran.
+ */
+export async function getBeachPhotos(beachId: string): Promise<BeachPhoto[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('photos')
+    .select('id, url')
+    .eq('beach_id', beachId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  if (error) {
+    console.error('[queries] getBeachPhotos:', error.message);
+    return [];
+  }
+  return (data as { id: string; url: string }[]).map((p) => ({ id: p.id, url: p.url }));
+}

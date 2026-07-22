@@ -3,10 +3,17 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { getBeachBySlug, getBeachReviews, getBeachSeaQuality, getBeachSlugs } from '@/lib/queries';
+import {
+  getBeachBySlug,
+  getBeachPhotos,
+  getBeachReviews,
+  getBeachSeaQuality,
+  getBeachSlugs,
+} from '@/lib/queries';
 import { beachName, type Beach } from '@/lib/beaches';
 import { seaQualityColor } from '@/lib/beachFilters';
 import BeachDetail from '@/components/beach/BeachDetail';
+import PhotosSection from '@/components/beach/PhotosSection';
 import ReviewsSection from '@/components/beach/ReviewsSection';
 
 // Podaci plaža se rijetko mijenjaju — ISR: regeneriraj najviše jednom na sat.
@@ -86,6 +93,7 @@ export default async function BeachPage({
 
   const seaQuality = await getBeachSeaQuality(beach.id);
   const reviews = await getBeachReviews(beach.id);
+  const photos = await getBeachPhotos(beach.id);
   const sampledLabel =
     seaQuality &&
     new Date(seaQuality.sampledAt).toLocaleDateString(locale === 'hr' ? 'hr-HR' : 'en-GB');
@@ -233,6 +241,8 @@ export default async function BeachPage({
           )}
         </dl>
       </section>
+
+      <PhotosSection beachId={beach.id} beachName={name} initialPhotos={photos} />
 
       <ReviewsSection beachId={beach.id} initialReviews={reviews} locale={locale} />
 

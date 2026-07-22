@@ -90,8 +90,23 @@
     "error": "Greška pri slanju. Pokušajte ponovno.",
     "moderationNote": "Recenzije se objavljuju nakon moderacije."
   },
+  "Photos": {
+    "heading": "Fotografije",
+    "empty": "Još nema fotografija. Podijelite prvu!",
+    "photoAlt": "Fotografija plaže {name}",
+    "addTitle": "Dodajte fotografiju",
+    "sending": "Šaljem…",
+    "thanksPending": "Hvala! Fotografija čeka odobrenje.",
+    "tooLarge": "Datoteka je prevelika (najviše 5 MB).",
+    "unsupported": "Podržani formati: JPG, PNG, WebP.",
+    "error": "Greška pri slanju. Pokušajte ponovno.",
+    "moderationNote": "Fotografije se objavljuju nakon moderacije."
+  },
   "Admin": {
-    "title": "Moderacija recenzija",
+    "title": "Moderacija",
+    "tabReviews": "Recenzije",
+    "tabPhotos": "Fotografije",
+    "emptyPhotos": "Nema fotografija na čekanju. 🎉",
     "pinLabel": "Admin PIN",
     "pinPlaceholder": "Unesi PIN",
     "login": "Prijava",

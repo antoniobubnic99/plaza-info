@@ -93,11 +93,14 @@ npx eslint "src/**/*.{ts,tsx}"
 - Odabrana opcija **(1) PIN-admin** (stateless HMAC token). Live: **`https://plaza-info.vercel.app/hr/admin`**. `ADMIN_PIN` postavljen i u Vercelu i u `.env.local`. Vidi § 1 za detalje.
 - Opcija (2) Supabase Auth (prijavljene recenzije, `user_id` ≠ null, RLS bez service_role) ostaje moguća buduća nadogradnja.
 
-### B. Fotke plaža  *(SLJEDEĆE — veća infra runda; tablica `photos` postoji, `url` NOT NULL)*
-- Treba **Supabase Storage bucket** (npr. `beach-photos`, javno-čitljiv) + upload. Bucket se može stvoriti preko service_role Storage API-ja (nema DDL problema): `POST /storage/v1/bucket`.
-- Tok: klijent upload u Storage (potpisani URL ili preko `/api/photos` servera), spremi `url` + `beach_id`, `status='pending'` (kao recenzije), moderacija u istom admin UI (A).
-- RLS već postoji: `photos read approved or is_official`, `photos insert own` (za auth); za anon ide preko service_role kao recenzije.
-- Prikaz: galerija na detalj-stranici (+ eventualno prva odobrena kao OG/hero slika).
+### B. Fotke plaža  ✅ GOTOVO (E2E verificirano lokalno protiv produkcijske baze)
+- **Storage bucket** `beach-photos` (public, ≤5 MB, jpeg/png/webp) stvoren preko service_role Storage API-ja. Skripta: `scripts/ensure-photo-bucket.ts` (idempotentna). Dijeljene konstante: `src/lib/photoConfig.ts` (bucket, limit, MIME→ext, `pathFromPublicUrl`).
+- **Upload:** `POST /api/photos` (multipart `beachId`+`file`, Node runtime). Validira MIME/veličinu, provjeri postoji li plaža, upload u Storage `{beachId}/{uuid}.{ext}` preko service_role, insert red `status='pending'` (`user_id=null`). Osiroćeni objekt se briše ako insert padne. Klijent: `src/lib/photos.ts` (`submitPhoto`, predprovjera tipa/veličine).
+- **Prikaz:** galerija odobrenih na detalj-stranici — `src/components/beach/PhotosSection.tsx` (grid + upload forma), `queries.getBeachPhotos` (anon čita samo `approved` — RLS). Uvezano u `plaza/[slug]/page.tsx`. Plain `<img loading=lazy>` (bez next/image, da ne troši Vercel optimizacijsku kvotu). i18n namespace `Photos` (hr/en).
+- **Moderacija:** `GET/PATCH /api/admin/photos` (isti PIN-token obrazac kao recenzije; idempotentno; `revalidatePath` na approve; **reject briše bajtove iz Storagea**). AdminPanel sada ima **tabove Recenzije | Fotografije** (`src/components/admin/AdminPanel.tsx`, `adminApi.fetchPendingPhotos`/`moderatePhoto`). Admin namespace proširen (`tabReviews`, `tabPhotos`, `emptyPhotos`, `title`→"Moderacija").
+- **E2E test (lokalni dev protiv prod baze):** upload 201 / unsupported 415 / bad-uuid 400; RLS skriva pending od anona; admin GET lista + 401 bez tokena; approve 200 + re-approve 404 (idempotent) + anon vidi approved; reject briše Storage objekt (potvrđeno praznim `object/list`). Sve testne zapise/objekte počišćeno.
+- `npm run build` zelen (155 stranica), `eslint` čist.
+- *Preostalo (opcionalno):* prva odobrena fotka kao OG/hero slika + `next.config` `remotePatterns` ako se ikad pređe na next/image; Supabase Auth (prijavljeni uploadi bez service_role).
 
 ### C. Sezonsko osvježavanje IZOR kakvoće mora  *(periodički, ne razvoj)*
 ```bash

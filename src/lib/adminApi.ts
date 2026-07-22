@@ -53,3 +53,36 @@ export async function moderate(
   if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok) throw new Error('moderate_failed');
 }
+
+export interface PendingPhoto {
+  id: string;
+  url: string;
+  created_at: string;
+  beach: { slug: string; name_hr: string; name_en: string } | null;
+}
+
+/** Dohvaća fotke na čekanju. Baca UnauthorizedError na 401. */
+export async function fetchPendingPhotos(token: string): Promise<PendingPhoto[]> {
+  const res = await fetch('/api/admin/photos', {
+    headers: { 'x-admin-token': token },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error('list_failed');
+  const data = (await res.json()) as { photos: PendingPhoto[] };
+  return data.photos;
+}
+
+/** Odobrava/odbija fotku. Baca UnauthorizedError na 401. */
+export async function moderatePhoto(
+  token: string,
+  id: string,
+  action: ModerateAction,
+): Promise<void> {
+  const res = await fetch('/api/admin/photos', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+    body: JSON.stringify({ id, action }),
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error('moderate_failed');
+}
