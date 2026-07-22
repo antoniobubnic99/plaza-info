@@ -100,7 +100,7 @@
     "lat": 43.51713979,
     "lng": 16.22101307,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Hotel Jadran"
   },
   {
@@ -108,7 +108,7 @@
     "lat": 43.51729928,
     "lng": 16.22577667,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Staro Selo"
   },
   {
@@ -123,16 +123,16 @@
     "izorPointId": "2160",
     "lat": 43.51976944,
     "lng": 16.25972271,
-    "assessment": "satisfactory",
-    "sampledAt": "2026-07-07",
+    "assessment": "excellent",
+    "sampledAt": "2026-07-20",
     "name": "Brigi"
   },
   {
     "izorPointId": "2071",
     "lat": 43.51793337,
     "lng": 16.26422882,
-    "assessment": "satisfactory",
-    "sampledAt": "2026-07-07",
+    "assessment": "excellent",
+    "sampledAt": "2026-07-20",
     "name": "Duhanska Stanica"
   },
   {
@@ -140,7 +140,7 @@
     "lat": 43.51513246,
     "lng": 16.27633095,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Miševac"
   },
   {
@@ -156,7 +156,7 @@
     "lat": 43.51002826,
     "lng": 16.20552063,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Apartmani Medena"
   },
   {
@@ -164,7 +164,7 @@
     "lat": 43.51093086,
     "lng": 16.21118546,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Hotel Medena"
   },
   {
@@ -172,15 +172,15 @@
     "lat": 43.510464,
     "lng": 16.25092506,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Saldun"
   },
   {
     "izorPointId": "2073",
     "lat": 43.50666671,
     "lng": 16.25822067,
-    "assessment": "good",
-    "sampledAt": "2026-07-07",
+    "assessment": "excellent",
+    "sampledAt": "2026-07-20",
     "name": "Marinova Draga"
   },
   {
@@ -188,7 +188,7 @@
     "lat": 43.51391091,
     "lng": 16.28685594,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Tri sestrice"
   },
   {
@@ -196,7 +196,7 @@
     "lat": 43.51419102,
     "lng": 16.29150152,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Sv. Križ"
   },
   {
@@ -220,7 +220,7 @@
     "lat": 43.50237114,
     "lng": 16.25783443,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Uvala Milićevo"
   },
   {
@@ -228,7 +228,7 @@
     "lat": 43.49668992,
     "lng": 16.25972271,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Toć"
   },
   {
@@ -236,7 +236,7 @@
     "lat": 43.49977185,
     "lng": 16.33913755,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Slatine"
   },
   {
@@ -356,7 +356,7 @@
     "lat": 43.49412153,
     "lng": 16.20564938,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Kava - zapad"
   },
   {
@@ -364,7 +364,7 @@
     "lat": 43.49223797,
     "lng": 16.20743036,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Kava - istok"
   },
   {
@@ -372,7 +372,7 @@
     "lat": 43.49351444,
     "lng": 16.25558138,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Kuzmića Uvala"
   },
   {
@@ -380,7 +380,7 @@
     "lat": 43.49047889,
     "lng": 16.27238274,
     "assessment": "excellent",
-    "sampledAt": "2026-07-07",
+    "sampledAt": "2026-07-20",
     "name": "Uvala Mavarčica"
   },
   {
