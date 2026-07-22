@@ -102,12 +102,12 @@ npx eslint "src/**/*.{ts,tsx}"
 - `npm run build` zelen (155 stranica), `eslint` čist.
 - *Preostalo (opcionalno):* prva odobrena fotka kao OG/hero slika + `next.config` `remotePatterns` ako se ikad pređe na next/image; Supabase Auth (prijavljeni uploadi bez service_role).
 
-### C. Sezonsko osvježavanje IZOR kakvoće mora  *(periodički, ne razvoj)*
+### C. Sezonsko osvježavanje IZOR kakvoće mora  *(periodički, ne razvoj)* — zadnji refresh **2026-07-22** (`c9f23b3`)
 ```bash
 npx tsx scripts/fetch-izor.ts 2026        # -> scripts/data/izor-points.json
 set -a && . ./.env.local && set +a && npx tsx scripts/seed-sea-quality.ts
 ```
-Decoupled od Overpassa (ne pada ako OSM 504). Sezona 1.6.–15.9.
+Decoupled od Overpassa (ne pada ako OSM 504). Sezona 1.6.–15.9. Zadnje: 87 pilot-bbox točaka → 32/71 plaža ima kakvoću mora (pokrivenost je geografski ograničena ≤200 m, ne mijenja se re-runom). Najnoviji uzorak u bazi `2026-07-20`. Ponovi po potrebi tijekom sezone.
 
 ### D. Sitno / opcionalno
 - Obrisati suvišni `NEXT_PUBLIC_MAP_STYLE_URL` env u Vercelu (bezopasan otkad kod validira, ali uredno).
