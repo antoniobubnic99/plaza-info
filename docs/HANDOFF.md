@@ -104,7 +104,7 @@ npx eslint "src/**/*.{ts,tsx}"
 - `npm run build` zelen (155 stranica), `eslint` čist.
 - *Preostalo (opcionalno):* ~~prva odobrena fotka kao OG/hero slika~~ ✅ GOTOVO (`f5f99c4`, vidi §E); Supabase Auth (prijavljeni uploadi bez service_role).
 
-### C. Sezonsko osvježavanje IZOR kakvoće mora  *(periodički, ne razvoj)* — zadnji refresh **2026-07-22** (`c9f23b3`)
+### C. Sezonsko osvježavanje IZOR kakvoće mora  *(periodički, ne razvoj)* — zadnji refresh **2026-07-22** (nakon 844-seed: **304/844 plaže** imaju kakvoću mora; `izor-points.json` = 1145 točaka)
 ```bash
 npx tsx scripts/fetch-izor.ts 2026        # -> scripts/data/izor-points.json
 set -a && . ./.env.local && set +a && npx tsx scripts/seed-sea-quality.ts
@@ -115,10 +115,10 @@ Decoupled od Overpassa (ne pada ako OSM 504). Sezona 1.6.–15.9. Zadnje: 87 pil
 - Najnovija **odobrena** fotka plaže sada je (a) hero-baner na vrhu detalj-stranice i (b) OpenGraph + Twitter `summary_large_image` slika za dijeljenje. `queries.getBeachHeroPhoto()` (limit 1) za `generateMetadata`; body koristi `photos[0]`. Plain `<img>` + apsolutni Storage URL → **bez next/image, bez `next.config` `remotePatterns`, bez Vercel opt-kvote**. i18n `Beach.heroAlt` (hr/en). Uvjetno: ne prikazuje se dok plaža nema odobrenu fotku (trenutno nijedna nema nakon §6-B cleanupa → dormant dok se ne odobri prva). Build zelen (155), eslint čist. **Live pozitivni put VERIFICIRAN (2026-07-22):** privremeni odobreni red za "Prve Lučice" → lokalni render potvrdio hero `<img>` + `og:image` (1200×630) + `twitter:image` + `twitter:card=summary_large_image`; testni red počišćen (0 zaostalih).
 
 ### D. Sitno / opcionalno
-- Obrisati suvišni `NEXT_PUBLIC_MAP_STYLE_URL` env u Vercelu (bezopasan otkad kod validira, ali uredno).
-- Custom domena umjesto `plaza-info.vercel.app` (Vercel dashboard → Domains).
-- Širenje izvan pilot regije (Split) — proširiti seed bbox u `scripts/seed-beaches.ts` + re-seed.
-- Supabase Auth (prijavljeni uploadi/recenzije bez service_role).
+- **Širenje izvan pilot regije (Split)** — ✅ GOTOVO (`ead313c`): prošireni bbox → **844 plaže (cijela obala)**, build 1701 str.
+- Obrisati suvišni `NEXT_PUBLIC_MAP_STYLE_URL` env u Vercelu — **ostaje ručno preko Vercel dashboarda** (Vercel MCP nema env-CRUD alat; bezopasno jer kod validira http(s), samo uredno). Koraci: Vercel → projekt `plaza-info` → Settings → Environment Variables → obriši `NEXT_PUBLIC_MAP_STYLE_URL`.
+- Custom domena umjesto `plaza-info.vercel.app` (Vercel dashboard → Domains) — **traži kupnju/posjedovanje domene (odluka korisnika)**.
+- Supabase Auth (prijavljeni uploadi/recenzije bez service_role) — **veća nadogradnja** (mijenja RLS + uklanja service_role upise); nije blocker, čeka odluku o opsegu.
 
 ---
 
