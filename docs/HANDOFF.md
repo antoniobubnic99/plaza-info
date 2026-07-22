@@ -100,7 +100,7 @@ npx eslint "src/**/*.{ts,tsx}"
 - **Moderacija:** `GET/PATCH /api/admin/photos` (isti PIN-token obrazac kao recenzije; idempotentno; `revalidatePath` na approve; **reject briše bajtove iz Storagea**). AdminPanel sada ima **tabove Recenzije | Fotografije** (`src/components/admin/AdminPanel.tsx`, `adminApi.fetchPendingPhotos`/`moderatePhoto`). Admin namespace proširen (`tabReviews`, `tabPhotos`, `emptyPhotos`, `title`→"Moderacija").
 - **E2E test (lokalni dev protiv prod baze):** upload 201 / unsupported 415 / bad-uuid 400; RLS skriva pending od anona; admin GET lista + 401 bez tokena; approve 200 + re-approve 404 (idempotent) + anon vidi approved; reject briše Storage objekt (potvrđeno praznim `object/list`). Sve testne zapise/objekte počišćeno.
 - `npm run build` zelen (155 stranica), `eslint` čist.
-- *Preostalo (opcionalno):* prva odobrena fotka kao OG/hero slika + `next.config` `remotePatterns` ako se ikad pređe na next/image; Supabase Auth (prijavljeni uploadi bez service_role).
+- *Preostalo (opcionalno):* ~~prva odobrena fotka kao OG/hero slika~~ ✅ GOTOVO (`f5f99c4`, vidi §E); Supabase Auth (prijavljeni uploadi bez service_role).
 
 ### C. Sezonsko osvježavanje IZOR kakvoće mora  *(periodički, ne razvoj)* — zadnji refresh **2026-07-22** (`c9f23b3`)
 ```bash
@@ -109,10 +109,14 @@ set -a && . ./.env.local && set +a && npx tsx scripts/seed-sea-quality.ts
 ```
 Decoupled od Overpassa (ne pada ako OSM 504). Sezona 1.6.–15.9. Zadnje: 87 pilot-bbox točaka → 32/71 plaža ima kakvoću mora (pokrivenost je geografski ograničena ≤200 m, ne mijenja se re-runom). Najnoviji uzorak u bazi `2026-07-20`. Ponovi po potrebi tijekom sezone.
 
+### E. Hero + OG/Twitter slika  ✅ GOTOVO (`f5f99c4`)
+- Najnovija **odobrena** fotka plaže sada je (a) hero-baner na vrhu detalj-stranice i (b) OpenGraph + Twitter `summary_large_image` slika za dijeljenje. `queries.getBeachHeroPhoto()` (limit 1) za `generateMetadata`; body koristi `photos[0]`. Plain `<img>` + apsolutni Storage URL → **bez next/image, bez `next.config` `remotePatterns`, bez Vercel opt-kvote**. i18n `Beach.heroAlt` (hr/en). Uvjetno: ne prikazuje se dok plaža nema odobrenu fotku (trenutno nijedna nema nakon §6-B cleanupa → dormant dok se ne odobri prva). Build zelen (155), eslint čist. *Live pozitivni put nije testiran jer u bazi trenutno nema odobrenih fotki — logika je trivijalno uvjetna i zrcali provjerenu galeriju.*
+
 ### D. Sitno / opcionalno
 - Obrisati suvišni `NEXT_PUBLIC_MAP_STYLE_URL` env u Vercelu (bezopasan otkad kod validira, ali uredno).
 - Custom domena umjesto `plaza-info.vercel.app` (Vercel dashboard → Domains).
 - Širenje izvan pilot regije (Split) — proširiti seed bbox u `scripts/seed-beaches.ts` + re-seed.
+- Supabase Auth (prijavljeni uploadi/recenzije bez service_role).
 
 ---
 
