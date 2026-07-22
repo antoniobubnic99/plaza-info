@@ -8,7 +8,7 @@
  *   lpla (naziv), lgrad (grad). `locj` je službena redna ljestvica (EU/nacionalna uredba):
  *   1=izvrsna, 2=dobra, 3=zadovoljavajuća, 4=nezadovoljavajuća.
  *
- * Filtrira na pilot-bbox (Srednja Dalmacija / Split) i zapisuje `scripts/data/izor-points.json`
+ * Filtrira na bbox cijele hrvatske obale i zapisuje `scripts/data/izor-points.json`
  * u formatu koji čita `seed-beaches.ts` (merge po blizini ≤200 m u tablicu `sea_quality`).
  *
  * Pokretanje:  npx tsx scripts/fetch-izor.ts [godina]   (default: tekuća godina)
@@ -18,8 +18,8 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-// Pilot regija: Srednja Dalmacija (Split i okolica). [jug, zapad, sjever, istok] — isto kao u seed-u.
-const PILOT_BBOX: [number, number, number, number] = [43.35, 16.2, 43.62, 16.75];
+// Cijela hrvatska obala (Istra → Dubrovnik + otoci). [jug, zapad, sjever, istok] — isto kao u seed-u.
+const PILOT_BBOX: [number, number, number, number] = [42.3, 13.4, 45.6, 18.7];
 
 type IzorAssessment = 'excellent' | 'good' | 'satisfactory' | 'unsatisfactory';
 

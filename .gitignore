@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# OSM/Overpass build cache (regenerable by scripts/seed-beaches.ts)
+/scripts/data/osm-cache/
