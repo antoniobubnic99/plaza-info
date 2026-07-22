@@ -1,8 +1,10 @@
 # PlažaInfo — Handoff za sljedeću sesiju
 
-Zadnje ažurirano: **2026-07-21**. Grana: **`master`** (ne `main`). Radni dir: `C:\Users\anton\plaza-info`.
+Zadnje ažurirano: **2026-07-22**. Grana: **`master`** (ne `main`). Radni dir: `C:\Users\anton\plaza-info`.
 
 Aplikacija je **LIVE u produkciji:** **https://plaza-info.vercel.app/**
+
+> **Ažuriranje 2026-07-22 (`ead313c`):** OSM seed proširen izvan Split pilota na **844 plaže (cijela obala)** — `scripts/seed-beaches.ts` (prošireni bbox) + `scripts/fetch-izor.ts`/`izor-points.json` (prošireni IZOR skup). `scripts/data/osm-cache/` dodан u `.gitignore` (regenerabilni Overpass keš). Lokalni `npm run build` **zelen: 1701 statičkih stranica** (844 plaže × 2 lokala + landing). Pushано na `master` → Vercel auto-deploy. (Napomena: brojke "71 plaža / 155 str." niže u §1–§6 su iz pilot-faze i sada su zastarjele.)
 
 ---
 
