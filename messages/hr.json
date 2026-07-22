@@ -47,6 +47,7 @@
   },
   "Beach": {
     "backToMap": "← Sve plaže",
+    "heroAlt": "Fotografija plaže {name}",
     "aboutHeading": "O plaži",
     "noDescription": "Opis ove plaže još nije dostupan.",
     "detailsHeading": "Detalji",

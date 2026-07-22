@@ -47,6 +47,7 @@
   },
   "Beach": {
     "backToMap": "← All beaches",
+    "heroAlt": "Photo of {name} beach",
     "aboutHeading": "About the beach",
     "noDescription": "A description of this beach isn't available yet.",
     "detailsHeading": "Details",

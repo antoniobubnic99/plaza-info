@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import {
   getBeachBySlug,
+  getBeachHeroPhoto,
   getBeachPhotos,
   getBeachReviews,
   getBeachSeaQuality,
@@ -58,6 +59,12 @@ export async function generateMetadata({
     : t('metaDescriptionNoPlace', { name, surface });
 
   const path = `/plaza/${slug}`;
+  const heroPhoto = await getBeachHeroPhoto(beach.id);
+  // Storage URL je apsolutan (https) → koristimo ga izravno kao OG sliku, bez next/image.
+  const ogImages = heroPhoto
+    ? [{ url: heroPhoto.url, width: 1200, height: 630, alt: name }]
+    : undefined;
+
   return {
     title: `${name} — PlažaInfo`,
     description,
@@ -70,7 +77,18 @@ export async function generateMetadata({
       description,
       type: 'article',
       locale: locale === 'hr' ? 'hr_HR' : 'en_US',
+      ...(ogImages ? { images: ogImages } : {}),
     },
+    ...(heroPhoto
+      ? {
+          twitter: {
+            card: 'summary_large_image',
+            title: `${name} — PlažaInfo`,
+            description,
+            images: [heroPhoto.url],
+          },
+        }
+      : {}),
   };
 }
 
@@ -143,6 +161,20 @@ export default async function BeachPage({
       >
         {t('backToMap')}
       </Link>
+
+      {photos.length > 0 && (
+        <div className="mt-4 overflow-hidden rounded-2xl border border-sea-100 bg-sea-50">
+          {/* eslint-disable-next-line @next/next/no-img-element -- korisnički Storage URL; bez next/image optimizacije da ne troši Vercel kvotu */}
+          <img
+            src={photos[0].url}
+            alt={t('heroAlt', { name })}
+            width={1200}
+            height={630}
+            fetchPriority="high"
+            className="aspect-[1200/630] w-full object-cover"
+          />
+        </div>
+      )}
 
       <header className="mt-4">
         <h1 className="text-3xl font-bold tracking-tight text-sea-950 sm:text-4xl">

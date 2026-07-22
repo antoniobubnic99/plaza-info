@@ -180,3 +180,25 @@ export async function getBeachPhotos(beachId: string): Promise<BeachPhoto[]> {
   }
   return (data as { id: string; url: string }[]).map((p) => ({ id: p.id, url: p.url }));
 }
+
+/**
+ * Najnovija odobrena fotka plaže (za hero/OG sliku), ili null.
+ * Lagani upit (limit 1) — koristi ga `generateMetadata` da OG slika ne povuče cijelu galeriju.
+ */
+export async function getBeachHeroPhoto(beachId: string): Promise<BeachPhoto | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('photos')
+    .select('id, url')
+    .eq('beach_id', beachId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[queries] getBeachHeroPhoto:', error.message);
+    return null;
+  }
+  return data ? { id: data.id, url: data.url } : null;
+}
