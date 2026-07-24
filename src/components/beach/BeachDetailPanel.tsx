@@ -19,6 +19,7 @@ import type { MapFocus } from './MapView';
 import PhotosSection from './PhotosSection';
 import PhotoCredit from './PhotoCredit';
 import ReviewsSection from './ReviewsSection';
+import SubmitBeachForm from './SubmitBeachForm';
 
 const CROWD_LEVELS: CrowdLevel[] = ['empty', 'moderate', 'packed'];
 const AMENITY_KEYS = ['showers', 'wc', 'bar', 'loungers', 'lifeguard'] as const;
@@ -87,6 +88,7 @@ export default function BeachDetailPanel({
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
   const [shared, setShared] = useState(false);
+  const [showParkingForm, setShowParkingForm] = useState(false);
 
   // Panel varijanta nema SSR podatke → dohvat kakvoće mora / fotki / recenzija po plaži.
   // (Explorer remounta panel po beach.id, pa je početno stanje uvijek svježe.)
@@ -428,7 +430,26 @@ export default function BeachDetailPanel({
               OSM
             </a>
           )}
+          <button
+            type="button"
+            onClick={() => setShowParkingForm((v) => !v)}
+            className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-sea-800 ring-1 ring-sea-200 transition hover:bg-sea-50"
+          >
+            {beach.parkingLat != null ? t('fixParking') : t('addParking')}
+          </button>
         </div>
+
+        {/* Prijava/ispravak parkinga za ovu plažu (prijavljeni korisnik → moderacija) */}
+        {showParkingForm && (
+          <section aria-label={t('addParking')} className="mt-4 rounded-2xl bg-sea-50/60 p-4 ring-1 ring-sea-100">
+            <SubmitBeachForm
+              mode="parking"
+              targetBeachId={beach.id}
+              targetBeachName={name}
+              targetCenter={{ lat: beach.lat, lng: beach.lng }}
+            />
+          </section>
+        )}
       </div>
     </div>
   );

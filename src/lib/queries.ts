@@ -26,7 +26,8 @@ export async function getBeaches(): Promise<Beach[]> {
   const { data, error } = await supabase
     .from('beaches_geo')
     .select(BEACH_COLUMNS)
-    .order('name_hr', { ascending: true });
+    .order('popularity_score', { ascending: false })
+    .order('name_hr', { ascending: true }); // tie-break: abecedno kad je popularnost jednaka
 
   if (error) {
     console.error('[queries] getBeaches:', error.message);
@@ -37,7 +38,7 @@ export async function getBeaches(): Promise<Beach[]> {
 
 // Zajednički skup stupaca za `beaches_geo` (statični podaci + lat/lng).
 const BEACH_COLUMNS =
-  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags, rating_avg, rating_count, sea_assessment, parking_lat, parking_lng, parking_distance_m';
+  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags, rating_avg, rating_count, sea_assessment, parking_lat, parking_lng, parking_distance_m, popularity_score';
 
 /**
  * Slugovi svih plaža — lagani dohvat za `generateStaticParams` detalj-stranice.

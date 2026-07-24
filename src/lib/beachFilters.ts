@@ -122,9 +122,12 @@ export function filterBeaches(
       );
       if (!haystack.includes(q)) return false;
     }
+    // Kategorijski dropdown (podloga): isključi SAMO ako plaža ima poznatu vrijednost
+    // koja se ne poklapa. Nepoznato (null) ostaje vidljivo — nepoznato ≠ negativno.
     if (filters.surfaces.length > 0) {
-      if (!b.surfaceType || !filters.surfaces.includes(b.surfaceType)) return false;
+      if (b.surfaceType && !filters.surfaces.includes(b.surfaceType)) return false;
     }
+    // Sadržaji/oznake su prisutnost-filtri: izostanak oznake znači „nema tog sadržaja".
     for (const flag of filters.flags) {
       if (!b.flags[flag]) return false;
     }
@@ -132,8 +135,9 @@ export function filterBeaches(
       if (!b.amenities[amenity]) return false;
     }
     if (filters.minRating > 0 && b.ratingAvg < filters.minRating) return false;
+    // Kakvoća mora (kategorijski): isto kao podloga — nepoznata ocjena ostaje vidljiva.
     if (filters.seaAssessments.length > 0) {
-      if (!b.seaAssessment || !filters.seaAssessments.includes(b.seaAssessment)) {
+      if (b.seaAssessment && !filters.seaAssessments.includes(b.seaAssessment)) {
         return false;
       }
     }
@@ -211,6 +215,20 @@ export function sortByName(beaches: Beach[], locale: string): Beach[] {
   return [...beaches].sort((a, b) =>
     beachName(a, locale).localeCompare(beachName(b, locale), locale),
   );
+}
+
+/**
+ * Sortira po popularnosti (kombinirani signal iz beaches_geo, 0009) — najviše prvo.
+ * Plaže bez ijednog signala (score 0) padnu na dno, ali ostaju u popisu.
+ * Tie-break: abecedno po imenu, da je poredak stabilan i predvidiv.
+ */
+export function sortByPopularity(beaches: Beach[], locale: string): Beach[] {
+  return [...beaches].sort((a, b) => {
+    if (b.popularityScore !== a.popularityScore) {
+      return b.popularityScore - a.popularityScore;
+    }
+    return beachName(a, locale).localeCompare(beachName(b, locale), locale);
+  });
 }
 
 /** Formatira udaljenost za prikaz (m ispod 1 km, inače 1 decimala km). */

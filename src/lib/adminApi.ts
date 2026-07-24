@@ -86,3 +86,55 @@ export async function moderatePhoto(
   if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok) throw new Error('moderate_failed');
 }
+
+/** Prijava na čekanju (nova plaža ili parking za postojeću). */
+export interface PendingSubmission {
+  id: string;
+  kind: 'new_beach' | 'parking';
+  name_hr: string | null;
+  name_en: string | null;
+  lat: number | null;
+  lng: number | null;
+  region: string | null;
+  municipality: string | null;
+  surface: string | null;
+  length_m: number | null;
+  description_hr: string | null;
+  description_en: string | null;
+  amenities: Record<string, boolean> | null;
+  flags: Record<string, boolean> | null;
+  parking_lat: number | null;
+  parking_lng: number | null;
+  created_at: string;
+  // PostgREST vraća relaciju kao objekt, supabase-js je tipizira kao niz — pokrij oba.
+  beach:
+    | { slug: string; name_hr: string; name_en: string }
+    | { slug: string; name_hr: string; name_en: string }[]
+    | null;
+}
+
+/** Dohvaća prijave na čekanju. Baca UnauthorizedError na 401. */
+export async function fetchPendingSubmissions(token: string): Promise<PendingSubmission[]> {
+  const res = await fetch('/api/admin/submissions', {
+    headers: { 'x-admin-token': token },
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error('list_failed');
+  const data = (await res.json()) as { submissions: PendingSubmission[] };
+  return data.submissions;
+}
+
+/** Odobrava/odbija prijavu. Baca UnauthorizedError na 401. */
+export async function moderateSubmission(
+  token: string,
+  id: string,
+  action: ModerateAction,
+): Promise<void> {
+  const res = await fetch('/api/admin/submissions', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+    body: JSON.stringify({ id, action }),
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error('moderate_failed');
+}

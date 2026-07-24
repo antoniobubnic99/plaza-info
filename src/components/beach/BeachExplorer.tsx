@@ -18,7 +18,7 @@ import {
   filtersToSearchParams,
   haversineKm,
   sortByDistance,
-  sortByName,
+  sortByPopularity,
   type AmenityFilter,
   type BeachFilterState,
   type FilterFlag,
@@ -113,7 +113,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     if (nearActive && userLocation) {
       return sortByDistance(filtered, userLocation.lat, userLocation.lng);
     }
-    return sortByName(filtered, locale);
+    return sortByPopularity(filtered, locale); // default: najpopularnije prvo (0009)
   }, [filtered, nearActive, userLocation, locale]);
 
   const selectedBeach = useMemo(
@@ -169,11 +169,18 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           <span className="text-lg font-semibold tracking-tight text-sea-950">
             Plaža<span className="text-sea-600">Info</span>
           </span>
-          <nav className="text-xs text-sea-800/70">
+          <nav className="flex items-center gap-2 text-xs text-sea-800/70">
+            <Link
+              href="/prijava"
+              className="rounded-full bg-sea-600 px-2.5 py-1 font-medium text-white hover:bg-sea-800"
+            >
+              {t('submitBeach')}
+            </Link>
+            <span className="text-sea-800/40">|</span>
             <Link href="/" locale="hr" className="hover:underline">
               HR
             </Link>
-            <span className="mx-1.5">·</span>
+            <span>·</span>
             <Link href="/" locale="en" className="hover:underline">
               EN
             </Link>

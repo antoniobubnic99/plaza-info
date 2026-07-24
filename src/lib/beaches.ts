@@ -48,6 +48,7 @@ export interface Beach {
   parkingLat: number | null; // najbliži OSM parking (seed-parking.ts, 0006)
   parkingLng: number | null;
   parkingDistanceM: number | null; // zračna udaljenost plaža → parking, m
+  popularityScore: number; // kombinirani signal za default sort (beaches_geo, 0009)
 }
 
 /** Red iz `beaches_geo` viewa ili `beaches_near` funkcije. */
@@ -75,6 +76,7 @@ export interface BeachRow {
   parking_lat?: number | null;
   parking_lng?: number | null;
   parking_distance_m?: number | null;
+  popularity_score?: number | string | null; // numeric dolazi kao string preko PostgREST-a
 }
 
 export function dbToBeach(row: BeachRow): Beach {
@@ -102,6 +104,7 @@ export function dbToBeach(row: BeachRow): Beach {
     parkingLat: row.parking_lat ?? null,
     parkingLng: row.parking_lng ?? null,
     parkingDistanceM: row.parking_distance_m ?? null,
+    popularityScore: row.popularity_score != null ? Number(row.popularity_score) : 0,
   };
 }
 

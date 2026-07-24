@@ -1,0 +1,107 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { getMapStyleUrl, PILOT_CENTER, PILOT_ZOOM } from '@/lib/mapStyle';
+
+export interface PickedPoint {
+  lat: number;
+  lng: number;
+}
+
+interface LocationPickerProps {
+  value: PickedPoint | null;
+  onChange: (point: PickedPoint) => void;
+  /** Boja markera (razlikuje plažu od parkinga). */
+  markerColor?: string;
+  /** Početni centar karte (npr. postojeća plaža kad se dodaje parking). */
+  initialCenter?: PickedPoint | null;
+}
+
+// Klik na kartu postavlja (ili pomiče) marker i javlja koordinate roditelju.
+// Marker se može i povući za finije namještanje. Isključivo klijentski (WebGL).
+export default function LocationPicker({
+  value,
+  onChange,
+  markerColor = '#1f7fd4',
+  initialCenter = null,
+}: LocationPickerProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markerRef = useRef<maplibregl.Marker | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Init karte (jednom).
+  useEffect(() => {
+    if (mapRef.current || !containerRef.current) return;
+    const center: [number, number] = initialCenter
+      ? [initialCenter.lng, initialCenter.lat]
+      : value
+        ? [value.lng, value.lat]
+        : PILOT_CENTER;
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: getMapStyleUrl(),
+      center,
+      zoom: initialCenter || value ? 14 : PILOT_ZOOM,
+      attributionControl: { compact: true },
+    });
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    mapRef.current = map;
+
+    const place = (lng: number, lat: number) => {
+      if (markerRef.current) {
+        markerRef.current.setLngLat([lng, lat]);
+      } else {
+        const marker = new maplibregl.Marker({ color: markerColor, draggable: true })
+          .setLngLat([lng, lat])
+          .addTo(map);
+        marker.on('dragend', () => {
+          const p = marker.getLngLat();
+          onChangeRef.current({ lat: p.lat, lng: p.lng });
+        });
+        markerRef.current = marker;
+      }
+      onChangeRef.current({ lat, lng });
+    };
+
+    map.on('click', (e) => place(e.lngLat.lng, e.lngLat.lat));
+
+    // Ako već postoji vrijednost (npr. povratak na formu), prikaži marker.
+    if (value) place(value.lng, value.lat);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+    // Namjerno prazan dep-niz: karta se inicijalizira jednom; vrijednost se
+    // sinkronizira preko odvojenog effecta niže.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Vanjska promjena vrijednosti (npr. reset forme) → pomakni marker.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !value) return;
+    if (markerRef.current) {
+      markerRef.current.setLngLat([value.lng, value.lat]);
+    } else {
+      const marker = new maplibregl.Marker({ color: markerColor, draggable: true })
+        .setLngLat([value.lng, value.lat])
+        .addTo(map);
+      marker.on('dragend', () => {
+        const p = marker.getLngLat();
+        onChangeRef.current({ lat: p.lat, lng: p.lng });
+      });
+      markerRef.current = marker;
+    }
+  }, [value, markerColor]);
+
+  return <div ref={containerRef} className="h-64 w-full overflow-hidden rounded-xl ring-1 ring-sea-200 sm:h-80" />;
+}
