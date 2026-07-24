@@ -158,7 +158,30 @@ export async function getBeachReviews(beachId: string): Promise<BeachReview[]> {
 export interface BeachPhoto {
   id: string;
   url: string;
+  source: string; // 'user' | 'wikimedia' | 'mapillary'
+  attribution: string | null; // autor/izvor (obavezno za CC-seedane slike)
+  license: string | null; // npr. 'CC BY-SA 4.0'
 }
+
+type PhotoRow = {
+  id: string;
+  url: string;
+  source?: string | null;
+  attribution?: string | null;
+  license?: string | null;
+};
+
+function rowToPhoto(p: PhotoRow): BeachPhoto {
+  return {
+    id: p.id,
+    url: p.url,
+    source: p.source ?? 'user',
+    attribution: p.attribution ?? null,
+    license: p.license ?? null,
+  };
+}
+
+const PHOTO_COLUMNS = 'id, url, source, attribution, license';
 
 /**
  * Odobrene fotke za plažu (najnovije prve). Anon smije čitati samo `approved` ili
@@ -168,7 +191,7 @@ export async function getBeachPhotos(beachId: string): Promise<BeachPhoto[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('photos')
-    .select('id, url')
+    .select(PHOTO_COLUMNS)
     .eq('beach_id', beachId)
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
@@ -178,7 +201,7 @@ export async function getBeachPhotos(beachId: string): Promise<BeachPhoto[]> {
     console.error('[queries] getBeachPhotos:', error.message);
     return [];
   }
-  return (data as { id: string; url: string }[]).map((p) => ({ id: p.id, url: p.url }));
+  return (data as PhotoRow[]).map(rowToPhoto);
 }
 
 /**
@@ -189,7 +212,7 @@ export async function getBeachHeroPhoto(beachId: string): Promise<BeachPhoto | n
   if (!supabase) return null;
   const { data, error } = await supabase
     .from('photos')
-    .select('id, url')
+    .select(PHOTO_COLUMNS)
     .eq('beach_id', beachId)
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
@@ -200,5 +223,5 @@ export async function getBeachHeroPhoto(beachId: string): Promise<BeachPhoto | n
     console.error('[queries] getBeachHeroPhoto:', error.message);
     return null;
   }
-  return data ? { id: data.id, url: data.url } : null;
+  return data ? rowToPhoto(data as PhotoRow) : null;
 }

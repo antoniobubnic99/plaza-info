@@ -17,6 +17,7 @@ import {
 import { reportCrowd } from '@/lib/crowd';
 import type { MapFocus } from './MapView';
 import PhotosSection from './PhotosSection';
+import PhotoCredit from './PhotoCredit';
 import ReviewsSection from './ReviewsSection';
 
 const CROWD_LEVELS: CrowdLevel[] = ['empty', 'moderate', 'packed'];
@@ -193,6 +194,7 @@ export default function BeachDetailPanel({
                 height={280}
                 className="aspect-[760/280] w-full object-cover"
               />
+              <PhotoCredit photo={hero} variant="overlay" />
             </div>
           )}
           <div className="flex items-start justify-between gap-3 px-4 pb-3 pt-3">

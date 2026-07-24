@@ -6,6 +6,7 @@ import type { BeachPhoto } from '@/lib/queries';
 import { submitPhoto, type SubmitPhotoResult } from '@/lib/photos';
 import { ALLOWED_PHOTO_TYPES } from '@/lib/photoConfig';
 import AuthButton from '@/components/auth/AuthButton';
+import PhotoCredit from './PhotoCredit';
 
 interface PhotosSectionProps {
   beachId: string;
@@ -59,8 +60,9 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
                 loading="lazy"
                 width={400}
                 height={300}
-                className="aspect-[4/3] h-full w-full object-cover"
+                className="aspect-[4/3] w-full object-cover"
               />
+              <PhotoCredit photo={p} variant="caption" />
             </li>
           ))}
         </ul>

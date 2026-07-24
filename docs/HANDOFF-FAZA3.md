@@ -53,11 +53,19 @@ Faza 2 roadmap spominje i taj filter, ali `beaches_geo` **nije** nosio zadnju IZ
 
 > ⚠️ **PREREKVIZIT PRIJE DEPLOYA (Antonio):** pokreni `0008_sea_latest.sql` u Supabase SQL Editoru **PRIJE** nego kod ode u produkciju. `BEACH_COLUMNS` sad selektira `sea_assessment`; ako kolona ne postoji, `getBeaches` baca grešku i lista padne na prazno. Migracija + kod idu zajedno.
 
-### B) Faza 4 — Slike plaža (Wikimedia + Mapillary)  `[M]`
-Migracija `0007` je **već** primijenjena. Preostaje:
-- **Prerekvizit (Antonio):** `MAPILLARY_TOKEN` (besplatan) u `.env.local` + Vercel.
-- `scripts/seed-beach-images.ts`: po plaži Wikimedia Commons geosearch (`imageinfo`+`extmetadata` za licencu/autora) → najbolja; fallback Mapillary Graph API. Upis u `photos` sa `source`, `attribution`, `license`, `status='approved'`, `is_official=true`.
-- UI atribucija (obavezno): hero + galerija prikazuju „© autor / licenca ↗" za seedane slike → izmjena `PhotosSection.tsx` + hero u `BeachDetailPanel`; `queries.ts` mora vraćati `source/attribution/license` (trenutno `getBeachPhotos` vraća samo `id,url`).
+### B) Faza 4 — Slike plaža (Wikimedia + Mapillary) ✅ ISPORUČENO (ova sesija, 2026-07-24)
+Migracija `0007` **već** primijenjena. `MAPILLARY_TOKEN` postavljen (Antonio, `.env.local` + Vercel).
+- `scripts/seed-beach-images.ts` ✅ — po plaži Wikimedia Commons geosearch (`imageinfo`+`extmetadata` → autor/licenca, filtrira ne-slike i bez-licence) → fallback Mapillary Graph API (privremeni URL → **preuzme i re-hosta u `beach-photos` bucket** jer Mapillary URL istječe). Upis u `photos`: `source`, `attribution`, `license`, `status='approved'`, `is_official=true`. Idempotentno (preskače plaže s postojećom wikimedia/mapillary fotkom). Args: `--limit N`, `--dry`. Sam učitava `.env.local` (tokeni s `|` ne trpe shell sourcing).
+- UI atribucija ✅ — novi `PhotoCredit.tsx` (`overlay` na hero, `caption` u galeriji); `queries.ts` `BeachPhoto` sad nosi `source/attribution/license` (`PHOTO_COLUMNS`, `rowToPhoto`), oba upita (`getBeachPhotos`, `getBeachHeroPhoto`) ih vraćaju. Ne prikazuje ništa za korisničke fotke (bez atribucije).
+- **Verifikacija:** `tsc` ✅ · `eslint` ✅ · `next build` ✅ · **dry-run** ✅ (5 plaža: 1 Wikimedia + 3 Mapillary + 1 bez slike, sve s atribucijom).
+
+> ⚠️ **AKCIJA (Antonio) za popuniti slike:** pokreni seed kad poželiš (piše u bazu, hotlinkano/re-hostano):
+> ```
+> npx tsx scripts/seed-beach-images.ts --limit 20      # test na 20 plaža
+> npx tsx scripts/seed-beach-images.ts                 # sve 844 (~7-10 min zbog delaya)
+> ```
+> Idempotentno je — može se pokretati više puta; obrađuje samo plaže bez seedane fotke.
+> (Napomena: `.env.local` je token bolje staviti u navodnike: `MAPILLARY_TOKEN="MLY|…|…"` — skripta radi i bez toga, ali Next/ostali alati vole navodnike uz `|`.)
 
 ### C) Faza 5 — Parking točke  `[M]`
 Migracija `0006` je **već** primijenjena. Preostaje:
