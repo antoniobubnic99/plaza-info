@@ -41,12 +41,17 @@ ROADMAP Faza 3 = „Rejting + komentari + filtriranje po rejtingu". Sve tri stav
 
 ## Preporučeni redoslijed za iduću sesiju
 
-### A) Rupa: filter „Kakvoća mora" (mali, ali traži migraciju)
-Faza 2 roadmap spominje i taj filter, ali `beaches_geo` **ne** nosi zadnju IZOR ocjenu po plaži (dohvaća se tek per-plaža iz `sea_quality`).
-- **Migracija `0008_sea_latest.sql`:** dodati u `beaches_geo` `sea_assessment` (zadnji `sampled_at` po plaži) preko `left join lateral` na `sea_quality`. Idempotentno (drop+create viewa, isti obrazac kao 0005/0006).
-- `beaches.ts`: `Beach.seaAssessment: SeaAssessment | null`; `BEACH_COLUMNS` + `dbToBeach`.
-- `beachFilters.ts`: `seaAssessments: SeaAssessment[]` u stanje + `filterBeaches` + `filtersTo/FromSearchParams`.
-- `FilterBar.tsx`: 5. dropdown „Kakvoća mora" (opcije + boje iz `seaQualityColor`).
+### A) Rupa: filter „Kakvoća mora" ✅ ISPORUČENO (ova sesija, 2026-07-24)
+Faza 2 roadmap spominje i taj filter, ali `beaches_geo` **nije** nosio zadnju IZOR ocjenu po plaži. Sad nosi.
+- **Migracija `0008_sea_latest.sql`** ✅ napisana — dodaje `sea_assessment` u `beaches_geo` (zadnji `sampled_at` po plaži) preko `left join lateral` na `sea_quality`; drop+create viewa, zadržava rating (0005) + parking (0006).
+- `beaches.ts` ✅ — `Beach.seaAssessment: SeaAssessment | null`, `BeachRow.sea_assessment`, `dbToBeach`.
+- `queries.ts` ✅ — `sea_assessment` dodan u `BEACH_COLUMNS`.
+- `beachFilters.ts` ✅ — `SEA_ASSESSMENTS` const, `seaAssessments` u `BeachFilterState`/`EMPTY_FILTERS`/`hasActiveFilters`/`filterBeaches`; URL param `?sea=…` u `filtersTo/FromSearchParams`.
+- `FilterBar.tsx` ✅ — 5. dropdown (label `SeaQuality.heading`, opcije + boje iz `seaQualityColor`); `onToggleSeaAssessment` wired u `BeachExplorer.tsx`.
+- Prijevodi: koriste postojeći `SeaQuality` namespace (hr+en) — bez novih ključeva.
+- **Verifikacija:** `tsc --noEmit` ✅ · `eslint` ✅ · `next build` ✅ (exit 0, 1685+ SSG str.).
+
+> ⚠️ **PREREKVIZIT PRIJE DEPLOYA (Antonio):** pokreni `0008_sea_latest.sql` u Supabase SQL Editoru **PRIJE** nego kod ode u produkciju. `BEACH_COLUMNS` sad selektira `sea_assessment`; ako kolona ne postoji, `getBeaches` baca grešku i lista padne na prazno. Migracija + kod idu zajedno.
 
 ### B) Faza 4 — Slike plaža (Wikimedia + Mapillary)  `[M]`
 Migracija `0007` je **već** primijenjena. Preostaje:

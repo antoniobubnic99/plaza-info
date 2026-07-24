@@ -44,6 +44,7 @@ export interface Beach {
   flags: BeachFlags;
   ratingAvg: number; // 0 kad nema odobrenih recenzija (agregat iz beaches_geo)
   ratingCount: number;
+  seaAssessment: SeaAssessment | null; // ocjena najnovijeg IZOR uzorka (beaches_geo, 0008)
 }
 
 /** Red iz `beaches_geo` viewa ili `beaches_near` funkcije. */
@@ -67,6 +68,7 @@ export interface BeachRow {
   flags: BeachFlags | null;
   rating_avg?: number | string | null; // numeric dolazi kao string preko PostgREST-a
   rating_count?: number | null;
+  sea_assessment?: SeaAssessment | null;
 }
 
 export function dbToBeach(row: BeachRow): Beach {
@@ -90,6 +92,7 @@ export function dbToBeach(row: BeachRow): Beach {
     flags: row.flags ?? {},
     ratingAvg: row.rating_avg != null ? Number(row.rating_avg) : 0,
     ratingCount: row.rating_count ?? 0,
+    seaAssessment: row.sea_assessment ?? null,
   };
 }
 

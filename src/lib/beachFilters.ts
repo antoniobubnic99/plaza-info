@@ -21,6 +21,14 @@ export type AmenityFilter = (typeof AMENITY_FILTERS)[number];
 // Pragovi za „min rejting" dropdown (koristi agregat rating_avg iz 0005).
 export const RATING_OPTIONS = [3, 4, 4.5] as const;
 
+// Filtrabilne ocjene kakvoće mora (zadnji IZOR uzorak, sea_assessment iz 0008).
+export const SEA_ASSESSMENTS: SeaAssessment[] = [
+  'excellent',
+  'good',
+  'satisfactory',
+  'unsatisfactory',
+];
+
 // Boje markera po podlozi — usklađene s jadranskom paletom (globals.css).
 const SURFACE_COLORS: Record<SurfaceType, string> = {
   sand: '#e0b84c',
@@ -71,6 +79,7 @@ export interface BeachFilterState {
   flags: FilterFlag[];
   amenities: AmenityFilter[];
   minRating: number; // 0 = bilo koji; inače prag na rating_avg
+  seaAssessments: SeaAssessment[]; // prazno = bilo koja; inače OR po zadnjoj IZOR ocjeni
 }
 
 export const EMPTY_FILTERS: BeachFilterState = {
@@ -79,6 +88,7 @@ export const EMPTY_FILTERS: BeachFilterState = {
   flags: [],
   amenities: [],
   minRating: 0,
+  seaAssessments: [],
 };
 
 export function hasActiveFilters(f: BeachFilterState): boolean {
@@ -87,7 +97,8 @@ export function hasActiveFilters(f: BeachFilterState): boolean {
     f.surfaces.length > 0 ||
     f.flags.length > 0 ||
     f.amenities.length > 0 ||
-    f.minRating > 0
+    f.minRating > 0 ||
+    f.seaAssessments.length > 0
   );
 }
 
@@ -121,6 +132,11 @@ export function filterBeaches(
       if (!b.amenities[amenity]) return false;
     }
     if (filters.minRating > 0 && b.ratingAvg < filters.minRating) return false;
+    if (filters.seaAssessments.length > 0) {
+      if (!b.seaAssessment || !filters.seaAssessments.includes(b.seaAssessment)) {
+        return false;
+      }
+    }
     return true;
   });
 }
@@ -133,6 +149,7 @@ export function filtersToSearchParams(f: BeachFilterState): URLSearchParams {
   if (f.flags.length) p.set('flag', f.flags.join(','));
   if (f.amenities.length) p.set('amenity', f.amenities.join(','));
   if (f.minRating > 0) p.set('rating', String(f.minRating));
+  if (f.seaAssessments.length) p.set('sea', f.seaAssessments.join(','));
   return p;
 }
 
@@ -149,6 +166,7 @@ export function filtersFromSearchParams(p: URLSearchParams): BeachFilterState {
     flags: csv('flag', FILTER_FLAGS),
     amenities: csv('amenity', AMENITY_FILTERS),
     minRating: RATING_OPTIONS.includes(rating as (typeof RATING_OPTIONS)[number]) ? rating : 0,
+    seaAssessments: csv('sea', SEA_ASSESSMENTS),
   };
 }
 

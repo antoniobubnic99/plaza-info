@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { SurfaceType } from '@/lib/beaches';
+import type { SeaAssessment, SurfaceType } from '@/lib/beaches';
 import {
   AMENITY_FILTERS,
   FILTER_FLAGS,
   RATING_OPTIONS,
+  SEA_ASSESSMENTS,
   SURFACE_TYPES,
   hasActiveFilters,
+  seaQualityColor,
   surfaceColor,
   type AmenityFilter,
   type BeachFilterState,
@@ -22,6 +24,7 @@ interface FilterBarProps {
   onToggleFlag: (f: FilterFlag) => void;
   onToggleAmenity: (a: AmenityFilter) => void;
   onSetMinRating: (r: number) => void;
+  onToggleSeaAssessment: (s: SeaAssessment) => void;
   onReset: () => void;
   onNearMe: () => void;
   nearActive: boolean;
@@ -37,6 +40,7 @@ export default function FilterBar({
   onToggleFlag,
   onToggleAmenity,
   onSetMinRating,
+  onToggleSeaAssessment,
   onReset,
   onNearMe,
   nearActive,
@@ -48,6 +52,7 @@ export default function FilterBar({
   const tSurface = useTranslations('Surface');
   const tFlags = useTranslations('Flags');
   const tAmenities = useTranslations('Amenities');
+  const tSea = useTranslations('SeaQuality');
   const active = hasActiveFilters(filters);
 
   return (
@@ -111,6 +116,17 @@ export default function FilterBar({
           selected={filters.minRating > 0 ? [String(filters.minRating)] : []}
           onToggle={(v) => onSetMinRating(Number(v) === filters.minRating ? 0 : Number(v))}
           options={RATING_OPTIONS.map((r) => ({ value: String(r), label: `${r}★+` }))}
+        />
+        <FilterDropdown
+          label={tSea('heading')}
+          ariaLabel={tSea('heading')}
+          selected={filters.seaAssessments}
+          onToggle={(v) => onToggleSeaAssessment(v as SeaAssessment)}
+          options={SEA_ASSESSMENTS.map((s) => ({
+            value: s,
+            label: tSea(s),
+            color: seaQualityColor(s),
+          }))}
         />
       </div>
 

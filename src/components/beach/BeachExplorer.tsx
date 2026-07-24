@@ -4,7 +4,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { beachName, type Beach, type CrowdLevel, type SurfaceType } from '@/lib/beaches';
+import {
+  beachName,
+  type Beach,
+  type CrowdLevel,
+  type SeaAssessment,
+  type SurfaceType,
+} from '@/lib/beaches';
 import {
   EMPTY_FILTERS,
   filterBeaches,
@@ -187,6 +193,9 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
             setFilters((f) => ({ ...f, amenities: toggle(f.amenities, am) }))
           }
           onSetMinRating={(r: number) => setFilters((f) => ({ ...f, minRating: r }))}
+          onToggleSeaAssessment={(s: SeaAssessment) =>
+            setFilters((f) => ({ ...f, seaAssessments: toggle(f.seaAssessments, s) }))
+          }
           onReset={handleReset}
           onNearMe={handleNearMe}
           nearActive={nearActive}
