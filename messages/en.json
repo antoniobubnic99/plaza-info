@@ -59,6 +59,7 @@
     "locationLabel": "Location",
     "lengthLabel": "Shore length",
     "lengthValue": "{m} m",
+    "parkingLabel": "Nearest parking",
     "amenitiesHeading": "Amenities",
     "crowdHeading": "Live crowd",
     "crowdNote": "Visitor reports, unofficial",
@@ -68,6 +69,7 @@
     "shareCopied": "Link copied",
     "close": "Close",
     "directions": "Directions to the beach",
+    "directionsParking": "Directions to parking",
     "metaDescription": "{name} — {surface} beach in {place}. Check sea water quality, live crowd levels and directions on PlažaInfo.",
     "metaDescriptionNoPlace": "{name} — {surface} beach on the Adriatic. Check sea water quality, live crowd levels and directions on PlažaInfo."
   },

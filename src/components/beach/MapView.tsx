@@ -39,6 +39,27 @@ function makeMarkerEl(color: string): HTMLDivElement {
   return el;
 }
 
+// Parking marker — plavi „P" kvadratić, vizualno različit od okruglih markera plaža.
+function makeParkingMarkerEl(): HTMLDivElement {
+  const el = document.createElement('div');
+  el.className = 'plaza-parking-marker';
+  el.textContent = 'P';
+  el.style.cssText = [
+    'width:16px',
+    'height:16px',
+    'border-radius:4px',
+    'background:#1f5fae',
+    'border:2px solid #ffffff',
+    'box-shadow:0 1px 3px rgba(13,43,74,0.45)',
+    'color:#ffffff',
+    'font:700 11px/12px system-ui,sans-serif',
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+  ].join(';');
+  return el;
+}
+
 export default function MapView({
   beaches,
   crowdLevels,
@@ -50,6 +71,7 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
+  const parkingMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const onSelectRef = useRef(onSelect);
   const crowdRef = useRef(crowdLevels);
@@ -77,10 +99,12 @@ export default function MapView({
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
     mapRef.current = map;
+    const parkingMarkers = parkingMarkersRef.current;
     return () => {
       map.remove();
       mapRef.current = null;
       markers.clear();
+      parkingMarkers.clear();
     };
   }, []);
 
@@ -109,6 +133,30 @@ export default function MapView({
       });
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([beach.lng, beach.lat])
+        .addTo(map);
+      markers.set(beach.id, marker);
+    }
+  }, [beaches]);
+
+  // Sinkroniziraj parking markere (samo za plaže koje imaju parking koordinate).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const markers = parkingMarkersRef.current;
+    const withParking = beaches.filter((b) => b.parkingLat != null && b.parkingLng != null);
+    const nextIds = new Set(withParking.map((b) => b.id));
+
+    for (const [id, marker] of markers) {
+      if (!nextIds.has(id)) {
+        marker.remove();
+        markers.delete(id);
+      }
+    }
+
+    for (const beach of withParking) {
+      if (markers.has(beach.id)) continue;
+      const marker = new maplibregl.Marker({ element: makeParkingMarkerEl() })
+        .setLngLat([beach.parkingLng as number, beach.parkingLat as number])
         .addTo(map);
       markers.set(beach.id, marker);
     }

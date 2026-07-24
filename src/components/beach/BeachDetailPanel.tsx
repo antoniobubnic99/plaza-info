@@ -349,7 +349,7 @@ export default function BeachDetailPanel({
         </section>
 
         {/* Detalji */}
-        {(surfaceLabel || place || beach.lengthM != null) && (
+        {(surfaceLabel || place || beach.lengthM != null || beach.parkingDistanceM != null) && (
           <section aria-labelledby="details-heading" className="mt-8">
             <h2 id="details-heading" className="text-lg font-semibold text-sea-950">
               {t('detailsHeading')}
@@ -375,6 +375,14 @@ export default function BeachDetailPanel({
                   </dd>
                 </div>
               )}
+              {beach.parkingDistanceM != null && (
+                <div className="flex justify-between border-b border-sea-100 pb-2">
+                  <dt className="text-sm text-sea-800/70">{t('parkingLabel')}</dt>
+                  <dd className="text-sm font-medium text-sea-950">
+                    ~{formatDistance(beach.parkingDistanceM / 1000)}
+                  </dd>
+                </div>
+              )}
             </dl>
           </section>
         )}
@@ -393,6 +401,16 @@ export default function BeachDetailPanel({
           >
             {t('directions')}
           </a>
+          {beach.parkingLat != null && beach.parkingLng != null && (
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${beach.parkingLat},${beach.parkingLng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-sea-800 ring-1 ring-sea-200 transition hover:bg-sea-50"
+            >
+              {t('directionsParking')}
+            </a>
+          )}
           <button
             type="button"
             onClick={handleShare}

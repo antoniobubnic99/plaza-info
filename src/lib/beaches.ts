@@ -45,6 +45,9 @@ export interface Beach {
   ratingAvg: number; // 0 kad nema odobrenih recenzija (agregat iz beaches_geo)
   ratingCount: number;
   seaAssessment: SeaAssessment | null; // ocjena najnovijeg IZOR uzorka (beaches_geo, 0008)
+  parkingLat: number | null; // najbliži OSM parking (seed-parking.ts, 0006)
+  parkingLng: number | null;
+  parkingDistanceM: number | null; // zračna udaljenost plaža → parking, m
 }
 
 /** Red iz `beaches_geo` viewa ili `beaches_near` funkcije. */
@@ -69,6 +72,9 @@ export interface BeachRow {
   rating_avg?: number | string | null; // numeric dolazi kao string preko PostgREST-a
   rating_count?: number | null;
   sea_assessment?: SeaAssessment | null;
+  parking_lat?: number | null;
+  parking_lng?: number | null;
+  parking_distance_m?: number | null;
 }
 
 export function dbToBeach(row: BeachRow): Beach {
@@ -93,6 +99,9 @@ export function dbToBeach(row: BeachRow): Beach {
     ratingAvg: row.rating_avg != null ? Number(row.rating_avg) : 0,
     ratingCount: row.rating_count ?? 0,
     seaAssessment: row.sea_assessment ?? null,
+    parkingLat: row.parking_lat ?? null,
+    parkingLng: row.parking_lng ?? null,
+    parkingDistanceM: row.parking_distance_m ?? null,
   };
 }
 

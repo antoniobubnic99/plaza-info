@@ -59,6 +59,7 @@
     "locationLabel": "Lokacija",
     "lengthLabel": "Duljina obale",
     "lengthValue": "{m} m",
+    "parkingLabel": "Najbliži parking",
     "amenitiesHeading": "Sadržaji",
     "crowdHeading": "Gužva uživo",
     "crowdNote": "Prijave posjetitelja, neslužbeno",
@@ -68,6 +69,7 @@
     "shareCopied": "Poveznica kopirana",
     "close": "Zatvori",
     "directions": "Upute do plaže",
+    "directionsParking": "Upute do parkinga",
     "metaDescription": "{name} — {surface} plaža u {place}. Provjeri kakvoću mora, gužvu uživo i upute do plaže na PlažaInfo.",
     "metaDescriptionNoPlace": "{name} — {surface} plaža na Jadranu. Provjeri kakvoću mora, gužvu uživo i upute do plaže na PlažaInfo."
   },
