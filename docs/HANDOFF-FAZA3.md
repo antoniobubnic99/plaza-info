@@ -1,0 +1,71 @@
+# PlažaInfo — Handoff za iduću sesiju (ROADMAP v2, nakon Faze 1+2)
+
+**Datum:** 2026-07-24 · **Grana:** `master` · **Radni dir:** `C:\Users\anton\plaza-info`
+
+---
+
+## Stanje sada (što je gotovo)
+
+### Migracije (Antonio pokrenuo ručno u Supabase SQL Editoru)
+- `0005_rating_aggregate.sql` ✅ — `rating_avg` / `rating_count` u `beaches_geo` (agregat odobrenih recenzija).
+- `0006_parking.sql` ✅ — `beaches.parking_lat/parking_lng/parking_distance_m` (+ recreate viewa).
+- `0007_photos_source.sql` ✅ — `photos.source` (`user|wikimedia|mapillary`), `attribution`, `license`.
+
+### Faza 1 — Google-Maps split layout ✅
+- 3 zone u `BeachExplorer.tsx`: **lista | detalj-panel | karta**. Panel = treći stupac (desktop) / `fixed` overlay (mobitel).
+- Novi `src/components/beach/BeachDetailPanel.tsx` — zajednički bogati prikaz, koristi ga **i** in-app panel (`variant="panel"`) **i** SSG stranica `plaza/[slug]` (`variant="page"`). Jedan izvor istine.
+- `plaza/[slug]/page.tsx` zadržava JSON-LD (sad s `aggregateRating`), h1, hero, hreflang server-side; tijelo delegira panelu. Dodan `dynamicParams=true` + `revalidate=3600` (ISR).
+- Obrisan stari `BeachDetail.tsx` (logika preseljena u panel).
+- **Shareable URL:** odabir plaže živi u `?plaza=<slug>` preko `window.history.replaceState`; `popstate` + deep-link rade. (Namjerno **nije** intercepting/parallel routes — history-pristup je robustan uz težak MapLibre klijent.)
+
+### Faza 2 — padajući multi-select filteri ✅
+- Novi `src/components/beach/FilterDropdown.tsx` (pristupačan checkbox popover, Escape + klik-izvan).
+- `FilterBar.tsx`: 4 dropdowna — **Vrsta plaže, Oznake, Sadržaji, Rejting** (min ★).
+- `beachFilters.ts`: prošireno stanje (`amenities`, `minRating`), `filterBeaches` + `filtersTo/FromSearchParams`.
+- **URL-perzistencija filtera:** `?surface=…&flag=…&amenity=…&rating=4&q=…` (dijeljivo, deep-link).
+
+**Verifikacija:** `tsc --noEmit` ✅ · `eslint` promijenjenih datoteka ✅ · `next build` ✅ (exit 0).
+
+---
+
+## ⚠️ Faza 3 je VEĆ ISPORUČENA (usput, kroz Fazu 1+2)
+
+ROADMAP Faza 3 = „Rejting + komentari + filtriranje po rejtingu". Sve tri stavke su gotove:
+1. **Recenzije prominentnije u panelu** ✅ — `BeachDetailPanel` ima ★-sažetak badge + `ReviewsSection` (lista + forma).
+2. **Agregat `rating_avg`/`rating_count`** ✅ — migracija `0005` u `beaches_geo`, wired kroz `Beach.ratingAvg/ratingCount` (`beaches.ts`, `queries.ts`), prikaz ★ u listi (`BeachList.tsx`) i panelu, `aggregateRating` u JSON-LD.
+3. **Filter „min rejting"** ✅ — dropdown u Fazi 2 koristi `rating_avg`.
+
+**Zaključak:** nema zasebnog Faza-3 posla. Opcionalni sitni polish ako želiš: prebaciti ★-sažetak u header panela (uz ime), umjesto u tijelo.
+
+---
+
+## Preporučeni redoslijed za iduću sesiju
+
+### A) Rupa: filter „Kakvoća mora" (mali, ali traži migraciju)
+Faza 2 roadmap spominje i taj filter, ali `beaches_geo` **ne** nosi zadnju IZOR ocjenu po plaži (dohvaća se tek per-plaža iz `sea_quality`).
+- **Migracija `0008_sea_latest.sql`:** dodati u `beaches_geo` `sea_assessment` (zadnji `sampled_at` po plaži) preko `left join lateral` na `sea_quality`. Idempotentno (drop+create viewa, isti obrazac kao 0005/0006).
+- `beaches.ts`: `Beach.seaAssessment: SeaAssessment | null`; `BEACH_COLUMNS` + `dbToBeach`.
+- `beachFilters.ts`: `seaAssessments: SeaAssessment[]` u stanje + `filterBeaches` + `filtersTo/FromSearchParams`.
+- `FilterBar.tsx`: 5. dropdown „Kakvoća mora" (opcije + boje iz `seaQualityColor`).
+
+### B) Faza 4 — Slike plaža (Wikimedia + Mapillary)  `[M]`
+Migracija `0007` je **već** primijenjena. Preostaje:
+- **Prerekvizit (Antonio):** `MAPILLARY_TOKEN` (besplatan) u `.env.local` + Vercel.
+- `scripts/seed-beach-images.ts`: po plaži Wikimedia Commons geosearch (`imageinfo`+`extmetadata` za licencu/autora) → najbolja; fallback Mapillary Graph API. Upis u `photos` sa `source`, `attribution`, `license`, `status='approved'`, `is_official=true`.
+- UI atribucija (obavezno): hero + galerija prikazuju „© autor / licenca ↗" za seedane slike → izmjena `PhotosSection.tsx` + hero u `BeachDetailPanel`; `queries.ts` mora vraćati `source/attribution/license` (trenutno `getBeachPhotos` vraća samo `id,url`).
+
+### C) Faza 5 — Parking točke  `[M]`
+Migracija `0006` je **već** primijenjena. Preostaje:
+- `scripts/seed-parking.ts`: Overpass `amenity=parking` u bbox → po plaži najbliži + zračna udaljenost → upis u `beaches.parking_*`.
+- `Beach` type + `BEACH_COLUMNS` + `dbToBeach` za parking polja.
+- Panel: „Najbliži parking: ~350 m" + gumb upute; `MapView` parking marker.
+
+### D) Faza 6 (jezici DE/IT/FR) i Faza 7 (Google rating) — kasnije, vidi `docs/ROADMAP-v2.md`.
+
+---
+
+## Gotcha bilješke
+- **GateGuard** traži „facts" pri prvom Write/Edit po datoteci i prvom Bash-u — retry prolazi. Za dužu sesiju razmisli o `ECC_GATEGUARD=off`.
+- Sve slike plain `<img>` (bez `next/image`) — ne trošiti Vercel optimizacijsku kvotu.
+- `beaches_geo` je `select b.*` → svaka nova kolona na `beaches` traži **drop+create** viewa (ne `create or replace`, jer b.* umeće kolone u sredinu).
+- `PhotosSection`/`ReviewsSection` prikazuju **samo** `initial*` (ne dohvaćaju sami) — panel im mora dati podatke (u `panel` varijanti ih panel sam dohvati; u `page` varijanti dolaze SSR-om).

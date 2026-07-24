@@ -25,7 +25,11 @@
     "surfaceUnknown": "Unknown surface",
     "close": "Close",
     "directions": "Directions",
-    "details": "More about this beach"
+    "details": "More about this beach",
+    "filterSurface": "Beach type",
+    "filterFlags": "Features",
+    "filterAmenities": "Amenities",
+    "filterRating": "Rating"
   },
   "Surface": {
     "sand": "Sand",
@@ -58,6 +62,11 @@
     "amenitiesHeading": "Amenities",
     "crowdHeading": "Live crowd",
     "crowdNote": "Visitor reports, unofficial",
+    "ratingHeading": "Visitor rating",
+    "reviewsSummary": "{count, plural, =0 {no reviews} one {# review} other {# reviews}}",
+    "share": "Share",
+    "shareCopied": "Link copied",
+    "close": "Close",
     "directions": "Directions to the beach",
     "metaDescription": "{name} — {surface} beach in {place}. Check sea water quality, live crowd levels and directions on PlažaInfo.",
     "metaDescriptionNoPlace": "{name} — {surface} beach on the Adriatic. Check sea water quality, live crowd levels and directions on PlažaInfo."

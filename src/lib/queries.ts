@@ -37,7 +37,7 @@ export async function getBeaches(): Promise<Beach[]> {
 
 // Zajednički skup stupaca za `beaches_geo` (statični podaci + lat/lng).
 const BEACH_COLUMNS =
-  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags';
+  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags, rating_avg, rating_count';
 
 /**
  * Slugovi svih plaža — lagani dohvat za `generateStaticParams` detalj-stranice.

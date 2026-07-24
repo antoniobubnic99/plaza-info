@@ -12,10 +12,7 @@ import {
   getBeachSlugs,
 } from '@/lib/queries';
 import { beachName, type Beach } from '@/lib/beaches';
-import { seaQualityColor } from '@/lib/beachFilters';
-import BeachDetail from '@/components/beach/BeachDetail';
-import PhotosSection from '@/components/beach/PhotosSection';
-import ReviewsSection from '@/components/beach/ReviewsSection';
+import BeachDetailPanel from '@/components/beach/BeachDetailPanel';
 
 // Podaci plaža se rijetko mijenjaju — ISR: regeneriraj najviše jednom na sat.
 export const revalidate = 3600;
@@ -107,14 +104,11 @@ export default async function BeachPage({
   const tSurface = await getTranslations({ locale, namespace: 'Surface' });
   const tFlags = await getTranslations({ locale, namespace: 'Flags' });
   const tAmenities = await getTranslations({ locale, namespace: 'Amenities' });
-  const tSea = await getTranslations({ locale, namespace: 'SeaQuality' });
 
+  // SSR podaci → predaju se panelu kao initial (bez client fetch flickera; ostaju u HTML-u za SEO).
   const seaQuality = await getBeachSeaQuality(beach.id);
   const reviews = await getBeachReviews(beach.id);
   const photos = await getBeachPhotos(beach.id);
-  const sampledLabel =
-    seaQuality &&
-    new Date(seaQuality.sampledAt).toLocaleDateString(locale === 'hr' ? 'hr-HR' : 'en-GB');
 
   const name = beachName(beach, locale);
   const place = placeOf(beach);
@@ -131,6 +125,17 @@ export default async function BeachPage({
     '@type': 'Beach',
     name,
     ...(description ? { description } : {}),
+    ...(beach.ratingCount > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: beach.ratingAvg,
+            reviewCount: beach.ratingCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
     geo: {
       '@type': 'GeoCoordinates',
       latitude: beach.lat,
@@ -208,85 +213,16 @@ export default async function BeachPage({
         )}
       </header>
 
-      <div className="mt-6">
-        <BeachDetail beach={beach} locale={locale} />
-      </div>
-
-      {seaQuality && seaQuality.assessment && (
-        <section aria-labelledby="sea-heading" className="mt-8">
-          <h2 id="sea-heading" className="text-lg font-semibold text-sea-950">
-            {tSea('heading')}
-          </h2>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span
-              className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-white"
-              style={{ background: seaQualityColor(seaQuality.assessment) }}
-            >
-              {tSea(seaQuality.assessment)}
-            </span>
-            {seaQuality.seaTemp != null && (
-              <span className="text-sm text-sea-800/80">
-                {tSea('seaTemp', { temp: seaQuality.seaTemp })}
-              </span>
-            )}
-          </div>
-          <p className="mt-2 text-xs text-sea-800/60">
-            {tSea('note')}
-            {sampledLabel ? ` · ${tSea('sampled', { date: sampledLabel })}` : ''}
-          </p>
-        </section>
-      )}
-
-      <section aria-labelledby="about-heading" className="mt-8">
-        <h2 id="about-heading" className="text-lg font-semibold text-sea-950">
-          {t('aboutHeading')}
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-sea-800/90">
-          {description ?? t('noDescription')}
-        </p>
-      </section>
-
-      <section aria-labelledby="details-heading" className="mt-8">
-        <h2 id="details-heading" className="text-lg font-semibold text-sea-950">
-          {t('detailsHeading')}
-        </h2>
-        <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-          {surfaceLabel && (
-            <div className="flex justify-between border-b border-sea-100 pb-2">
-              <dt className="text-sm text-sea-800/70">{t('surfaceLabel')}</dt>
-              <dd className="text-sm font-medium text-sea-950">{surfaceLabel}</dd>
-            </div>
-          )}
-          {place && (
-            <div className="flex justify-between border-b border-sea-100 pb-2">
-              <dt className="text-sm text-sea-800/70">{t('locationLabel')}</dt>
-              <dd className="text-sm font-medium text-sea-950">{place}</dd>
-            </div>
-          )}
-          {beach.lengthM != null && (
-            <div className="flex justify-between border-b border-sea-100 pb-2">
-              <dt className="text-sm text-sea-800/70">{t('lengthLabel')}</dt>
-              <dd className="text-sm font-medium text-sea-950">
-                {t('lengthValue', { m: beach.lengthM })}
-              </dd>
-            </div>
-          )}
-        </dl>
-      </section>
-
-      <PhotosSection beachId={beach.id} beachName={name} initialPhotos={photos} />
-
-      <ReviewsSection beachId={beach.id} initialReviews={reviews} locale={locale} />
-
-      <div className="mt-8">
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${beach.lat},${beach.lng}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center rounded-full bg-sea-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sea-800"
-        >
-          {t('directions')}
-        </a>
+      {/* Zajednički panel (isti kao in-app), varijanta `page` — reuse bez drifta sadržaja. */}
+      <div className="mt-2">
+        <BeachDetailPanel
+          beach={beach}
+          locale={locale}
+          variant="page"
+          initialSeaQuality={seaQuality}
+          initialPhotos={photos}
+          initialReviews={reviews}
+        />
       </div>
     </main>
   );

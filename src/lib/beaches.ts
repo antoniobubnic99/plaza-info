@@ -42,6 +42,8 @@ export interface Beach {
   osmId: string | null;
   amenities: BeachAmenities;
   flags: BeachFlags;
+  ratingAvg: number; // 0 kad nema odobrenih recenzija (agregat iz beaches_geo)
+  ratingCount: number;
 }
 
 /** Red iz `beaches_geo` viewa ili `beaches_near` funkcije. */
@@ -63,6 +65,8 @@ export interface BeachRow {
   osm_id?: string | null;
   amenities: BeachAmenities | null;
   flags: BeachFlags | null;
+  rating_avg?: number | string | null; // numeric dolazi kao string preko PostgREST-a
+  rating_count?: number | null;
 }
 
 export function dbToBeach(row: BeachRow): Beach {
@@ -84,6 +88,8 @@ export function dbToBeach(row: BeachRow): Beach {
     osmId: row.osm_id ?? null,
     amenities: row.amenities ?? {},
     flags: row.flags ?? {},
+    ratingAvg: row.rating_avg != null ? Number(row.rating_avg) : 0,
+    ratingCount: row.rating_count ?? 0,
   };
 }
 

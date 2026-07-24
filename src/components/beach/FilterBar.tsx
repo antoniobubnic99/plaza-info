@@ -3,19 +3,25 @@
 import { useTranslations } from 'next-intl';
 import type { SurfaceType } from '@/lib/beaches';
 import {
+  AMENITY_FILTERS,
   FILTER_FLAGS,
+  RATING_OPTIONS,
   SURFACE_TYPES,
   hasActiveFilters,
   surfaceColor,
+  type AmenityFilter,
   type BeachFilterState,
   type FilterFlag,
 } from '@/lib/beachFilters';
+import FilterDropdown from './FilterDropdown';
 
 interface FilterBarProps {
   filters: BeachFilterState;
   onQueryChange: (q: string) => void;
   onToggleSurface: (s: SurfaceType) => void;
   onToggleFlag: (f: FilterFlag) => void;
+  onToggleAmenity: (a: AmenityFilter) => void;
+  onSetMinRating: (r: number) => void;
   onReset: () => void;
   onNearMe: () => void;
   nearActive: boolean;
@@ -29,6 +35,8 @@ export default function FilterBar({
   onQueryChange,
   onToggleSurface,
   onToggleFlag,
+  onToggleAmenity,
+  onSetMinRating,
   onReset,
   onNearMe,
   nearActive,
@@ -39,6 +47,7 @@ export default function FilterBar({
   const t = useTranslations('Map');
   const tSurface = useTranslations('Surface');
   const tFlags = useTranslations('Flags');
+  const tAmenities = useTranslations('Amenities');
   const active = hasActiveFilters(filters);
 
   return (
@@ -70,48 +79,39 @@ export default function FilterBar({
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        {SURFACE_TYPES.map((s) => {
-          const on = filters.surfaces.includes(s);
-          return (
-            <button
-              key={s}
-              type="button"
-              onClick={() => onToggleSurface(s)}
-              aria-pressed={on}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
-                on
-                  ? 'border-sea-600 bg-sea-600 text-white'
-                  : 'border-sea-200 bg-white text-sea-800 hover:border-sea-400'
-              }`}
-            >
-              <span
-                aria-hidden
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ background: surfaceColor(s) }}
-              />
-              {tSurface(s)}
-            </button>
-          );
-        })}
-        {FILTER_FLAGS.map((f) => {
-          const on = filters.flags.includes(f);
-          return (
-            <button
-              key={f}
-              type="button"
-              onClick={() => onToggleFlag(f)}
-              aria-pressed={on}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-                on
-                  ? 'border-sea-600 bg-sea-600 text-white'
-                  : 'border-sea-200 bg-white text-sea-800 hover:border-sea-400'
-              }`}
-            >
-              {tFlags(f)}
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap gap-2">
+        <FilterDropdown
+          label={t('filterSurface')}
+          ariaLabel={t('filterSurface')}
+          selected={filters.surfaces}
+          onToggle={(v) => onToggleSurface(v as SurfaceType)}
+          options={SURFACE_TYPES.map((s) => ({
+            value: s,
+            label: tSurface(s),
+            color: surfaceColor(s),
+          }))}
+        />
+        <FilterDropdown
+          label={t('filterFlags')}
+          ariaLabel={t('filterFlags')}
+          selected={filters.flags}
+          onToggle={(v) => onToggleFlag(v as FilterFlag)}
+          options={FILTER_FLAGS.map((f) => ({ value: f, label: tFlags(f) }))}
+        />
+        <FilterDropdown
+          label={t('filterAmenities')}
+          ariaLabel={t('filterAmenities')}
+          selected={filters.amenities}
+          onToggle={(v) => onToggleAmenity(v as AmenityFilter)}
+          options={AMENITY_FILTERS.map((a) => ({ value: a, label: tAmenities(a) }))}
+        />
+        <FilterDropdown
+          label={t('filterRating')}
+          ariaLabel={t('filterRating')}
+          selected={filters.minRating > 0 ? [String(filters.minRating)] : []}
+          onToggle={(v) => onSetMinRating(Number(v) === filters.minRating ? 0 : Number(v))}
+          options={RATING_OPTIONS.map((r) => ({ value: String(r), label: `${r}★+` }))}
+        />
       </div>
 
       <div className="flex items-center justify-between text-xs text-sea-800/70">

@@ -14,6 +14,13 @@ export const SURFACE_TYPES: SurfaceType[] = ['sand', 'pebble', 'rock', 'concrete
 export const FILTER_FLAGS = ['dogs', 'nudist', 'accessible'] as const;
 export type FilterFlag = (typeof FILTER_FLAGS)[number];
 
+// Filtrabilni sadržaji (booleani iz BeachAmenities; bez `rentals` koji je lista).
+export const AMENITY_FILTERS = ['showers', 'wc', 'bar', 'loungers', 'lifeguard'] as const;
+export type AmenityFilter = (typeof AMENITY_FILTERS)[number];
+
+// Pragovi za „min rejting" dropdown (koristi agregat rating_avg iz 0005).
+export const RATING_OPTIONS = [3, 4, 4.5] as const;
+
 // Boje markera po podlozi — usklađene s jadranskom paletom (globals.css).
 const SURFACE_COLORS: Record<SurfaceType, string> = {
   sand: '#e0b84c',
@@ -62,16 +69,26 @@ export interface BeachFilterState {
   query: string;
   surfaces: SurfaceType[];
   flags: FilterFlag[];
+  amenities: AmenityFilter[];
+  minRating: number; // 0 = bilo koji; inače prag na rating_avg
 }
 
 export const EMPTY_FILTERS: BeachFilterState = {
   query: '',
   surfaces: [],
   flags: [],
+  amenities: [],
+  minRating: 0,
 };
 
 export function hasActiveFilters(f: BeachFilterState): boolean {
-  return f.query.trim() !== '' || f.surfaces.length > 0 || f.flags.length > 0;
+  return (
+    f.query.trim() !== '' ||
+    f.surfaces.length > 0 ||
+    f.flags.length > 0 ||
+    f.amenities.length > 0 ||
+    f.minRating > 0
+  );
 }
 
 function normalize(s: string): string {
@@ -100,8 +117,39 @@ export function filterBeaches(
     for (const flag of filters.flags) {
       if (!b.flags[flag]) return false;
     }
+    for (const amenity of filters.amenities) {
+      if (!b.amenities[amenity]) return false;
+    }
+    if (filters.minRating > 0 && b.ratingAvg < filters.minRating) return false;
     return true;
   });
+}
+
+// URL search-params serijalizacija filtera (dijeljivo stanje). Prazne vrijednosti se izostavljaju.
+export function filtersToSearchParams(f: BeachFilterState): URLSearchParams {
+  const p = new URLSearchParams();
+  if (f.query.trim()) p.set('q', f.query.trim());
+  if (f.surfaces.length) p.set('surface', f.surfaces.join(','));
+  if (f.flags.length) p.set('flag', f.flags.join(','));
+  if (f.amenities.length) p.set('amenity', f.amenities.join(','));
+  if (f.minRating > 0) p.set('rating', String(f.minRating));
+  return p;
+}
+
+export function filtersFromSearchParams(p: URLSearchParams): BeachFilterState {
+  const csv = <T extends string>(key: string, allowed: readonly T[]): T[] => {
+    const raw = p.get(key);
+    if (!raw) return [];
+    return raw.split(',').filter((v): v is T => (allowed as readonly string[]).includes(v));
+  };
+  const rating = Number(p.get('rating'));
+  return {
+    query: p.get('q') ?? '',
+    surfaces: csv('surface', SURFACE_TYPES),
+    flags: csv('flag', FILTER_FLAGS),
+    amenities: csv('amenity', AMENITY_FILTERS),
+    minRating: RATING_OPTIONS.includes(rating as (typeof RATING_OPTIONS)[number]) ? rating : 0,
+  };
 }
 
 // Haversine udaljenost u kilometrima.

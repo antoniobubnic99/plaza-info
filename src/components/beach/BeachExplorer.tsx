@@ -1,29 +1,27 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { beachName, type Beach, type CrowdLevel, type SurfaceType } from '@/lib/beaches';
 import {
-  crowdColor,
   EMPTY_FILTERS,
   filterBeaches,
-  formatDistance,
+  filtersFromSearchParams,
+  filtersToSearchParams,
   haversineKm,
-  seaQualityColor,
   sortByDistance,
   sortByName,
+  type AmenityFilter,
   type BeachFilterState,
   type FilterFlag,
 } from '@/lib/beachFilters';
-import { getBeachSeaQuality, getLatestCrowdLevels, type SeaQualitySample } from '@/lib/queries';
-import { reportCrowd } from '@/lib/crowd';
+import { getLatestCrowdLevels } from '@/lib/queries';
 import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
 import BeachList from './BeachList';
-
-const CROWD_LEVELS: CrowdLevel[] = ['empty', 'moderate', 'packed'];
+import BeachDetailPanel from './BeachDetailPanel';
 
 // MapLibre je isključivo klijentski (koristi window/WebGL) → bez SSR-a.
 const MapView = dynamic(() => import('./MapView'), {
@@ -42,10 +40,6 @@ function toggle<T>(list: T[], value: T): T[] {
 
 export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const t = useTranslations('Map');
-  const tSurface = useTranslations('Surface');
-  const tFlags = useTranslations('Flags');
-  const tCrowd = useTranslations('Crowd');
-  const tSea = useTranslations('SeaQuality');
 
   const [filters, setFilters] = useState<BeachFilterState>(EMPTY_FILTERS);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -55,12 +49,9 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [crowdLevels, setCrowdLevels] = useState<Record<string, CrowdLevel>>({});
-  const [reporting, setReporting] = useState(false);
-  const [reportedId, setReportedId] = useState<string | null>(null);
-  // Cache kakvoće mora po plaži (undefined = još nedohvaćeno, null = nema podatka).
-  const [seaQuality, setSeaQuality] = useState<Record<string, SeaQualitySample | null>>({});
+  const hydratedRef = useRef(false);
 
-  // Dohvat zadnjih razina gužve (klijentski, RPC latest_crowd_levels) uz osvježavanje svakih 60 s.
+  // Zadnje razine gužve (za bojanje markera na karti), osvježavanje svakih 60 s.
   useEffect(() => {
     let active = true;
     const load = () => {
@@ -78,34 +69,37 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     };
   }, []);
 
-  // Kakvoća mora (IZOR) za odabranu plažu — dohvat jednom po plaži, pa cache.
+  // URL → stanje (mount + back/forward): filteri + odabrana plaža su dijeljivi.
   useEffect(() => {
-    if (!selectedId || selectedId in seaQuality) return;
-    let active = true;
-    getBeachSeaQuality(selectedId)
-      .then((sample) => {
-        if (active) setSeaQuality((prev) => ({ ...prev, [selectedId]: sample }));
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
+    const readUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      setFilters(filtersFromSearchParams(params));
+      const slug = params.get('plaza');
+      const b = slug ? beaches.find((x) => x.slug === slug) : null;
+      setSelectedId(b?.id ?? null);
+      if (b) setFocus({ lng: b.lng, lat: b.lat, zoom: 14, nonce: Date.now() });
+      hydratedRef.current = true;
     };
-  }, [selectedId, seaQuality]);
+    readUrl();
+    window.addEventListener('popstate', readUrl);
+    return () => window.removeEventListener('popstate', readUrl);
+  }, [beaches]);
 
-  async function handleReport(level: CrowdLevel) {
-    if (!selectedId || reporting) return;
-    const beachId = selectedId;
-    setReporting(true);
-    const ok = await reportCrowd(beachId, level, userLocation);
-    setReporting(false);
-    if (ok) {
-      setCrowdLevels((prev) => ({ ...prev, [beachId]: level }));
-      setReportedId(beachId);
-      getLatestCrowdLevels()
-        .then(setCrowdLevels)
-        .catch(() => {});
+  // Stanje → URL (nakon hidracije): replaceState da ne zatrpava povijest.
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    const params = filtersToSearchParams(filters);
+    if (selectedId) {
+      const b = beaches.find((x) => x.id === selectedId);
+      if (b) params.set('plaza', b.slug);
     }
-  }
+    const qs = params.toString();
+    window.history.replaceState(
+      null,
+      '',
+      qs ? `${window.location.pathname}?${qs}` : window.location.pathname,
+    );
+  }, [filters, selectedId, beaches]);
 
   const filtered = useMemo(() => filterBeaches(beaches, filters), [beaches, filters]);
 
@@ -163,7 +157,8 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
 
   return (
     <main className="flex h-dvh flex-col-reverse overflow-hidden md:flex-row">
-      <aside className="flex min-h-0 flex-1 flex-col bg-white md:h-full md:w-[380px] md:flex-none md:border-r md:border-sea-100">
+      {/* Zona 1 — lista (Google-Maps stil: rezultati lijevo) */}
+      <aside className="flex min-h-0 flex-1 flex-col bg-white md:h-full md:w-[360px] md:flex-none md:border-r md:border-sea-100">
         <header className="flex items-center justify-between border-b border-sea-100 px-4 py-3">
           <span className="text-lg font-semibold tracking-tight text-sea-950">
             Plaža<span className="text-sea-600">Info</span>
@@ -188,6 +183,10 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           onToggleFlag={(fl: FilterFlag) =>
             setFilters((f) => ({ ...f, flags: toggle(f.flags, fl) }))
           }
+          onToggleAmenity={(am: AmenityFilter) =>
+            setFilters((f) => ({ ...f, amenities: toggle(f.amenities, am) }))
+          }
+          onSetMinRating={(r: number) => setFilters((f) => ({ ...f, minRating: r }))}
           onReset={handleReset}
           onNearMe={handleNearMe}
           nearActive={nearActive}
@@ -195,134 +194,6 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           geoError={geoError}
           resultCount={filtered.length}
         />
-
-        {selectedBeach && (
-          <div className="border-b border-sea-100 bg-sea-50/50 px-4 py-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-sea-950">
-                  {beachName(selectedBeach, locale)}
-                </h2>
-                <p className="text-xs text-sea-800/70">
-                  {selectedBeach.surfaceType
-                    ? tSurface(selectedBeach.surfaceType)
-                    : t('surfaceUnknown')}
-                  {selectedBeach.municipality ? ` · ${selectedBeach.municipality}` : ''}
-                  {selectedDistance != null ? ` · ${formatDistance(selectedDistance)}` : ''}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedId(null)}
-                aria-label={t('close')}
-                className="shrink-0 rounded-full px-2 py-0.5 text-sea-800/60 hover:bg-sea-100"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {(['dogs', 'nudist', 'accessible'] as FilterFlag[])
-                .filter((fl) => selectedBeach.flags[fl])
-                .map((fl) => (
-                  <span
-                    key={fl}
-                    className="rounded-full bg-white px-2 py-0.5 text-xs text-sea-800 ring-1 ring-sea-200"
-                  >
-                    {tFlags(fl)}
-                  </span>
-                ))}
-            </div>
-
-            {(() => {
-              const sea = seaQuality[selectedBeach.id];
-              if (!sea || !sea.assessment) return null;
-              const sampled = new Date(sea.sampledAt).toLocaleDateString(
-                locale === 'hr' ? 'hr-HR' : 'en-GB',
-              );
-              return (
-                <div className="mt-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-                      style={{ background: seaQualityColor(sea.assessment) }}
-                    >
-                      {tSea('heading')}: {tSea(sea.assessment)}
-                    </span>
-                    {sea.seaTemp != null && (
-                      <span className="text-xs text-sea-800/70">
-                        {tSea('seaTemp', { temp: sea.seaTemp })}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-[11px] leading-tight text-sea-800/55">
-                    {tSea('note')} · {tSea('sampled', { date: sampled })}
-                  </p>
-                </div>
-              );
-            })()}
-
-            <div className="mt-3">
-              <p className="text-xs font-medium text-sea-800/70">
-                {crowdLevels[selectedBeach.id]
-                  ? `${tCrowd('question')} ${tCrowd(crowdLevels[selectedBeach.id])}`
-                  : tCrowd('question')}
-              </p>
-              <div className="mt-1.5 flex gap-1.5">
-                {CROWD_LEVELS.map((lvl) => {
-                  const isCurrent = crowdLevels[selectedBeach.id] === lvl;
-                  return (
-                    <button
-                      key={lvl}
-                      type="button"
-                      onClick={() => handleReport(lvl)}
-                      disabled={reporting}
-                      aria-pressed={isCurrent}
-                      className="flex-1 rounded-full px-2 py-1.5 text-xs font-medium text-white transition disabled:opacity-60"
-                      style={{
-                        background: crowdColor(lvl),
-                        outline: isCurrent ? '2px solid #0d2b4a' : 'none',
-                        outlineOffset: '1px',
-                      }}
-                    >
-                      {tCrowd(lvl)}
-                    </button>
-                  );
-                })}
-              </div>
-              {reportedId === selectedBeach.id && (
-                <p className="mt-1 text-xs text-crowd-empty">{tCrowd('thanks')}</p>
-              )}
-            </div>
-
-            <div className="mt-3 flex gap-2">
-              <Link
-                href={`/plaza/${selectedBeach.slug}`}
-                className="rounded-full bg-sea-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sea-800"
-              >
-                {t('details')}
-              </Link>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${selectedBeach.lat},${selectedBeach.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-sea-800 ring-1 ring-sea-200 hover:bg-sea-50"
-              >
-                {t('directions')}
-              </a>
-              {selectedBeach.osmId && (
-                <a
-                  href={`https://www.openstreetmap.org/${selectedBeach.osmId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-sea-800 ring-1 ring-sea-200 hover:bg-sea-50"
-                >
-                  OSM
-                </a>
-              )}
-            </div>
-          </div>
-        )}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <BeachList
@@ -335,6 +206,24 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
         </div>
       </aside>
 
+      {/* Zona 2 — detalj-panel (treći stupac desktop; preko liste na mobitelu) */}
+      {selectedBeach && (
+        <section
+          aria-label={beachName(selectedBeach, locale)}
+          className="fixed inset-0 z-40 flex flex-col bg-white md:static md:z-auto md:h-full md:w-[400px] md:flex-none md:border-r md:border-sea-100"
+        >
+          <BeachDetailPanel
+            key={selectedBeach.id}
+            beach={selectedBeach}
+            locale={locale}
+            variant="panel"
+            distanceKm={selectedDistance}
+            onClose={() => setSelectedId(null)}
+          />
+        </section>
+      )}
+
+      {/* Zona 3 — karta */}
       <div className="h-[45vh] w-full shrink-0 md:h-full md:flex-1">
         <MapView
           beaches={filtered}

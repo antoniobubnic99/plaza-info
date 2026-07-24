@@ -54,6 +54,12 @@ export default function BeachList({
                   {beachName(b, locale)}
                 </span>
                 <span className="block truncate text-xs text-sea-800/60">
+                  {b.ratingCount > 0 && (
+                    <span className="font-medium text-amber-600">
+                      ★ {b.ratingAvg.toFixed(1)}
+                      <span className="mx-1 text-sea-800/40">·</span>
+                    </span>
+                  )}
                   {b.surfaceType ? tSurface(b.surfaceType) : t('surfaceUnknown')}
                   {b.municipality ? ` · ${b.municipality}` : ''}
                 </span>
