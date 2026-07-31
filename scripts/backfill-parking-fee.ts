@@ -201,18 +201,36 @@ type BeachRow = {
   parking_fee_status: string | null;
 };
 
-/** Najbliža fee-točka unutar tolerancije, ili null (parking bez poznate naplate). */
-function matchFeePoint(lat: number, lng: number, points: FeePoint[]): FeePoint | null {
-  let best: FeePoint | null = null;
-  let bestD = Infinity;
-  for (const p of points) {
-    const d = haversineM(lat, lng, p.lat, p.lng);
-    if (d < bestD) {
-      bestD = d;
-      best = p;
-    }
-  }
-  return best && bestD <= MATCH_TOLERANCE_M ? best : null;
+/** Naplata i (neobavezni) iznos za jedan parking; `status: null` = nepoznato. */
+type FeeMatch = { status: FeeStatus | null; charge?: string };
+
+/**
+ * Spoji spremljeni parking na OSM točke unutar tolerancije.
+ *
+ * ZAŠTO NE SAMO „najbliža točka": županijski bboxevi se PREKLAPAJU (npr. Šibenik i
+ * Split oba pokrivaju Raduču), pa isti parking uđe u cache dvaput — i te kopije ne
+ * moraju nositi iste tagove. Kad obje leže na 0 m, čista „najbliža" logika daje pobjedu
+ * onoj koja je slučajno prva u nizu, pa je kopija BEZ `charge` znala pregaziti onu s
+ * cijenom (potvrđeno na Velikoj Raduči). Zato se status i iznos biraju odvojeno.
+ */
+function matchFee(lat: number, lng: number, points: FeePoint[]): FeeMatch {
+  const near = points
+    .map((p) => ({ p, d: haversineM(lat, lng, p.lat, p.lng) }))
+    .filter((x) => x.d <= MATCH_TOLERANCE_M)
+    .sort((a, b) => a.d - b.d);
+  if (near.length === 0) return { status: null };
+
+  // Status: najbliža točka — nepromijenjena semantika. Duplikati istog parkinga nose
+  // isti `fee`, pa izjednačenje ne mijenja ishod (sort je stabilan → isti redoslijed
+  // chunkova uvijek daje isti rezultat).
+  const status = toFeeStatus(near[0].p.fee);
+  if (!status) return { status: null };
+
+  // Iznos: najbliža točka koja UOPĆE ima `charge` i slaže se sa statusom. Time se
+  // cijena više ne gubi zbog duplikata bez tagova. Ako dvije kopije nose RAZLIČITE
+  // iznose, OSM je proturječan — uzima se najbliža i ništa se ne izmišlja.
+  const priced = near.find((x) => x.p.charge && toFeeStatus(x.p.fee) === status);
+  return { status, charge: priced?.p.charge };
 }
 
 async function main(): Promise<void> {
@@ -258,8 +276,11 @@ async function main(): Promise<void> {
   let unknown = 0;
 
   for (const b of todo) {
-    const hit = matchFeePoint(b.parking_lat as number, b.parking_lng as number, points);
-    const status = hit ? toFeeStatus(hit.fee) : null;
+    const { status, charge } = matchFee(
+      b.parking_lat as number,
+      b.parking_lng as number,
+      points,
+    );
     if (!status) {
       unknown += 1;
       continue;
@@ -270,8 +291,8 @@ async function main(): Promise<void> {
     };
     // OSM `charge` je stvaran iznos iz baze (npr. „2 EUR/hour") — prenosi se doslovno,
     // bez preračunavanja i samo kad se stvarno naplaćuje.
-    if (status === 'paid' && hit?.charge) {
-      patch.parking_price_text = hit.charge.slice(0, 120);
+    if (status === 'paid' && charge) {
+      patch.parking_price_text = charge.slice(0, 120);
       withPrice += 1;
     }
 
