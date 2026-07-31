@@ -84,6 +84,7 @@ export interface BeachFilterState {
   minRating: number; // 0 = bilo koji; inače prag na rating_avg
   seaAssessments: SeaAssessment[]; // prazno = bilo koja; inače OR po zadnjoj IZOR ocjeni
   crowds: CrowdLevel[]; // prazno = bilo koja; inače OR po zadnjoj prijavi gužve
+  region: string | null; // odabrana županija iz prijedloga pretrage (null = sve)
 }
 
 export const EMPTY_FILTERS: BeachFilterState = {
@@ -94,6 +95,7 @@ export const EMPTY_FILTERS: BeachFilterState = {
   minRating: 0,
   seaAssessments: [],
   crowds: [],
+  region: null,
 };
 
 export function hasActiveFilters(f: BeachFilterState): boolean {
@@ -104,7 +106,8 @@ export function hasActiveFilters(f: BeachFilterState): boolean {
     f.amenities.length > 0 ||
     f.minRating > 0 ||
     f.seaAssessments.length > 0 ||
-    f.crowds.length > 0
+    f.crowds.length > 0 ||
+    f.region !== null
   );
 }
 
@@ -122,7 +125,10 @@ export function filterBeaches(
   crowdLevels: Record<string, CrowdLevel> = {},
 ): Beach[] {
   const q = normalize(filters.query);
+  const region = filters.region ? normalize(filters.region) : null;
   return beaches.filter((b) => {
+    // Odabrana županija iz pretrage — tvrdi filter (korisnik je izabrao mjesto, ne pojam).
+    if (region && normalize(b.region ?? '') !== region) return false;
     if (q) {
       const haystack = normalize(
         `${b.nameHr} ${b.nameEn ?? ''} ${b.municipality ?? ''} ${b.region ?? ''}`,
@@ -172,6 +178,7 @@ export function filtersToSearchParams(f: BeachFilterState): URLSearchParams {
   if (f.minRating > 0) p.set('rating', String(f.minRating));
   if (f.seaAssessments.length) p.set('sea', f.seaAssessments.join(','));
   if (f.crowds.length) p.set('crowd', f.crowds.join(','));
+  if (f.region) p.set('region', f.region);
   return p;
 }
 
@@ -190,6 +197,7 @@ export function filtersFromSearchParams(p: URLSearchParams): BeachFilterState {
     minRating: RATING_OPTIONS.includes(rating as (typeof RATING_OPTIONS)[number]) ? rating : 0,
     seaAssessments: csv('sea', SEA_ASSESSMENTS),
     crowds: csv('crowd', CROWD_LEVELS),
+    region: p.get('region'),
   };
 }
 

@@ -31,6 +31,11 @@
     "filterAmenities": "Sadržaji",
     "filterRating": "Rejting",
     "filterCrowd": "Gužva",
+    "placeKind_beach": "Plaža",
+    "placeKind_municipality": "Mjesto",
+    "placeKind_region": "Županija",
+    "placeBeachCount": "{count, plural, one {# plaža} few {# plaže} other {# plaža}}",
+    "clearRegion": "Ukloni filter županije",
     "submitBeach": "＋ Prijavi plažu"
   },
   "Surface": {

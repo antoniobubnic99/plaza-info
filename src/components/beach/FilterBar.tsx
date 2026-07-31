@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { CrowdLevel, SeaAssessment, SurfaceType } from '@/lib/beaches';
 import {
@@ -17,6 +18,7 @@ import {
   type BeachFilterState,
   type FilterFlag,
 } from '@/lib/beachFilters';
+import type { PlaceSuggestion } from '@/lib/placeIndex';
 import FilterDropdown from './FilterDropdown';
 
 interface FilterBarProps {
@@ -28,6 +30,9 @@ interface FilterBarProps {
   onSetMinRating: (r: number) => void;
   onToggleSeaAssessment: (s: SeaAssessment) => void;
   onToggleCrowd: (c: CrowdLevel) => void;
+  suggestions: PlaceSuggestion[];
+  onPickSuggestion: (s: PlaceSuggestion) => void;
+  onClearRegion: () => void;
   onReset: () => void;
   onNearMe: () => void;
   nearActive: boolean;
@@ -45,6 +50,9 @@ export default function FilterBar({
   onSetMinRating,
   onToggleSeaAssessment,
   onToggleCrowd,
+  suggestions,
+  onPickSuggestion,
+  onClearRegion,
   onReset,
   onNearMe,
   nearActive,
@@ -59,6 +67,8 @@ export default function FilterBar({
   const tSea = useTranslations('SeaQuality');
   const tCrowd = useTranslations('Crowd');
   const active = hasActiveFilters(filters);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const showSuggestions = suggestOpen && suggestions.length > 0;
 
   return (
     <div className="flex flex-col gap-3 border-b border-sea-100 bg-white/95 p-4 backdrop-blur">
@@ -68,11 +78,54 @@ export default function FilterBar({
             type="search"
             inputMode="search"
             value={filters.query}
-            onChange={(e) => onQueryChange(e.target.value)}
+            onChange={(e) => {
+              onQueryChange(e.target.value);
+              setSuggestOpen(true);
+            }}
+            onFocus={() => setSuggestOpen(true)}
+            // Odgoda: bez nje `blur` ugasi popis prije nego klik na prijedlog stigne okinuti.
+            onBlur={() => window.setTimeout(() => setSuggestOpen(false), 120)}
             placeholder={t('searchPlaceholder')}
             aria-label={t('searchPlaceholder')}
+            role="combobox"
+            aria-expanded={showSuggestions}
+            aria-controls="place-suggestions"
             className="w-full rounded-full border border-sea-200 bg-sea-50/60 px-4 py-2.5 text-sm text-sea-950 outline-none transition focus:border-sea-400 focus:bg-white"
           />
+          {showSuggestions && (
+            <ul
+              id="place-suggestions"
+              role="listbox"
+              className="absolute left-0 right-0 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-xl border border-sea-100 bg-white py-1 shadow-lg"
+            >
+              {suggestions.map((s) => (
+                <li key={`${s.kind}-${s.label}-${s.beachId ?? ''}`}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={false}
+                    onClick={() => {
+                      onPickSuggestion(s);
+                      setSuggestOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-sea-50"
+                  >
+                    <span aria-hidden className="w-5 shrink-0 text-center text-sea-600">
+                      {s.kind === 'beach' ? '🏖' : s.kind === 'municipality' ? '📍' : '🗺'}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sea-950">{s.label}</span>
+                      <span className="block truncate text-xs text-sea-800/60">
+                        {t(`placeKind_${s.kind}`)}
+                        {s.context ? ` · ${s.context}` : ''}
+                        {s.count > 0 ? ` · ${t('placeBeachCount', { count: s.count })}` : ''}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <button
           type="button"
@@ -145,6 +198,22 @@ export default function FilterBar({
           }))}
         />
       </div>
+
+      {filters.region && (
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-sea-600 px-3 py-1 text-xs font-medium text-white">
+            🗺 {filters.region}
+            <button
+              type="button"
+              onClick={onClearRegion}
+              aria-label={t('clearRegion')}
+              className="ml-0.5 text-white/80 transition hover:text-white"
+            >
+              ✕
+            </button>
+          </span>
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs text-sea-800/70">
         <span>{t('resultsCount', { count: resultCount })}</span>

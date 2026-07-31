@@ -31,6 +31,11 @@
     "filterAmenities": "Amenities",
     "filterRating": "Rating",
     "filterCrowd": "Crowd",
+    "placeKind_beach": "Beach",
+    "placeKind_municipality": "Town",
+    "placeKind_region": "County",
+    "placeBeachCount": "{count, plural, one {# beach} other {# beaches}}",
+    "clearRegion": "Clear county filter",
     "submitBeach": "＋ Add a beach"
   },
   "Surface": {

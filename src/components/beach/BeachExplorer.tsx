@@ -27,6 +27,7 @@ import {
 } from '@/lib/beachFilters';
 import { getLatestCrowdLevels } from '@/lib/queries';
 import { locateOnce } from '@/lib/geolocate';
+import { buildPlaceIndex, suggestPlaces, type PlaceSuggestion } from '@/lib/placeIndex';
 import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
 import BeachList from './BeachList';
@@ -59,6 +60,8 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [crowdLevels, setCrowdLevels] = useState<Record<string, CrowdLevel>>({});
+  // Središte odabranog mjesta iz pretrage (mjesto/županija) — sidro za sortiranje po blizini.
+  const [placeAnchor, setPlaceAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const hydratedRef = useRef(false);
 
   // Zadnje razine gužve (za bojanje markera na karti), osvježavanje svakih 60 s.
@@ -116,12 +119,20 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     [beaches, filters, crowdLevels],
   );
 
+  // Indeks županija/mjesta iz učitanih plaža — gradi se jednom, bez vanjskog geokodera.
+  const placeIndex = useMemo(() => buildPlaceIndex(beaches), [beaches]);
+  const suggestions = useMemo(
+    () => suggestPlaces(filters.query, placeIndex, beaches, locale),
+    [filters.query, placeIndex, beaches, locale],
+  );
+
   const listBeaches = useMemo(() => {
-    if (nearActive && userLocation) {
-      return sortByDistance(filtered, userLocation.lat, userLocation.lng);
-    }
+    // Odabrano mjesto iz pretrage („u blizini grada Zadra") sortira po udaljenosti
+    // od njegova središta; korisnikova lokacija ima prednost ako je aktivna.
+    const anchor = nearActive && userLocation ? userLocation : placeAnchor;
+    if (anchor) return sortByDistance(filtered, anchor.lat, anchor.lng);
     return sortByPopularity(filtered, locale); // default: najpopularnije prvo (0009)
-  }, [filtered, nearActive, userLocation, locale]);
+  }, [filtered, nearActive, userLocation, placeAnchor, locale]);
 
   const selectedBeach = useMemo(
     () => beaches.find((b) => b.id === selectedId) ?? null,
@@ -149,9 +160,37 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     }
   }
 
+  /**
+   * Odabir iz prijedloga pretrage:
+   * - plaža → otvori je,
+   * - mjesto → zumiraj i poredaj po blizini tog mjesta (upit se briše da ne filtrira dvaput),
+   * - županija → tvrdi filter po županiji.
+   */
+  function handlePickSuggestion(s: PlaceSuggestion) {
+    if (s.kind === 'beach' && s.beachId) {
+      setFilters((f) => ({ ...f, query: '' }));
+      handleSelect(s.beachId);
+      return;
+    }
+    if (s.kind === 'municipality') {
+      setFilters((f) => ({ ...f, query: '' }));
+      setPlaceAnchor({ lat: s.lat, lng: s.lng });
+      setFocus({ lng: s.lng, lat: s.lat, zoom: 12, nonce: Date.now() });
+      return;
+    }
+    setFilters((f) => ({ ...f, query: '', region: s.label }));
+    setPlaceAnchor(null);
+    setFocus({ lng: s.lng, lat: s.lat, zoom: 9, nonce: Date.now() });
+  }
+
+  function handleClearRegion() {
+    setFilters((f) => ({ ...f, region: null }));
+  }
+
   function handleReset() {
     setFilters(EMPTY_FILTERS);
     setNearActive(false);
+    setPlaceAnchor(null);
     setGeoError(null);
   }
 
@@ -205,6 +244,9 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           onToggleCrowd={(c: CrowdLevel) =>
             setFilters((f) => ({ ...f, crowds: toggle(f.crowds, c) }))
           }
+          suggestions={suggestions}
+          onPickSuggestion={handlePickSuggestion}
+          onClearRegion={handleClearRegion}
           onReset={handleReset}
           onNearMe={handleNearMe}
           nearActive={nearActive}
@@ -219,7 +261,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
             selectedId={selectedId}
             onSelect={handleSelect}
             locale={locale}
-            showDistance={nearActive && userLocation != null}
+            showDistance={(nearActive && userLocation != null) || placeAnchor != null}
             crowdLevels={crowdLevels}
           />
         </div>
