@@ -11,9 +11,10 @@ import {
 } from '@/lib/photoConfig';
 
 // Upload ide serverski preko service_role (zaobilazi RLS): bajtovi u javni Storage
-// bucket, red u tablicu sa status='pending' (čeka moderaciju). ADITIVNI AUTH: ako
-// je korisnik prijavljen (Google, sesija u kolačiću), fotka se veže uz njegov
-// user_id; anonimni upload (user_id = null) i dalje radi kad nije prijavljen.
+// bucket, red u tablicu sa status='pending' (čeka moderaciju). PRIJAVA JE OBAVEZNA
+// (odluka 2026-07-31): bez sesije u kolačiću vraćamo 401 PRIJE nego što išta ode u
+// Storage — inače bi neprijavljeni posjetitelj trošio prostor uploadom koji ionako
+// propada. Gužva ostaje anonimna.
 export const runtime = 'nodejs';
 
 const beachIdSchema = z.string().uuid();
@@ -24,6 +25,13 @@ const kindSchema = z.enum(['beach', 'parking']).catch('beach');
 export async function POST(request: Request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'server_not_configured' }, { status: 503 });
+  }
+
+  // Fotka TRAŽI prijavljenog korisnika — sesija iz kolačića, prije čitanja bajtova.
+  const sb = await getSupabaseServer();
+  const userId = sb ? (await sb.auth.getUser()).data.user?.id ?? null : null;
+  if (!userId) {
+    return NextResponse.json({ error: 'auth_required' }, { status: 401 });
   }
 
   let form: FormData;
@@ -81,19 +89,11 @@ export async function POST(request: Request) {
     data: { publicUrl },
   } = supabaseAdmin.storage.from(PHOTO_BUCKET).getPublicUrl(path);
 
-  // Aditivna atribucija: prijavljeni korisnik iz kolačić-sesije (ako ga ima).
-  let userId: string | null = null;
-  const sb = await getSupabaseServer();
-  if (sb) {
-    const { data } = await sb.auth.getUser();
-    userId = data.user?.id ?? null;
-  }
-
   const { error: insertErr } = await supabaseAdmin.from('photos').insert({
     beach_id: beachId,
     url: publicUrl,
     kind, // 'beach' (galerija) ili 'parking' (panel parkinga)
-    user_id: userId, // null ako anonimno; is_official false, status default 'pending'.
+    user_id: userId, // is_official false, status default 'pending'.
   });
   if (insertErr) {
     // Počisti osiroćeni objekt da Storage ne nakuplja neuvezane bajtove.

@@ -4,9 +4,10 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getSupabaseServer } from '@/lib/supabaseServer';
 
 // Upis ide serverski preko service_role (zaobilazi RLS), status ostaje 'pending'
-// (javno se prikazuje tek nakon moderacije). ADITIVNI AUTH: ako je korisnik
-// prijavljen (Google, sesija u kolačiću), unos se veže uz njegov user_id;
-// anonimni unos (user_id = null) i dalje radi kad korisnik nije prijavljen.
+// (javno se prikazuje tek nakon moderacije). PRIJAVA JE OBAVEZNA (odluka
+// 2026-07-31): bez sesije u kolačiću vraćamo 401 i recenzija se ne upisuje — tako
+// svaka nova recenzija ima autora i spam ima cijenu. Gužva ostaje anonimna.
+// `reviews.user_id` ostaje nullable zbog ranijih anonimnih recenzija.
 export const runtime = 'nodejs';
 
 const bodySchema = z.object({
@@ -36,19 +37,18 @@ export async function POST(request: Request) {
   }
   const { beachId, rating, body } = parsed.data;
 
-  // Aditivna atribucija: pročitaj prijavljenog korisnika iz kolačić-sesije (ako ga ima).
-  let userId: string | null = null;
+  // Recenzija TRAŽI prijavljenog korisnika — čitaj sesiju iz kolačića.
   const sb = await getSupabaseServer();
-  if (sb) {
-    const { data } = await sb.auth.getUser();
-    userId = data.user?.id ?? null;
+  const userId = sb ? (await sb.auth.getUser()).data.user?.id ?? null : null;
+  if (!userId) {
+    return NextResponse.json({ error: 'auth_required' }, { status: 401 });
   }
 
   const { error } = await supabaseAdmin.from('reviews').insert({
     beach_id: beachId,
     rating,
     body: body && body.length > 0 ? body : null,
-    user_id: userId, // null ako anonimno; status default 'pending' — čeka moderaciju.
+    user_id: userId, // status default 'pending' — čeka moderaciju.
   });
 
   if (error) {

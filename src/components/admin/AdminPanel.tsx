@@ -409,6 +409,15 @@ function SubmissionCard({
             {s.parking_note}
           </div>
         )}
+        {/* Ocjena prijavitelja (0011) — odobrenjem prijave postaje odobrena
+            recenzija, pa moderator mora vidjeti što će time objaviti. */}
+        {s.rating != null && (
+          <div>
+            <span className="text-sea-800/60">{t('subRating')}: </span>
+            <span className="text-amber-500">{'★'.repeat(s.rating)}</span>
+            <span className="text-sea-800/50"> {s.rating}/5</span>
+          </div>
+        )}
       </dl>
 
       {!isParking && (activeAmenities.length > 0 || activeFlags.length > 0) && (

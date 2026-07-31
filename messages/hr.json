@@ -159,7 +159,8 @@
     "signInGoogle": "Prijava Google računom",
     "signOut": "Odjava",
     "signedInAs": "Prijavljen: {email}",
-    "optionalNote": "Prijava je opcionalna — povezuje unos uz tvoj račun."
+    "requiredNote": "Prijava je obavezna (Google) — tako sprječavamo spam i unos ima autora.",
+    "mustSignIn": "Prijavi se Google računom da pošalješ."
   },
   "Admin": {
     "title": "Moderacija",
@@ -192,7 +193,8 @@
     "subParkingFee_free": "Besplatan",
     "subParkingFee_paid": "Naplaćuje se",
     "subParkingFee_unknown": "Korisnik ne zna",
-    "subParkingNote": "Napomena"
+    "subParkingNote": "Napomena",
+    "subRating": "Ocjena prijavitelja"
   },
   "Submit": {
     "metaTitle": "Prijavi plažu — PlažaInfo",
@@ -244,7 +246,11 @@
     "parkingPhotoHint": "Ide u moderaciju i prikazuje se u panelu parkinga, ne u galeriji plaže.",
     "photo_too_large": "Prijava je zaprimljena, ali fotografija je prevelika (najviše 5 MB).",
     "photo_unsupported": "Prijava je zaprimljena, ali format fotografije nije podržan (JPEG, PNG ili WebP).",
-    "photo_error": "Prijava je zaprimljena, ali fotografiju nismo uspjeli poslati. Pokušaj je dodati kasnije."
+    "photo_error": "Prijava je zaprimljena, ali fotografiju nismo uspjeli poslati. Pokušaj je dodati kasnije.",
+    "photo_auth": "Prijava je zaprimljena, ali fotografiju nismo poslali jer je sesija istekla. Prijavi se i dodaj je ponovno.",
+    "rating": "Tvoja ocjena (nije obavezno)",
+    "ratingHint": "Kad prijavu odobrimo, ocjena postaje prva recenzija plaže.",
+    "ratingClear": "Klikni istu zvjezdicu da poništiš."
   },
   "NotFound": {
     "title": "Stranica nije pronađena",

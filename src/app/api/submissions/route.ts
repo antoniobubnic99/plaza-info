@@ -55,6 +55,9 @@ const newBeachSchema = z.object({
   lengthM: z.number().int().min(1).max(50000).optional(),
   descriptionHr: z.string().trim().max(2000).optional(),
   descriptionEn: z.string().trim().max(2000).optional(),
+  // Ocjena prijavitelja (0011) — isti raspon kao u `reviews`, jer je odobrenje
+  // prijave prepisuje u recenziju. Izostavljena znači „nisam ocijenio", ne nula.
+  rating: z.number().int().min(1).max(5).optional(),
   amenities: amenitiesSchema.optional(),
   flags: flagsSchema.optional(),
   parkingLat: lat.optional(),
@@ -164,6 +167,8 @@ export async function POST(request: Request) {
     length_m: input.lengthM ?? null,
     description_hr: input.descriptionHr ?? null,
     description_en: input.descriptionEn ?? null,
+    rating: input.rating ?? null, // null = prijavitelj nije ocijenio → nema recenzije
+
     amenities: input.amenities ?? {},
     flags: input.flags ?? {},
     parking_lat: input.parkingLat ?? null,

@@ -159,7 +159,8 @@
     "signInGoogle": "Sign in with Google",
     "signOut": "Sign out",
     "signedInAs": "Signed in: {email}",
-    "optionalNote": "Signing in is optional — it links your submission to your account."
+    "requiredNote": "Signing in (Google) is required — it prevents spam and gives every entry an author.",
+    "mustSignIn": "Sign in with Google to submit."
   },
   "Admin": {
     "title": "Moderation",
@@ -192,7 +193,8 @@
     "subParkingFee_free": "Free",
     "subParkingFee_paid": "Paid",
     "subParkingFee_unknown": "Submitter doesn't know",
-    "subParkingNote": "Note"
+    "subParkingNote": "Note",
+    "subRating": "Submitter's rating"
   },
   "Submit": {
     "metaTitle": "Add a beach — PlažaInfo",
@@ -244,7 +246,11 @@
     "parkingPhotoHint": "Goes through moderation and appears in the parking panel, not the beach gallery.",
     "photo_too_large": "Your report was received, but the photo is too large (5 MB max).",
     "photo_unsupported": "Your report was received, but the photo format is not supported (JPEG, PNG or WebP).",
-    "photo_error": "Your report was received, but we could not upload the photo. Try adding it later."
+    "photo_error": "Your report was received, but we could not upload the photo. Try adding it later.",
+    "photo_auth": "Your report was received, but the photo was not uploaded because your session expired. Sign in and add it again.",
+    "rating": "Your rating (optional)",
+    "ratingHint": "Once we approve the submission, your rating becomes the beach's first review.",
+    "ratingClear": "Click the same star to clear."
   },
   "NotFound": {
     "title": "Page not found",

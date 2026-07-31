@@ -108,6 +108,8 @@ export interface PendingSubmission {
   parking_fee_status: 'free' | 'paid' | 'unknown' | null; // null = korisnik nije odgovorio
   parking_price_text: string | null;
   parking_note: string | null;
+  /** Ocjena prijavitelja (0011); odobrenjem prijave postaje recenzija. */
+  rating: number | null;
   created_at: string;
   // PostgREST vraća relaciju kao objekt, supabase-js je tipizira kao niz — pokrij oba.
   beach:

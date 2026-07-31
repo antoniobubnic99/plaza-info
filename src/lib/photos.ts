@@ -3,7 +3,8 @@
 // preko service_role u javni Storage bucket i red ostaje 'pending' do moderacije.
 import { MAX_PHOTO_BYTES, isAllowedPhotoType } from '@/lib/photoConfig';
 
-export type SubmitPhotoResult = 'ok' | 'too_large' | 'unsupported' | 'error';
+/** `auth` = server je odbio jer nema prijave (401), nije kvar — traži drukčiju poruku. */
+export type SubmitPhotoResult = 'ok' | 'auth' | 'too_large' | 'unsupported' | 'error';
 
 /** Vrsta fotke (0010): galerija plaže ili fotka njezina parkinga. */
 export type PhotoKind = 'beach' | 'parking';
@@ -25,6 +26,7 @@ export async function submitPhoto(
   try {
     const res = await fetch('/api/photos', { method: 'POST', body: form });
     if (res.status === 201) return 'ok';
+    if (res.status === 401) return 'auth';
     if (res.status === 413) return 'too_large';
     if (res.status === 415) return 'unsupported';
     return 'error';

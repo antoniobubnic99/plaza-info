@@ -1,57 +1,17 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { getSupabaseBrowser } from '@/lib/supabaseBrowser';
+import { useAuthUser } from '@/lib/useAuthUser';
 
-// Aditivna Google prijava (opcionalna). Kad je korisnik prijavljen, serverske
-// rute (/api/reviews, /api/photos) čitaju sesiju iz kolačića i vežu unos uz
-// user_id. Ako Supabase Auth nije konfiguriran, gumb se sakriva / prijava tiho
-// ne uspije — anonimni unos i dalje radi.
+// Google prijava. Recenzije, fotke i prijave plaža TRAŽE prijavljenog korisnika —
+// serverske rute (/api/reviews, /api/photos, /api/submissions) čitaju sesiju iz
+// kolačića i vežu unos uz user_id, a bez sesije vraćaju 401. Gužva ostaje anonimna.
+// Ako Supabase Auth nije konfiguriran, gumb se sakriva.
 export default function AuthButton() {
   const t = useTranslations('Auth');
-  const supabase = useMemo(() => getSupabaseBrowser(), []);
-  const [email, setEmail] = useState<string | null>(null);
-  // Kad Supabase nije konfiguriran, odmah smo "ready" (komponenta se sakriva);
-  // inače čekamo prvi getUser() da izbjegnemo bljesak gumba. Inicijalizacija ovdje
-  // (ne setState u effectu) zadovoljava react-hooks/set-state-in-effect.
-  const [ready, setReady] = useState(supabase === null);
+  const { configured, ready, email, signIn, signOut } = useAuthUser();
 
-  useEffect(() => {
-    if (!supabase) return;
-    let active = true;
-    supabase.auth.getUser().then(({ data }) => {
-      if (!active) return;
-      setEmail(data.user?.email ?? null);
-      setReady(true);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setEmail(session?.user?.email ?? null);
-    });
-    return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  if (!supabase || !ready) return null;
-
-  async function signIn() {
-    if (!supabase) return;
-    const next = window.location.pathname;
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    });
-  }
-
-  async function signOut() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
-    setEmail(null);
-  }
+  if (!configured || !ready) return null;
 
   if (email) {
     return (

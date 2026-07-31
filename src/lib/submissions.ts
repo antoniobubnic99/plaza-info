@@ -24,6 +24,8 @@ export interface SubmitBeachInput extends ParkingFeeInput {
   lengthM?: number;
   descriptionHr?: string;
   descriptionEn?: string;
+  /** Ocjena prijavitelja 1–5 (0011), nije obavezna; odobrenjem postaje recenzija. */
+  rating?: number;
   amenities: BeachAmenities;
   flags: BeachFlags;
   parkingLat?: number;

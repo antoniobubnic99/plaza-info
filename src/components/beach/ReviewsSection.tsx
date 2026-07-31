@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { BeachReview } from '@/lib/queries';
 import { submitReview } from '@/lib/reviews';
+import { useAuthUser } from '@/lib/useAuthUser';
 import AuthButton from '@/components/auth/AuthButton';
 
 interface ReviewsSectionProps {
@@ -28,20 +29,26 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [body, setBody] = useState('');
-  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth'>('idle');
+  // Recenzija traži prijavu (stavka 2). `null` = još ne znamo → ne blokiraj gumb
+  // prije prve provjere sesije, inače bi prijavljeni korisnik nakratko vidio
+  // onemogućenu formu.
+  const { signedIn } = useAuthUser();
 
   const fmt = (iso: string) =>
     new Date(iso).toLocaleDateString(locale === 'hr' ? 'hr-HR' : 'en-GB');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (rating < 1 || state === 'sending') return;
+    if (rating < 1 || state === 'sending' || signedIn === false) return;
     setState('sending');
-    const ok = await submitReview({ beachId, rating, body: body.trim() || undefined });
-    setState(ok ? 'done' : 'error');
-    if (ok) {
+    const result = await submitReview({ beachId, rating, body: body.trim() || undefined });
+    if (result.ok) {
+      setState('done');
       setRating(0);
       setBody('');
+    } else {
+      setState(result.reason === 'auth' ? 'auth' : 'error');
     }
   }
 
@@ -73,7 +80,7 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <AuthButton />
-          <span className="text-[11px] leading-tight text-sea-800/55">{tAuth('optionalNote')}</span>
+          <span className="text-[11px] leading-tight text-sea-800/55">{tAuth('requiredNote')}</span>
         </div>
 
         <div className="mt-3 flex items-center gap-1" role="radiogroup" aria-label={t('ratingLabel')}>
@@ -107,7 +114,7 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
         <div className="mt-3 flex items-center gap-3">
           <button
             type="submit"
-            disabled={rating < 1 || state === 'sending'}
+            disabled={rating < 1 || state === 'sending' || signedIn === false}
             className="rounded-full bg-sea-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-sea-800 disabled:opacity-50"
           >
             {state === 'sending' ? t('sending') : t('submit')}
@@ -115,6 +122,10 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
           {state === 'done' && (
             <span className="text-xs text-crowd-empty">{t('thanksPending')}</span>
           )}
+          {signedIn === false && (
+            <span className="text-xs text-sea-800/70">{tAuth('mustSignIn')}</span>
+          )}
+          {state === 'auth' && <span className="text-xs text-red-600">{tAuth('mustSignIn')}</span>}
           {state === 'error' && <span className="text-xs text-red-600">{t('error')}</span>}
         </div>
 

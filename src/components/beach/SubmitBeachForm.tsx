@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { getSupabaseBrowser } from '@/lib/supabaseBrowser';
+import { useAuthUser } from '@/lib/useAuthUser';
 import { submitSubmission } from '@/lib/submissions';
 import { AMENITY_FILTERS, FILTER_FLAGS, SURFACE_TYPES } from '@/lib/beachFilters';
 import {
@@ -56,8 +56,7 @@ export default function SubmitBeachForm({
   const tAmenities = useTranslations('Amenities');
   const tFlags = useTranslations('Flags');
 
-  const supabase = useMemo(() => getSupabaseBrowser(), []);
-  const [signedIn, setSignedIn] = useState<boolean | null>(supabase ? null : false);
+  const { signedIn } = useAuthUser();
 
   // Nova plaža — polja.
   const [nameHr, setNameHr] = useState('');
@@ -71,6 +70,10 @@ export default function SubmitBeachForm({
   const [amenities, setAmenities] = useState<BeachAmenities>({});
   const [flags, setFlags] = useState<BeachFlags>({});
   const [beachPoint, setBeachPoint] = useState<PickedPoint | null>(null);
+  // Ocjena prijavitelja (0011). 0 = nije ocijenio → polje se ne šalje. Odobrenjem
+  // prijave postaje prava recenzija, pa indeks kvalitete prepušta mjesto prosjeku.
+  const [rating, setRating] = useState(0);
+  const [ratingHover, setRatingHover] = useState(0);
 
   // Parking (opcionalno za novu plažu; obavezno u parking-modu).
   const [parkingPoint, setParkingPoint] = useState<PickedPoint | null>(initialParkingPoint);
@@ -83,21 +86,6 @@ export default function SubmitBeachForm({
   const [photoWarning, setPhotoWarning] = useState<string | null>(null);
 
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth'>('idle');
-
-  useEffect(() => {
-    if (!supabase) return;
-    let active = true;
-    supabase.auth.getUser().then(({ data }) => {
-      if (active) setSignedIn(!!data.user);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setSignedIn(!!session?.user);
-    });
-    return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   const isParking = mode === 'parking';
   const surface =
@@ -140,6 +128,7 @@ export default function SubmitBeachForm({
           surface,
           lengthM: lengthM ? Number(lengthM) : undefined,
           descriptionHr: descriptionHr.trim() || undefined,
+          rating: rating > 0 ? rating : undefined,
           amenities,
           flags,
           parkingLat: parkingPoint?.lat,
@@ -171,6 +160,7 @@ export default function SubmitBeachForm({
         setAmenities({});
         setFlags({});
         setBeachPoint(null);
+        setRating(0);
       }
       setParkingPoint(null);
     } else {
@@ -404,6 +394,34 @@ export default function SubmitBeachForm({
               rows={3}
               className={`mt-1 resize-y ${field}`}
             />
+          </div>
+
+          {/* Ocjena (0011) — nije obavezna. Ponovni klik na istu zvjezdicu briše
+              ocjenu, da se pogrešan klik ne mora slati kao „mišljenje". */}
+          <div>
+            <span className={labelCls}>{t('rating')}</span>
+            <p className="mb-1 text-xs text-sea-800/60">{t('ratingHint')}</p>
+            <div className="flex items-center gap-1" role="radiogroup" aria-label={t('rating')}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  role="radio"
+                  aria-checked={rating === n}
+                  aria-label={String(n)}
+                  onClick={() => setRating((prev) => (prev === n ? 0 : n))}
+                  onMouseEnter={() => setRatingHover(n)}
+                  onMouseLeave={() => setRatingHover(0)}
+                  className="text-2xl leading-none transition"
+                  style={{ color: (ratingHover || rating) >= n ? '#f59e0b' : '#bcd3e6' }}
+                >
+                  ★
+                </button>
+              ))}
+              {rating > 0 && (
+                <span className="ml-2 text-xs text-sea-800/60">{t('ratingClear')}</span>
+              )}
+            </div>
           </div>
 
           <fieldset>
