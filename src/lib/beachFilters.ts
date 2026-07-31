@@ -258,6 +258,44 @@ export function sortByPopularity(beaches: Beach[], locale: string): Beach[] {
   });
 }
 
+// Doprinosi indeksu kvalitete. Zbroj maksimuma = 100.
+const SEA_POINTS: Record<SeaAssessment, number> = {
+  excellent: 40,
+  good: 30,
+  satisfactory: 15,
+  unsatisfactory: 0,
+};
+const POINTS_PER_AMENITY = 6; // 5 sadržaja × 6 = 30
+const MAX_AMENITY_POINTS = 30;
+const MAX_POPULARITY_POINTS = 20;
+const DETAIL_POINTS = 10; // poznata podloga + poznat parking
+
+/**
+ * Indeks kvalitete (0–100) iz podataka koje o plaži VEĆ imamo — kakvoća mora (IZOR),
+ * sadržaji, popularnost i potpunost podataka.
+ *
+ * NIJE ocjena korisnika i ne prikazuje se kao zvjezdice. Služi samo dok plaža nema
+ * nijednu recenziju; čim stigne prva, prosjek recenzija preuzima prikaz. Namjerno se
+ * ne uvoze vanjske ocjene (Google Maps ToS zabranjuje trajno spremanje i prikaz izvan
+ * njihove karte), pa ovdje nema izmišljenih ni tuđih podataka.
+ */
+export function qualityIndex(beach: Beach): number {
+  let score = 0;
+  if (beach.seaAssessment) score += SEA_POINTS[beach.seaAssessment];
+
+  const amenityCount = AMENITY_FILTERS.filter((a) => beach.amenities[a]).length;
+  score += Math.min(amenityCount * POINTS_PER_AMENITY, MAX_AMENITY_POINTS);
+
+  score += Math.min(beach.popularityScore, MAX_POPULARITY_POINTS);
+
+  const knownDetails = [beach.surfaceType != null, beach.parkingDistanceM != null].filter(
+    Boolean,
+  ).length;
+  score += (knownDetails / 2) * DETAIL_POINTS;
+
+  return Math.round(Math.min(score, 100));
+}
+
 /** Formatira udaljenost za prikaz (m ispod 1 km, inače 1 decimala km). */
 export function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} m`;
