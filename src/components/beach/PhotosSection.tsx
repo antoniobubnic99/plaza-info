@@ -7,6 +7,7 @@ import { submitPhoto, type SubmitPhotoResult } from '@/lib/photos';
 import { ALLOWED_PHOTO_TYPES } from '@/lib/photoConfig';
 import AuthButton from '@/components/auth/AuthButton';
 import PhotoCredit from './PhotoCredit';
+import PhotoLightbox from './PhotoLightbox';
 
 interface PhotosSectionProps {
   beachId: string;
@@ -21,6 +22,7 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
   const tAuth = useTranslations('Auth');
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<'idle' | 'sending' | SubmitPhotoResult>('idle');
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   async function handleFile(file: File | undefined) {
     if (!file || state === 'sending') return;
@@ -51,17 +53,24 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
         <p className="mt-2 text-sm text-sea-800/70">{t('empty')}</p>
       ) : (
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {initialPhotos.map((p) => (
+          {initialPhotos.map((p, i) => (
             <li key={p.id} className="overflow-hidden rounded-lg border border-sea-100 bg-sea-50">
-              {/* eslint-disable-next-line @next/next/no-img-element -- korisnički Storage URL; bez next/image optimizacije da ne troši Vercel kvotu */}
-              <img
-                src={p.url}
-                alt={t('photoAlt', { name: beachName })}
-                loading="lazy"
-                width={400}
-                height={300}
-                className="aspect-[4/3] w-full object-cover"
-              />
+              <button
+                type="button"
+                onClick={() => setLightboxIndex(i)}
+                aria-label={t('openPhoto', { name: beachName })}
+                className="block w-full cursor-zoom-in transition hover:opacity-90"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- korisnički Storage URL; bez next/image optimizacije da ne troši Vercel kvotu */}
+                <img
+                  src={p.url}
+                  alt={t('photoAlt', { name: beachName })}
+                  loading="lazy"
+                  width={400}
+                  height={300}
+                  className="aspect-[4/3] w-full object-cover"
+                />
+              </button>
               <PhotoCredit photo={p} variant="caption" />
             </li>
           ))}
@@ -92,6 +101,16 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
         </div>
         <p className="mt-1 text-[11px] leading-tight text-sea-800/55">{t('moderationNote')}</p>
       </div>
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={initialPhotos}
+          index={lightboxIndex}
+          beachName={beachName}
+          onClose={() => setLightboxIndex(null)}
+          onIndexChange={setLightboxIndex}
+        />
+      )}
     </section>
   );
 }

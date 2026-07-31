@@ -26,6 +26,7 @@ import {
   type FilterFlag,
 } from '@/lib/beachFilters';
 import { getLatestCrowdLevels } from '@/lib/queries';
+import { locateOnce } from '@/lib/geolocate';
 import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
 import BeachList from './BeachList';
@@ -133,27 +134,19 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     if (b) setFocus({ lng: b.lng, lat: b.lat, zoom: 14, nonce: Date.now() });
   }
 
-  function handleNearMe() {
-    if (!('geolocation' in navigator)) {
-      setGeoError(t('geoUnsupported'));
-      return;
-    }
+  async function handleNearMe() {
     setLocating(true);
     setGeoError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setUserLocation(loc);
-        setNearActive(true);
-        setLocating(false);
-        setFocus({ lng: loc.lng, lat: loc.lat, zoom: 12, nonce: Date.now() });
-      },
-      () => {
-        setLocating(false);
-        setGeoError(t('geoError'));
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+    try {
+      const loc = await locateOnce();
+      setUserLocation(loc);
+      setNearActive(true);
+      setFocus({ lng: loc.lng, lat: loc.lat, zoom: 12, nonce: Date.now() });
+    } catch (reason) {
+      setGeoError(reason === 'unsupported' ? t('geoUnsupported') : t('geoError'));
+    } finally {
+      setLocating(false);
+    }
   }
 
   function handleReset() {
