@@ -254,14 +254,27 @@ async function main(): Promise<void> {
   }
   const supabase = createClient(url, key, { auth: { persistSession: false } });
 
-  // Postojeće plaže → očuvanje slugova.
-  const { data: existing, error: exErr } = await supabase.from('beaches').select('slug, osm_id');
+  // Postojeće plaže → očuvanje slugova I sadržaja.
+  const { data: existing, error: exErr } = await supabase
+    .from('beaches')
+    .select('slug, osm_id, amenities');
   if (exErr) throw new Error(`beaches (postojeće): ${exErr.message}`);
   const existingByOsm = new Map<string, string>();
   const existingSlugs = new Set<string>();
-  for (const row of (existing ?? []) as { slug: string; osm_id: string | null }[]) {
+  // Sadržaji NE dolaze iz ovog seeda (OSM ih drži kao zasebne POI točke — vidi
+  // seed-amenities.ts), pa se moraju proslijediti natrag u upsert. Bez toga bi
+  // ponovni seed pregazio popunjene sadržaje praznim objektom.
+  const amenitiesBySlug = new Map<string, Record<string, unknown>>();
+  for (const row of (existing ?? []) as {
+    slug: string;
+    osm_id: string | null;
+    amenities: Record<string, unknown> | null;
+  }[]) {
     existingSlugs.add(row.slug);
     if (row.osm_id) existingByOsm.set(row.osm_id, row.slug);
+    if (row.amenities && Object.keys(row.amenities).length > 0) {
+      amenitiesBySlug.set(row.slug, row.amenities);
+    }
   }
   console.log(`[seed] Postojećih plaža u bazi: ${existingSlugs.size}`);
 
@@ -298,7 +311,7 @@ async function main(): Promise<void> {
       p_surface: mapSurface(tags),
       p_izor_point_id: izor?.izorPointId ?? null,
       p_osm_id: osmKey(el),
-      p_amenities: {},
+      p_amenities: amenitiesBySlug.get(slug) ?? {},
       p_flags: mapFlags(tags),
     });
     if (error) {

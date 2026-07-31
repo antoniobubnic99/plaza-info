@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { SeaAssessment, SurfaceType } from '@/lib/beaches';
+import type { CrowdLevel, SeaAssessment, SurfaceType } from '@/lib/beaches';
 import {
   AMENITY_FILTERS,
+  CROWD_LEVELS,
   FILTER_FLAGS,
   RATING_OPTIONS,
   SEA_ASSESSMENTS,
   SURFACE_TYPES,
+  crowdColor,
   hasActiveFilters,
   seaQualityColor,
   surfaceColor,
@@ -25,6 +27,7 @@ interface FilterBarProps {
   onToggleAmenity: (a: AmenityFilter) => void;
   onSetMinRating: (r: number) => void;
   onToggleSeaAssessment: (s: SeaAssessment) => void;
+  onToggleCrowd: (c: CrowdLevel) => void;
   onReset: () => void;
   onNearMe: () => void;
   nearActive: boolean;
@@ -41,6 +44,7 @@ export default function FilterBar({
   onToggleAmenity,
   onSetMinRating,
   onToggleSeaAssessment,
+  onToggleCrowd,
   onReset,
   onNearMe,
   nearActive,
@@ -53,6 +57,7 @@ export default function FilterBar({
   const tFlags = useTranslations('Flags');
   const tAmenities = useTranslations('Amenities');
   const tSea = useTranslations('SeaQuality');
+  const tCrowd = useTranslations('Crowd');
   const active = hasActiveFilters(filters);
 
   return (
@@ -126,6 +131,17 @@ export default function FilterBar({
             value: s,
             label: tSea(s),
             color: seaQualityColor(s),
+          }))}
+        />
+        <FilterDropdown
+          label={t('filterCrowd')}
+          ariaLabel={t('filterCrowd')}
+          selected={filters.crowds}
+          onToggle={(v) => onToggleCrowd(v as CrowdLevel)}
+          options={CROWD_LEVELS.map((c) => ({
+            value: c,
+            label: tCrowd(c),
+            color: crowdColor(c),
           }))}
         />
       </div>

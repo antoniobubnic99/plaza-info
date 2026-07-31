@@ -30,6 +30,7 @@
     "filterFlags": "Features",
     "filterAmenities": "Amenities",
     "filterRating": "Rating",
+    "filterCrowd": "Crowd",
     "submitBeach": "＋ Add a beach"
   },
   "Surface": {

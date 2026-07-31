@@ -29,6 +29,9 @@ export const SEA_ASSESSMENTS: SeaAssessment[] = [
   'unsatisfactory',
 ];
 
+// Filtrabilne razine gužve (zadnja crowdsourced prijava, RPC latest_crowd_levels).
+export const CROWD_LEVELS: CrowdLevel[] = ['empty', 'moderate', 'packed'];
+
 // Boje markera po podlozi — usklađene s jadranskom paletom (globals.css).
 const SURFACE_COLORS: Record<SurfaceType, string> = {
   sand: '#e0b84c',
@@ -80,6 +83,7 @@ export interface BeachFilterState {
   amenities: AmenityFilter[];
   minRating: number; // 0 = bilo koji; inače prag na rating_avg
   seaAssessments: SeaAssessment[]; // prazno = bilo koja; inače OR po zadnjoj IZOR ocjeni
+  crowds: CrowdLevel[]; // prazno = bilo koja; inače OR po zadnjoj prijavi gužve
 }
 
 export const EMPTY_FILTERS: BeachFilterState = {
@@ -89,6 +93,7 @@ export const EMPTY_FILTERS: BeachFilterState = {
   amenities: [],
   minRating: 0,
   seaAssessments: [],
+  crowds: [],
 };
 
 export function hasActiveFilters(f: BeachFilterState): boolean {
@@ -98,7 +103,8 @@ export function hasActiveFilters(f: BeachFilterState): boolean {
     f.flags.length > 0 ||
     f.amenities.length > 0 ||
     f.minRating > 0 ||
-    f.seaAssessments.length > 0
+    f.seaAssessments.length > 0 ||
+    f.crowds.length > 0
   );
 }
 
@@ -113,6 +119,7 @@ function normalize(s: string): string {
 export function filterBeaches(
   beaches: Beach[],
   filters: BeachFilterState,
+  crowdLevels: Record<string, CrowdLevel> = {},
 ): Beach[] {
   const q = normalize(filters.query);
   return beaches.filter((b) => {
@@ -134,12 +141,22 @@ export function filterBeaches(
     for (const amenity of filters.amenities) {
       if (!b.amenities[amenity]) return false;
     }
-    if (filters.minRating > 0 && b.ratingAvg < filters.minRating) return false;
+    // Rejting: plaža BEZ ijedne ocjene nije loša plaža, samo neocijenjena — ne ispada
+    // iz rezultata (isto načelo kao podloga/kakvoća mora). Prag se primjenjuje tek
+    // kad postoji barem jedna odobrena recenzija.
+    if (filters.minRating > 0 && b.ratingCount > 0 && b.ratingAvg < filters.minRating) {
+      return false;
+    }
     // Kakvoća mora (kategorijski): isto kao podloga — nepoznata ocjena ostaje vidljiva.
     if (filters.seaAssessments.length > 0) {
       if (b.seaAssessment && !filters.seaAssessments.includes(b.seaAssessment)) {
         return false;
       }
+    }
+    // Gužva (kategorijski): plaže bez ijedne prijave ostaju vidljive — nepoznato ≠ negativno.
+    if (filters.crowds.length > 0) {
+      const level = crowdLevels[b.id];
+      if (level && !filters.crowds.includes(level)) return false;
     }
     return true;
   });
@@ -154,6 +171,7 @@ export function filtersToSearchParams(f: BeachFilterState): URLSearchParams {
   if (f.amenities.length) p.set('amenity', f.amenities.join(','));
   if (f.minRating > 0) p.set('rating', String(f.minRating));
   if (f.seaAssessments.length) p.set('sea', f.seaAssessments.join(','));
+  if (f.crowds.length) p.set('crowd', f.crowds.join(','));
   return p;
 }
 
@@ -171,6 +189,7 @@ export function filtersFromSearchParams(p: URLSearchParams): BeachFilterState {
     amenities: csv('amenity', AMENITY_FILTERS),
     minRating: RATING_OPTIONS.includes(rating as (typeof RATING_OPTIONS)[number]) ? rating : 0,
     seaAssessments: csv('sea', SEA_ASSESSMENTS),
+    crowds: csv('crowd', CROWD_LEVELS),
   };
 }
 

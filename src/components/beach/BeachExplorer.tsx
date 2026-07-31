@@ -12,7 +12,9 @@ import {
   type SurfaceType,
 } from '@/lib/beaches';
 import {
+  CROWD_LEVELS,
   EMPTY_FILTERS,
+  crowdColor,
   filterBeaches,
   filtersFromSearchParams,
   filtersToSearchParams,
@@ -46,6 +48,7 @@ function toggle<T>(list: T[], value: T): T[] {
 
 export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const t = useTranslations('Map');
+  const tCrowd = useTranslations('Crowd');
 
   const [filters, setFilters] = useState<BeachFilterState>(EMPTY_FILTERS);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -107,7 +110,10 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     );
   }, [filters, selectedId, beaches]);
 
-  const filtered = useMemo(() => filterBeaches(beaches, filters), [beaches, filters]);
+  const filtered = useMemo(
+    () => filterBeaches(beaches, filters, crowdLevels),
+    [beaches, filters, crowdLevels],
+  );
 
   const listBeaches = useMemo(() => {
     if (nearActive && userLocation) {
@@ -203,6 +209,9 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           onToggleSeaAssessment={(s: SeaAssessment) =>
             setFilters((f) => ({ ...f, seaAssessments: toggle(f.seaAssessments, s) }))
           }
+          onToggleCrowd={(c: CrowdLevel) =>
+            setFilters((f) => ({ ...f, crowds: toggle(f.crowds, c) }))
+          }
           onReset={handleReset}
           onNearMe={handleNearMe}
           nearActive={nearActive}
@@ -218,6 +227,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
             onSelect={handleSelect}
             locale={locale}
             showDistance={nearActive && userLocation != null}
+            crowdLevels={crowdLevels}
           />
         </div>
       </aside>
@@ -240,7 +250,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
       )}
 
       {/* Zona 3 — karta */}
-      <div className="h-[45vh] w-full shrink-0 md:h-full md:flex-1">
+      <div className="relative h-[45vh] w-full shrink-0 md:h-full md:flex-1">
         <MapView
           beaches={filtered}
           crowdLevels={crowdLevels}
@@ -249,6 +259,22 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           focus={focus}
           userLocation={userLocation}
         />
+        {/* Legenda: bez nje se ne vidi da boja markera znači gužvu, a ne podlogu. */}
+        <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs shadow-md backdrop-blur">
+          <p className="mb-1 font-semibold text-sea-950">{t('crowdLegend')}</p>
+          <ul className="flex gap-3">
+            {CROWD_LEVELS.map((lvl) => (
+              <li key={lvl} className="flex items-center gap-1.5 text-sea-800/80">
+                <span
+                  aria-hidden
+                  className="h-2.5 w-2.5 rounded-full ring-1 ring-white"
+                  style={{ background: crowdColor(lvl) }}
+                />
+                {tCrowd(lvl)}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </main>
   );

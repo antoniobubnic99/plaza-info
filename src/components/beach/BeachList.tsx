@@ -1,8 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { beachName, type Beach } from '@/lib/beaches';
-import { formatDistance, surfaceColor } from '@/lib/beachFilters';
+import { beachName, type Beach, type CrowdLevel } from '@/lib/beaches';
+import { crowdColor, formatDistance, markerColor } from '@/lib/beachFilters';
 
 type ListBeach = Beach & { distanceKm?: number };
 
@@ -12,6 +12,7 @@ interface BeachListProps {
   onSelect: (id: string) => void;
   locale: string;
   showDistance: boolean;
+  crowdLevels: Record<string, CrowdLevel>;
 }
 
 export default function BeachList({
@@ -20,9 +21,11 @@ export default function BeachList({
   onSelect,
   locale,
   showDistance,
+  crowdLevels,
 }: BeachListProps) {
   const t = useTranslations('Map');
   const tSurface = useTranslations('Surface');
+  const tCrowd = useTranslations('Crowd');
 
   if (beaches.length === 0) {
     return (
@@ -34,6 +37,7 @@ export default function BeachList({
     <ul className="divide-y divide-sea-100">
       {beaches.map((b) => {
         const selected = b.id === selectedId;
+        const crowd = crowdLevels[b.id];
         return (
           <li key={b.id}>
             <button
@@ -44,10 +48,11 @@ export default function BeachList({
                 selected ? 'bg-sea-50' : 'hover:bg-sea-50/60'
               }`}
             >
+              {/* Točka nosi istu boju kao marker na karti (gužva ima prednost pred podlogom). */}
               <span
                 aria-hidden
                 className="mt-0.5 h-3 w-3 shrink-0 rounded-full ring-2 ring-white"
-                style={{ background: surfaceColor(b.surfaceType) }}
+                style={{ background: markerColor(b.surfaceType, crowd) }}
               />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-sea-950">
@@ -64,6 +69,15 @@ export default function BeachList({
                   {b.municipality ? ` · ${b.municipality}` : ''}
                 </span>
               </span>
+              {/* Gužva uživo — vidljiva odmah u popisu, ne tek nakon otvaranja plaže. */}
+              {crowd && (
+                <span
+                  className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                  style={{ background: crowdColor(crowd) }}
+                >
+                  {tCrowd(crowd)}
+                </span>
+              )}
               {showDistance && b.distanceKm != null && (
                 <span className="shrink-0 rounded-full bg-sea-100 px-2 py-0.5 text-xs font-medium text-sea-800">
                   {formatDistance(b.distanceKm)}
