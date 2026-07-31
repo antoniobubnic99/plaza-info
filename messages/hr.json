@@ -37,7 +37,8 @@
     "placeBeachCount": "{count, plural, one {# plaža} few {# plaže} other {# plaža}}",
     "clearRegion": "Ukloni filter županije",
     "submitBeach": "＋ Prijavi plažu",
-    "crowdLegend": "Gužva"
+    "crowdLegend": "Gužva",
+    "qualityIndexShort": "Indeks {score}"
   },
   "Surface": {
     "sand": "Pijesak",
@@ -73,6 +74,9 @@
     "crowdNote": "Prijave posjetitelja, neslužbeno",
     "ratingHeading": "Ocjena posjetitelja",
     "reviewsSummary": "{count, plural, =0 {bez recenzija} one {# recenzija} few {# recenzije} other {# recenzija}}",
+    "qualityIndex": "Indeks kvalitete",
+    "qualityIndexValue": "{score}/100",
+    "qualityIndexNote": "Naša procjena iz podataka o plaži — kakvoća mora, sadržaji, popularnost i potpunost podataka. Nije ocjena posjetitelja; prva recenzija je zamjenjuje.",
     "share": "Podijeli",
     "shareCopied": "Poveznica kopirana",
     "close": "Zatvori",

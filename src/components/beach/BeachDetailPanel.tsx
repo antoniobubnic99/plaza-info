@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { beachName, type Beach, type CrowdLevel } from '@/lib/beaches';
-import { crowdColor, formatDistance, seaQualityColor } from '@/lib/beachFilters';
+import { crowdColor, formatDistance, qualityIndex, seaQualityColor } from '@/lib/beachFilters';
 import {
   getBeachPhotos,
   getBeachReviews,
@@ -73,6 +73,9 @@ export default function BeachDetailPanel({
   const place = beach.municipality ?? beach.region ?? null;
   const description = locale === 'en' ? beach.descriptionEn : beach.descriptionHr;
   const surfaceLabel = beach.surfaceType ? tSurface(beach.surfaceType) : null;
+  // Zamjena za ocjenu dok plaža nema nijednu recenziju (stavka 9). Klijentski račun iz
+  // podataka koje već imamo — nema dohvata ni stupca u bazi.
+  const quality = qualityIndex(beach);
   const isPanel = variant === 'panel';
   const metaLine = [
     surfaceLabel,
@@ -223,7 +226,7 @@ export default function BeachDetailPanel({
 
       <div className={`min-h-0 flex-1 ${isPanel ? 'overflow-y-auto px-4 pb-6' : ''}`}>
         {/* Ocjena posjetitelja (agregat iz odobrenih recenzija) */}
-        {beach.ratingCount > 0 && (
+        {beach.ratingCount > 0 ? (
           <div className={isPanel ? 'mt-4' : ''}>
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 ring-1 ring-amber-200">
               <span className="text-sm font-semibold text-amber-600">
@@ -232,6 +235,32 @@ export default function BeachDetailPanel({
               <span className="text-xs text-sea-800/70">
                 {t('reviewsSummary', { count: beach.ratingCount })}
               </span>
+            </div>
+          </div>
+        ) : (
+          /* Dok nema nijedne recenzije: indeks iz vlastitih podataka. Namjerno bez zvjezdica
+             i bez amber boje recenzija — da se ne čita kao ocjena posjetitelja. */
+          <div className={isPanel ? 'mt-4' : ''}>
+            <div className="rounded-xl bg-sea-50 px-3 py-2.5 ring-1 ring-sea-100">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-xs font-medium uppercase tracking-wide text-sea-800/70">
+                  {t('qualityIndex')}
+                </span>
+                <span className="text-sm font-semibold text-sea-950">
+                  {t('qualityIndexValue', { score: quality })}
+                </span>
+              </div>
+              <div
+                className="mt-2 h-1.5 overflow-hidden rounded-full bg-sea-100"
+                role="meter"
+                aria-valuenow={quality}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={t('qualityIndex')}
+              >
+                <div className="h-full rounded-full bg-sea-600" style={{ width: `${quality}%` }} />
+              </div>
+              <p className="mt-2 text-xs text-sea-800/60">{t('qualityIndexNote')}</p>
             </div>
           </div>
         )}

@@ -37,7 +37,8 @@
     "placeBeachCount": "{count, plural, one {# beach} other {# beaches}}",
     "clearRegion": "Clear county filter",
     "submitBeach": "＋ Add a beach",
-    "crowdLegend": "Crowd"
+    "crowdLegend": "Crowd",
+    "qualityIndexShort": "Index {score}"
   },
   "Surface": {
     "sand": "Sand",
@@ -73,6 +74,9 @@
     "crowdNote": "Visitor reports, unofficial",
     "ratingHeading": "Visitor rating",
     "reviewsSummary": "{count, plural, =0 {no reviews} one {# review} other {# reviews}}",
+    "qualityIndex": "Quality index",
+    "qualityIndexValue": "{score}/100",
+    "qualityIndexNote": "Our estimate from beach data — sea quality, amenities, popularity and data completeness. Not a visitor rating; the first review replaces it.",
     "share": "Share",
     "shareCopied": "Link copied",
     "close": "Close",

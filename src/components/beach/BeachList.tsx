@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { beachName, type Beach, type CrowdLevel } from '@/lib/beaches';
-import { crowdColor, formatDistance, markerColor } from '@/lib/beachFilters';
+import { crowdColor, formatDistance, markerColor, qualityIndex } from '@/lib/beachFilters';
 
 type ListBeach = Beach & { distanceKm?: number };
 
@@ -59,9 +59,16 @@ export default function BeachList({
                   {beachName(b, locale)}
                 </span>
                 <span className="block truncate text-xs text-sea-800/60">
-                  {b.ratingCount > 0 && (
+                  {b.ratingCount > 0 ? (
                     <span className="font-medium text-amber-600">
                       ★ {b.ratingAvg.toFixed(1)}
+                      <span className="mx-1 text-sea-800/40">·</span>
+                    </span>
+                  ) : (
+                    /* Bez recenzija: indeks iz vlastitih podataka, u boji popisa (ne amber),
+                       da se na prvi pogled razlikuje od prave ocjene posjetitelja. */
+                    <span className="font-medium text-sea-800/80">
+                      {t('qualityIndexShort', { score: qualityIndex(b) })}
                       <span className="mx-1 text-sea-800/40">·</span>
                     </span>
                   )}
