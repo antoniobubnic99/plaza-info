@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getSupabaseBrowser } from './supabaseBrowser';
+import { AUTH_NEXT_COOKIE, AUTH_NEXT_MAX_AGE } from './authRedirect';
 
 // Jedno mjesto za stanje Google prijave na klijentu. Prije je isti useEffect
 // (getUser + onAuthStateChange + odjava pretplate) živio zasebno u AuthButtonu i
@@ -47,8 +48,11 @@ export function useAuthUser(): AuthUser {
   const signIn = useCallback(async () => {
     if (!supabase) return;
     // Nakon Googlea vrati korisnika točno na stranicu s koje je krenuo, da ne
-    // izgubi ispunjenu formu iz vida.
+    // izgubi ispunjenu formu iz vida. Isti put ide i u kolačić: kad Supabase
+    // promaši `/auth/callback` i vrati ga na Site URL, middleware iz kolačića zna
+    // kamo ga vratiti — bez toga bi završio na naslovnici.
     const next = window.location.pathname;
+    document.cookie = `${AUTH_NEXT_COOKIE}=${encodeURIComponent(next)}; path=/; max-age=${AUTH_NEXT_MAX_AGE}; SameSite=Lax`;
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
