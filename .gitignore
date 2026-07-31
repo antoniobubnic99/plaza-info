@@ -44,3 +44,4 @@ next-env.d.ts
 # OSM/Overpass build cache (regenerable by scripts/seed-beaches.ts)
 /scripts/data/osm-cache/
 /scripts/data/parking-cache/
+/scripts/data/parking-fee-cache/

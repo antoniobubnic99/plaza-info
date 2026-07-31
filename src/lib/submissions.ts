@@ -2,10 +2,17 @@
 // Prijava se šalje serverski (/api/submissions) jer traži prijavljenog korisnika;
 // upis ide preko service_role i ostaje 'pending' do moderacije u adminu.
 
-import type { BeachAmenities, BeachFlags } from './beaches';
+import type { BeachAmenities, BeachFlags, ParkingFeeStatus } from './beaches';
+
+/** Podaci o naplati parkinga koje korisnik može priložiti (0010). */
+interface ParkingFeeInput {
+  parkingFeeStatus?: ParkingFeeStatus;
+  parkingPriceText?: string;
+  parkingNote?: string;
+}
 
 /** Prijava NOVE plaže sa svim podacima (surface je slobodan tekst — dopušta „other"). */
-export interface SubmitBeachInput {
+export interface SubmitBeachInput extends ParkingFeeInput {
   kind: 'new_beach';
   nameHr: string;
   nameEn?: string;
@@ -25,7 +32,7 @@ export interface SubmitBeachInput {
 }
 
 /** Prijava/ispravak parkinga za POSTOJEĆU plažu. */
-export interface SubmitParkingInput {
+export interface SubmitParkingInput extends ParkingFeeInput {
   kind: 'parking';
   targetBeachId: string;
   parkingLat: number;

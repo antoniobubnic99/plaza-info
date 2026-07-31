@@ -36,7 +36,8 @@
     "placeKind_region": "County",
     "placeBeachCount": "{count, plural, one {# beach} other {# beaches}}",
     "clearRegion": "Clear county filter",
-    "submitBeach": "＋ Add a beach"
+    "submitBeach": "＋ Add a beach",
+    "crowdLegend": "Crowd"
   },
   "Surface": {
     "sand": "Sand",
@@ -88,6 +89,29 @@
     "bar": "Bar / café",
     "loungers": "Sunbeds",
     "lifeguard": "Lifeguard"
+  },
+  "Parking": {
+    "heading": "Parking",
+    "forBeach": "Parking for {name}",
+    "legend": "Parking",
+    "fee_free": "Free",
+    "fee_paid": "Paid",
+    "fee_unknown": "Unknown",
+    "feeLabel": "Parking fee",
+    "distanceValue": "{distance} to the beach",
+    "priceLabel": "Price",
+    "priceFree": "No charge",
+    "priceUnknown": "Price unknown",
+    "noteLabel": "Note",
+    "sourceNote": "Data from OpenStreetMap and user reports — check on site.",
+    "photosHeading": "Parking photos",
+    "photosEmpty": "No photos of this parking yet.",
+    "photoAlt": "Photo of the parking for {name}",
+    "openPhoto": "Open photo of the parking for {name}",
+    "directions": "Directions to parking",
+    "openBeach": "Open beach",
+    "fix": "Fix details",
+    "close": "Close"
   },
   "SeaQuality": {
     "heading": "Sea water quality",
@@ -159,7 +183,12 @@
     "reject": "Reject",
     "unknownBeach": "Unknown beach",
     "loadError": "Failed to load. Please try again.",
-    "sessionExpired": "Session expired. Please log in again."
+    "sessionExpired": "Session expired. Please log in again.",
+    "subParkingFee": "Fee",
+    "subParkingFee_free": "Free",
+    "subParkingFee_paid": "Paid",
+    "subParkingFee_unknown": "Submitter doesn't know",
+    "subParkingNote": "Note"
   },
   "Submit": {
     "metaTitle": "Add a beach — PlažaInfo",
@@ -197,7 +226,21 @@
     "thanksTitle": "Thanks for your submission!",
     "thanksBody": "We've received it and will publish it after review.",
     "addAnother": "Add another",
-    "moderationNote": "Submissions are published after moderation."
+    "moderationNote": "Submissions are published after moderation.",
+    "parkingFee": "Parking fee",
+    "parkingFeeNoAnswer": "No answer",
+    "parkingFee_free": "Free",
+    "parkingFee_paid": "Paid",
+    "parkingFee_unknown": "I don't know",
+    "parkingPrice": "Price (if charged)",
+    "parkingPricePlaceholder": "e.g. €2/h or €15/day",
+    "parkingNote": "Parking note",
+    "parkingNotePlaceholder": "e.g. charged in summer only, 8am-8pm",
+    "parkingPhoto": "Parking photo (optional)",
+    "parkingPhotoHint": "Goes through moderation and appears in the parking panel, not the beach gallery.",
+    "photo_too_large": "Your report was received, but the photo is too large (5 MB max).",
+    "photo_unsupported": "Your report was received, but the photo format is not supported (JPEG, PNG or WebP).",
+    "photo_error": "Your report was received, but we could not upload the photo. Try adding it later."
   },
   "NotFound": {
     "title": "Page not found",

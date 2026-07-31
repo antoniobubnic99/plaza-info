@@ -67,6 +67,7 @@ export default function BeachDetailPanel({
   const tAmenities = useTranslations('Amenities');
   const tCrowd = useTranslations('Crowd');
   const tSea = useTranslations('SeaQuality');
+  const tParking = useTranslations('Parking');
 
   const name = beachName(beach, locale);
   const place = beach.municipality ?? beach.region ?? null;
@@ -382,6 +383,16 @@ export default function BeachDetailPanel({
                   <dt className="text-sm text-sea-800/70">{t('parkingLabel')}</dt>
                   <dd className="text-sm font-medium text-sea-950">
                     ~{formatDistance(beach.parkingDistanceM / 1000)}
+                  </dd>
+                </div>
+              )}
+              {/* Naplata parkinga (0010): prikazuje se i kad je nepoznata — posjetitelju
+                  je „ne znamo" korisnija informacija od izostanka retka. */}
+              {beach.parkingLat != null && (
+                <div className="flex justify-between gap-4 border-b border-sea-100 pb-2">
+                  <dt className="text-sm text-sea-800/70">{tParking('feeLabel')}</dt>
+                  <dd className="text-right text-sm font-medium text-sea-950">
+                    {beach.parkingPriceText ?? tParking(`fee_${beach.parkingFeeStatus}`)}
                   </dd>
                 </div>
               )}

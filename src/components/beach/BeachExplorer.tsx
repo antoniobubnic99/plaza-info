@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import {
   beachName,
+  PARKING_FEE_STATUSES,
   type Beach,
   type CrowdLevel,
   type SeaAssessment,
@@ -19,6 +20,7 @@ import {
   filtersFromSearchParams,
   filtersToSearchParams,
   haversineKm,
+  parkingFeeColor,
   sortByDistance,
   sortByPopularity,
   type AmenityFilter,
@@ -32,6 +34,7 @@ import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
 import BeachList from './BeachList';
 import BeachDetailPanel from './BeachDetailPanel';
+import ParkingDetailPanel from './ParkingDetailPanel';
 
 // MapLibre je isključivo klijentski (koristi window/WebGL) → bez SSR-a.
 const MapView = dynamic(() => import('./MapView'), {
@@ -51,6 +54,7 @@ function toggle<T>(list: T[], value: T): T[] {
 export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const t = useTranslations('Map');
   const tCrowd = useTranslations('Crowd');
+  const tParking = useTranslations('Parking');
 
   const [filters, setFilters] = useState<BeachFilterState>(EMPTY_FILTERS);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -58,6 +62,9 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Isti odabir, dvije vrste panela: klik na marker plaže vs. klik na „P" marker (stavka 5).
+  // Parking nije zaseban entitet nego dio plaže, pa dijeli `selectedId`.
+  const [selectedKind, setSelectedKind] = useState<'beach' | 'parking'>('beach');
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [crowdLevels, setCrowdLevels] = useState<Record<string, CrowdLevel>>({});
   // Središte odabranog mjesta iz pretrage (mjesto/županija) — sidro za sortiranje po blizini.
@@ -90,6 +97,9 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
       const slug = params.get('plaza');
       const b = slug ? beaches.find((x) => x.slug === slug) : null;
       setSelectedId(b?.id ?? null);
+      // `parking=1` je valjan samo ako plaža stvarno ima parking (ručno složen URL).
+      const wantsParking = params.get('parking') === '1' && b?.parkingLat != null;
+      setSelectedKind(wantsParking ? 'parking' : 'beach');
       if (b) setFocus({ lng: b.lng, lat: b.lat, zoom: 14, nonce: Date.now() });
       hydratedRef.current = true;
     };
@@ -105,6 +115,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     if (selectedId) {
       const b = beaches.find((x) => x.id === selectedId);
       if (b) params.set('plaza', b.slug);
+      if (selectedKind === 'parking') params.set('parking', '1');
     }
     const qs = params.toString();
     window.history.replaceState(
@@ -112,7 +123,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
       '',
       qs ? `${window.location.pathname}?${qs}` : window.location.pathname,
     );
-  }, [filters, selectedId, beaches]);
+  }, [filters, selectedId, selectedKind, beaches]);
 
   const filtered = useMemo(
     () => filterBeaches(beaches, filters, crowdLevels),
@@ -141,8 +152,18 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
 
   function handleSelect(id: string) {
     setSelectedId(id);
+    setSelectedKind('beach');
     const b = beaches.find((x) => x.id === id);
     if (b) setFocus({ lng: b.lng, lat: b.lat, zoom: 14, nonce: Date.now() });
+  }
+
+  /** Klik na „P" marker: otvara panel parkinga i zumira na sam parking. */
+  function handleSelectParking(id: string) {
+    const b = beaches.find((x) => x.id === id);
+    if (!b || b.parkingLat == null || b.parkingLng == null) return;
+    setSelectedId(id);
+    setSelectedKind('parking');
+    setFocus({ lng: b.parkingLng, lat: b.parkingLat, zoom: 16, nonce: Date.now() });
   }
 
   async function handleNearMe() {
@@ -273,14 +294,24 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           aria-label={beachName(selectedBeach, locale)}
           className="fixed inset-0 z-40 flex flex-col bg-white md:static md:z-auto md:h-full md:w-[400px] md:flex-none md:border-r md:border-sea-100"
         >
-          <BeachDetailPanel
-            key={selectedBeach.id}
-            beach={selectedBeach}
-            locale={locale}
-            variant="panel"
-            distanceKm={selectedDistance}
-            onClose={() => setSelectedId(null)}
-          />
+          {selectedKind === 'parking' ? (
+            <ParkingDetailPanel
+              key={`${selectedBeach.id}-parking`}
+              beach={selectedBeach}
+              locale={locale}
+              onClose={() => setSelectedId(null)}
+              onOpenBeach={() => handleSelect(selectedBeach.id)}
+            />
+          ) : (
+            <BeachDetailPanel
+              key={selectedBeach.id}
+              beach={selectedBeach}
+              locale={locale}
+              variant="panel"
+              distanceKm={selectedDistance}
+              onClose={() => setSelectedId(null)}
+            />
+          )}
         </section>
       )}
 
@@ -289,10 +320,12 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
         <MapView
           beaches={filtered}
           crowdLevels={crowdLevels}
-          selectedId={selectedId}
+          selectedId={selectedKind === 'beach' ? selectedId : null}
           onSelect={handleSelect}
           focus={focus}
           userLocation={userLocation}
+          onSelectParking={handleSelectParking}
+          selectedParkingId={selectedKind === 'parking' ? selectedId : null}
         />
         {/* Legenda: bez nje se ne vidi da boja markera znači gužvu, a ne podlogu. */}
         <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-lg bg-white/90 px-3 py-2 text-xs shadow-md backdrop-blur">
@@ -306,6 +339,20 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
                   style={{ background: crowdColor(lvl) }}
                 />
                 {tCrowd(lvl)}
+              </li>
+            ))}
+          </ul>
+          {/* Parking markeri („P") sad nose naplatu bojom — bez legende to nitko ne pogodi. */}
+          <p className="mb-1 mt-2 font-semibold text-sea-950">{tParking('legend')}</p>
+          <ul className="flex gap-3">
+            {PARKING_FEE_STATUSES.map((s) => (
+              <li key={s} className="flex items-center gap-1.5 text-sea-800/80">
+                <span
+                  aria-hidden
+                  className="h-2.5 w-2.5 rounded-sm ring-1 ring-white"
+                  style={{ background: parkingFeeColor(s) }}
+                />
+                {tParking(`fee_${s}`)}
               </li>
             ))}
           </ul>

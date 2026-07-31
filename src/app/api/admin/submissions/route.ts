@@ -27,6 +27,7 @@ export async function GET(request: Request) {
     .select(
       'id, kind, name_hr, name_en, lat, lng, region, municipality, surface, length_m, ' +
         'description_hr, description_en, amenities, flags, parking_lat, parking_lng, ' +
+        'parking_fee_status, parking_price_text, parking_note, ' +
         'created_at, beach:beaches!target_beach_id(slug, name_hr, name_en)',
     )
     .eq('status', 'pending')

@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { Beach, CrowdLevel } from '@/lib/beaches';
-import { markerColor } from '@/lib/beachFilters';
+import type { Beach, CrowdLevel, ParkingFeeStatus } from '@/lib/beaches';
+import { markerColor, parkingFeeColor } from '@/lib/beachFilters';
 import { getMapStyleUrl, PILOT_CENTER, PILOT_ZOOM } from '@/lib/mapStyle';
 
 export interface MapFocus {
@@ -21,6 +21,10 @@ interface MapViewProps {
   onSelect: (id: string) => void;
   focus: MapFocus | null;
   userLocation: { lat: number; lng: number } | null;
+  /** Klik na „P" marker (stavka 5). Bez handlera parking ostaje neinteraktivan (mini-karta). */
+  onSelectParking?: (beachId: string) => void;
+  /** Plaža čiji je parking trenutno otvoren — istaknuti njegov marker. */
+  selectedParkingId?: string | null;
 }
 
 function makeMarkerEl(color: string): HTMLDivElement {
@@ -39,8 +43,9 @@ function makeMarkerEl(color: string): HTMLDivElement {
   return el;
 }
 
-// Parking marker — plavi „P" kvadratić, vizualno različit od okruglih markera plaža.
-function makeParkingMarkerEl(): HTMLDivElement {
+// Parking marker — „P" kvadratić, vizualno različit od okruglih markera plaža.
+// Boja nosi naplatu (zeleno besplatno / narančasto naplata / plavo nepoznato).
+function makeParkingMarkerEl(fee: ParkingFeeStatus, clickable: boolean): HTMLDivElement {
   const el = document.createElement('div');
   el.className = 'plaza-parking-marker';
   el.textContent = 'P';
@@ -48,7 +53,7 @@ function makeParkingMarkerEl(): HTMLDivElement {
     'width:16px',
     'height:16px',
     'border-radius:4px',
-    'background:#1f5fae',
+    `background:${parkingFeeColor(fee)}`,
     'border:2px solid #ffffff',
     'box-shadow:0 1px 3px rgba(13,43,74,0.45)',
     'color:#ffffff',
@@ -56,6 +61,8 @@ function makeParkingMarkerEl(): HTMLDivElement {
     'display:flex',
     'align-items:center',
     'justify-content:center',
+    'transition:transform 120ms ease',
+    clickable ? 'cursor:pointer' : 'cursor:default',
   ].join(';');
   return el;
 }
@@ -67,6 +74,8 @@ export default function MapView({
   onSelect,
   focus,
   userLocation,
+  onSelectParking,
+  selectedParkingId = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -74,12 +83,17 @@ export default function MapView({
   const parkingMarkersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const onSelectRef = useRef(onSelect);
+  const onSelectParkingRef = useRef(onSelectParking);
   const crowdRef = useRef(crowdLevels);
 
   // Drži zadnji onSelect u refu (izbjegava presoždavanje markera na svaki render).
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
+
+  useEffect(() => {
+    onSelectParkingRef.current = onSelectParking;
+  }, [onSelectParking]);
 
   useEffect(() => {
     crowdRef.current = crowdLevels;
@@ -154,13 +168,34 @@ export default function MapView({
     }
 
     for (const beach of withParking) {
-      if (markers.has(beach.id)) continue;
-      const marker = new maplibregl.Marker({ element: makeParkingMarkerEl() })
+      const existing = markers.get(beach.id);
+      if (existing) {
+        // Naplata se može promijeniti (backfill/moderacija) → osvježi boju bez presoždavanja.
+        existing.getElement().style.background = parkingFeeColor(beach.parkingFeeStatus);
+        continue;
+      }
+      const el = makeParkingMarkerEl(beach.parkingFeeStatus, onSelectParkingRef.current != null);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation(); // inače klik propadne na marker plaže ispod
+        onSelectParkingRef.current?.(beach.id);
+      });
+      const marker = new maplibregl.Marker({ element: el })
         .setLngLat([beach.parkingLng as number, beach.parkingLat as number])
         .addTo(map);
       markers.set(beach.id, marker);
     }
   }, [beaches]);
+
+  // Istakni marker parkinga koji je otvoren u panelu.
+  useEffect(() => {
+    for (const [id, marker] of parkingMarkersRef.current) {
+      const el = marker.getElement();
+      const active = id === selectedParkingId;
+      el.style.transform = active ? 'scale(1.5)' : 'scale(1)';
+      el.style.zIndex = active ? '10' : '';
+      el.style.borderColor = active ? '#0d2b4a' : '#ffffff';
+    }
+  }, [selectedParkingId, beaches]);
 
   // Preboji markere kad se promijeni gužva (ili skup plaža).
   useEffect(() => {

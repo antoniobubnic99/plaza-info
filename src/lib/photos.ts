@@ -5,13 +5,21 @@ import { MAX_PHOTO_BYTES, isAllowedPhotoType } from '@/lib/photoConfig';
 
 export type SubmitPhotoResult = 'ok' | 'too_large' | 'unsupported' | 'error';
 
+/** Vrsta fotke (0010): galerija plaže ili fotka njezina parkinga. */
+export type PhotoKind = 'beach' | 'parking';
+
 /** Šalje fotku. Predprovjera tipa/veličine pa POST; vraća ishod za UI poruku. */
-export async function submitPhoto(beachId: string, file: File): Promise<SubmitPhotoResult> {
+export async function submitPhoto(
+  beachId: string,
+  file: File,
+  kind: PhotoKind = 'beach',
+): Promise<SubmitPhotoResult> {
   if (!isAllowedPhotoType(file.type)) return 'unsupported';
   if (file.size === 0 || file.size > MAX_PHOTO_BYTES) return 'too_large';
 
   const form = new FormData();
   form.set('beachId', beachId);
+  form.set('kind', kind);
   form.set('file', file);
 
   try {

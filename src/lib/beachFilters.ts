@@ -4,6 +4,7 @@ import {
   beachName,
   type Beach,
   type CrowdLevel,
+  type ParkingFeeStatus,
   type SeaAssessment,
   type SurfaceType,
 } from './beaches';
@@ -66,6 +67,18 @@ const SEA_QUALITY_COLORS: Record<SeaAssessment, string> = {
 
 export function seaQualityColor(assessment: SeaAssessment): string {
   return SEA_QUALITY_COLORS[assessment];
+}
+
+// Boje naplate parkinga (0010). „Nepoznato" zadržava dosadašnju plavu boju markera —
+// odsutnost podatka ne smije izgledati kao tvrdnja da je parking besplatan.
+const PARKING_FEE_COLORS: Record<ParkingFeeStatus, string> = {
+  free: '#10a37f',
+  paid: '#c8860b',
+  unknown: '#1f5fae',
+};
+
+export function parkingFeeColor(status: ParkingFeeStatus): string {
+  return PARKING_FEE_COLORS[status];
 }
 
 /** Boja markera: gužva ima prednost (aktualnija), inače podloga. */

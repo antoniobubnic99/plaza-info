@@ -17,6 +17,9 @@ import {
 export const runtime = 'nodejs';
 
 const beachIdSchema = z.string().uuid();
+// Vrsta fotke (0010). Nepoznata/izostavljena vrijednost pada na 'beach' — stariji
+// klijenti koji ne šalju polje i dalje rade, a galerija plaže ostaje netaknuta.
+const kindSchema = z.enum(['beach', 'parking']).catch('beach');
 
 export async function POST(request: Request) {
   if (!supabaseAdmin) {
@@ -35,6 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_beach_id' }, { status: 400 });
   }
   const beachId = parsedBeach.data;
+  const kind = kindSchema.parse(form.get('kind') ?? 'beach');
 
   const file = form.get('file');
   if (!(file instanceof File)) {
@@ -88,6 +92,7 @@ export async function POST(request: Request) {
   const { error: insertErr } = await supabaseAdmin.from('photos').insert({
     beach_id: beachId,
     url: publicUrl,
+    kind, // 'beach' (galerija) ili 'parking' (panel parkinga)
     user_id: userId, // null ako anonimno; is_official false, status default 'pending'.
   });
   if (insertErr) {

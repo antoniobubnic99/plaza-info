@@ -36,7 +36,8 @@
     "placeKind_region": "Županija",
     "placeBeachCount": "{count, plural, one {# plaža} few {# plaže} other {# plaža}}",
     "clearRegion": "Ukloni filter županije",
-    "submitBeach": "＋ Prijavi plažu"
+    "submitBeach": "＋ Prijavi plažu",
+    "crowdLegend": "Gužva"
   },
   "Surface": {
     "sand": "Pijesak",
@@ -88,6 +89,29 @@
     "bar": "Bar / kafić",
     "loungers": "Ležaljke",
     "lifeguard": "Spasilac"
+  },
+  "Parking": {
+    "heading": "Parking",
+    "forBeach": "Parking za plažu {name}",
+    "legend": "Parking",
+    "fee_free": "Besplatan",
+    "fee_paid": "Naplata",
+    "fee_unknown": "Nepoznato",
+    "feeLabel": "Naplata parkinga",
+    "distanceValue": "{distance} do plaže",
+    "priceLabel": "Cijena",
+    "priceFree": "Bez naplate",
+    "priceUnknown": "Cijena nije poznata",
+    "noteLabel": "Napomena",
+    "sourceNote": "Podaci iz OpenStreetMapa i korisničkih prijava — provjeri na licu mjesta.",
+    "photosHeading": "Fotografije parkinga",
+    "photosEmpty": "Još nema fotografija ovog parkinga.",
+    "photoAlt": "Fotografija parkinga za plažu {name}",
+    "openPhoto": "Otvori fotografiju parkinga za plažu {name}",
+    "directions": "Upute do parkinga",
+    "openBeach": "Otvori plažu",
+    "fix": "Ispravi podatke",
+    "close": "Zatvori"
   },
   "SeaQuality": {
     "heading": "Kakvoća mora",
@@ -159,7 +183,12 @@
     "reject": "Odbij",
     "unknownBeach": "Nepoznata plaža",
     "loadError": "Greška pri dohvaćanju. Pokušaj ponovno.",
-    "sessionExpired": "Sesija je istekla. Prijavi se ponovno."
+    "sessionExpired": "Sesija je istekla. Prijavi se ponovno.",
+    "subParkingFee": "Naplata",
+    "subParkingFee_free": "Besplatan",
+    "subParkingFee_paid": "Naplaćuje se",
+    "subParkingFee_unknown": "Korisnik ne zna",
+    "subParkingNote": "Napomena"
   },
   "Submit": {
     "metaTitle": "Prijavi plažu — PlažaInfo",
@@ -197,7 +226,21 @@
     "thanksTitle": "Hvala na prijavi!",
     "thanksBody": "Zaprimili smo je i objavit ćemo je nakon pregleda.",
     "addAnother": "Dodaj još jednu",
-    "moderationNote": "Prijave se objavljuju nakon moderacije."
+    "moderationNote": "Prijave se objavljuju nakon moderacije.",
+    "parkingFee": "Naplata parkinga",
+    "parkingFeeNoAnswer": "Bez odgovora",
+    "parkingFee_free": "Besplatan",
+    "parkingFee_paid": "Naplaćuje se",
+    "parkingFee_unknown": "Ne znam",
+    "parkingPrice": "Cijena (ako se naplaćuje)",
+    "parkingPricePlaceholder": "npr. 2 €/h ili 15 €/dan",
+    "parkingNote": "Napomena o parkingu",
+    "parkingNotePlaceholder": "npr. naplata samo ljeti, 8–20 h",
+    "parkingPhoto": "Fotografija parkinga (nije obavezno)",
+    "parkingPhotoHint": "Ide u moderaciju i prikazuje se u panelu parkinga, ne u galeriji plaže.",
+    "photo_too_large": "Prijava je zaprimljena, ali fotografija je prevelika (najviše 5 MB).",
+    "photo_unsupported": "Prijava je zaprimljena, ali format fotografije nije podržan (JPEG, PNG ili WebP).",
+    "photo_error": "Prijava je zaprimljena, ali fotografiju nismo uspjeli poslati. Pokušaj je dodati kasnije."
   },
   "NotFound": {
     "title": "Stranica nije pronađena",

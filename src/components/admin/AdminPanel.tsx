@@ -394,6 +394,21 @@ function SubmissionCard({
             </a>
           </div>
         )}
+        {/* Naplata parkinga (0010) — prikazuje se samo ono što je korisnik stvarno
+            odgovorio, da moderator vidi razliku između „ne znam" i „nije dirao". */}
+        {s.parking_fee_status && (
+          <div>
+            <span className="text-sea-800/60">{t('subParkingFee')}: </span>
+            {t(`subParkingFee_${s.parking_fee_status}`)}
+            {s.parking_price_text ? ` · ${s.parking_price_text}` : ''}
+          </div>
+        )}
+        {s.parking_note && (
+          <div>
+            <span className="text-sea-800/60">{t('subParkingNote')}: </span>
+            {s.parking_note}
+          </div>
+        )}
       </dl>
 
       {!isParking && (activeAmenities.length > 0 || activeFlags.length > 0) && (

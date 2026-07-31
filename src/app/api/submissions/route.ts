@@ -34,8 +34,17 @@ const flagsSchema = z
   })
   .strip();
 
+// Naplata parkinga (0010). Korisnik smije reći „ne znam" — to se pri odobrenju
+// tumači kao izostanak informacije i NE briše ono što već znamo.
+const parkingFeeFields = {
+  parkingFeeStatus: z.enum(['free', 'paid', 'unknown']).optional(),
+  parkingPriceText: z.string().trim().max(120).optional(),
+  parkingNote: z.string().trim().max(500).optional(),
+};
+
 const newBeachSchema = z.object({
   kind: z.literal('new_beach'),
+  ...parkingFeeFields,
   nameHr: z.string().trim().min(2).max(120),
   nameEn: z.string().trim().max(120).optional(),
   lat,
@@ -58,6 +67,7 @@ const parkingSchema = z.object({
   targetBeachId: z.string().uuid(),
   parkingLat: lat,
   parkingLng: lng,
+  ...parkingFeeFields,
   website: z.string().max(200).optional(), // honeypot
 });
 
@@ -128,6 +138,9 @@ export async function POST(request: Request) {
       target_beach_id: input.targetBeachId,
       parking_lat: input.parkingLat,
       parking_lng: input.parkingLng,
+      parking_fee_status: input.parkingFeeStatus ?? null,
+      parking_price_text: input.parkingPriceText ?? null,
+      parking_note: input.parkingNote ?? null,
       submitted_by: userId,
     });
     if (error) {
@@ -155,6 +168,9 @@ export async function POST(request: Request) {
     flags: input.flags ?? {},
     parking_lat: input.parkingLat ?? null,
     parking_lng: input.parkingLng ?? null,
+    parking_fee_status: input.parkingFeeStatus ?? null,
+    parking_price_text: input.parkingPriceText ?? null,
+    parking_note: input.parkingNote ?? null,
     submitted_by: userId,
   });
   if (error) {

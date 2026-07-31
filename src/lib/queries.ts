@@ -38,7 +38,7 @@ export async function getBeaches(): Promise<Beach[]> {
 
 // Zajednički skup stupaca za `beaches_geo` (statični podaci + lat/lng).
 const BEACH_COLUMNS =
-  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags, rating_avg, rating_count, sea_assessment, parking_lat, parking_lng, parking_distance_m, popularity_score';
+  'id, slug, name_hr, name_en, lat, lng, region, municipality, surface_type, length_m, orientation, description_hr, description_en, izor_point_id, osm_id, amenities, flags, rating_avg, rating_count, sea_assessment, parking_lat, parking_lng, parking_distance_m, parking_fee_status, parking_price_text, parking_note, popularity_score';
 
 /**
  * Slugovi svih plaža — lagani dohvat za `generateStaticParams` detalj-stranice.
@@ -187,6 +187,7 @@ const PHOTO_COLUMNS = 'id, url, source, attribution, license';
 /**
  * Odobrene fotke za plažu (najnovije prve). Anon smije čitati samo `approved` ili
  * `is_official` (RLS policy). Vraća [] ako nema odobrenih ili Supabase nije konfiguriran.
+ * Fotke parkinga (`kind='parking'`, 0010) namjerno NE ulaze u galeriju plaže.
  */
 export async function getBeachPhotos(beachId: string): Promise<BeachPhoto[]> {
   if (!supabase) return [];
@@ -195,11 +196,34 @@ export async function getBeachPhotos(beachId: string): Promise<BeachPhoto[]> {
     .select(PHOTO_COLUMNS)
     .eq('beach_id', beachId)
     .eq('status', 'approved')
+    .eq('kind', 'beach')
     .order('created_at', { ascending: false })
     .limit(30);
 
   if (error) {
     console.error('[queries] getBeachPhotos:', error.message);
+    return [];
+  }
+  return (data as PhotoRow[]).map(rowToPhoto);
+}
+
+/**
+ * Odobrene fotke PARKINGA te plaže (0010) — prikazuju se u panelu parkinga,
+ * odvojeno od galerije plaže. Vraća [] ako nema odobrenih.
+ */
+export async function getParkingPhotos(beachId: string): Promise<BeachPhoto[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('photos')
+    .select(PHOTO_COLUMNS)
+    .eq('beach_id', beachId)
+    .eq('status', 'approved')
+    .eq('kind', 'parking')
+    .order('created_at', { ascending: false })
+    .limit(12);
+
+  if (error) {
+    console.error('[queries] getParkingPhotos:', error.message);
     return [];
   }
   return (data as PhotoRow[]).map(rowToPhoto);
@@ -216,6 +240,7 @@ export async function getBeachHeroPhoto(beachId: string): Promise<BeachPhoto | n
     .select(PHOTO_COLUMNS)
     .eq('beach_id', beachId)
     .eq('status', 'approved')
+    .eq('kind', 'beach')
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();

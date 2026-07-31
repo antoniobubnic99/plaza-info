@@ -6,7 +6,14 @@ import { useTranslations } from 'next-intl';
 import { getSupabaseBrowser } from '@/lib/supabaseBrowser';
 import { submitSubmission } from '@/lib/submissions';
 import { AMENITY_FILTERS, FILTER_FLAGS, SURFACE_TYPES } from '@/lib/beachFilters';
-import type { BeachAmenities, BeachFlags } from '@/lib/beaches';
+import {
+  PARKING_FEE_STATUSES,
+  type BeachAmenities,
+  type BeachFlags,
+  type ParkingFeeStatus,
+} from '@/lib/beaches';
+import { submitPhoto } from '@/lib/photos';
+import { ALLOWED_PHOTO_TYPES } from '@/lib/photoConfig';
 import AuthButton from '@/components/auth/AuthButton';
 import type { PickedPoint } from './LocationPicker';
 
@@ -24,16 +31,25 @@ interface SubmitBeachFormProps {
   targetBeachId?: string;
   targetBeachName?: string;
   targetCenter?: PickedPoint;
+  /**
+   * Postojeće koordinate parkinga koji se ISPRAVLJA. Predpopunjavaju oznaku da
+   * ispravak samo cijene ne traži ponovno klikanje po karti. Namjerno se ne izvodi
+   * iz `targetCenter` — ondje su koordinate PLAŽE (kad parking još ne postoji),
+   * pa bi predpopunjavanje upisalo plažu kao parking.
+   */
+  initialParkingPoint?: PickedPoint | null;
 }
 
 const BEACH_MARKER = '#0d6cc4';
 const PARKING_MARKER = '#1f5fae';
+const PHOTO_ACCEPT = Object.keys(ALLOWED_PHOTO_TYPES).join(',');
 
 export default function SubmitBeachForm({
   mode,
   targetBeachId,
   targetBeachName,
   targetCenter,
+  initialParkingPoint = null,
 }: SubmitBeachFormProps) {
   const t = useTranslations('Submit');
   const tSurface = useTranslations('Surface');
@@ -57,7 +73,14 @@ export default function SubmitBeachForm({
   const [beachPoint, setBeachPoint] = useState<PickedPoint | null>(null);
 
   // Parking (opcionalno za novu plažu; obavezno u parking-modu).
-  const [parkingPoint, setParkingPoint] = useState<PickedPoint | null>(null);
+  const [parkingPoint, setParkingPoint] = useState<PickedPoint | null>(initialParkingPoint);
+  // Naplata (0010). '' = korisnik nije odgovorio → polje se uopće ne šalje, pa
+  // odobrenje ne pregazi ono što o parkingu već znamo.
+  const [feeStatus, setFeeStatus] = useState<ParkingFeeStatus | ''>('');
+  const [priceText, setPriceText] = useState('');
+  const [parkingNote, setParkingNote] = useState('');
+  const [parkingPhoto, setParkingPhoto] = useState<File | null>(null);
+  const [photoWarning, setPhotoWarning] = useState<string | null>(null);
 
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth'>('idle');
 
@@ -88,6 +111,14 @@ export default function SubmitBeachForm({
     e.preventDefault();
     if (state === 'sending' || !canSubmit) return;
     setState('sending');
+    setPhotoWarning(null);
+
+    // Zajednička polja o naplati — izostavljena kad korisnik nije odgovorio.
+    const feeFields = {
+      parkingFeeStatus: feeStatus || undefined,
+      parkingPriceText: priceText.trim() || undefined,
+      parkingNote: parkingNote.trim() || undefined,
+    };
 
     const result = isParking
       ? await submitSubmission({
@@ -95,8 +126,10 @@ export default function SubmitBeachForm({
           targetBeachId: targetBeachId as string,
           parkingLat: (parkingPoint as PickedPoint).lat,
           parkingLng: (parkingPoint as PickedPoint).lng,
+          ...feeFields,
         })
       : await submitSubmission({
+          ...feeFields,
           kind: 'new_beach',
           nameHr: nameHr.trim(),
           nameEn: nameEn.trim() || undefined,
@@ -114,7 +147,18 @@ export default function SubmitBeachForm({
         });
 
     if (result.ok) {
+      // Fotka parkinga ide zasebnim putem (/api/photos, kind='parking') jer traži
+      // postojeću plažu — moguća je samo u parking-modu. Neuspjeh fotke NE poništava
+      // uspješnu prijavu: prijava je već zaprimljena, pa se javlja samo upozorenje.
+      if (isParking && parkingPhoto && targetBeachId) {
+        const photoResult = await submitPhoto(targetBeachId, parkingPhoto, 'parking');
+        if (photoResult !== 'ok') setPhotoWarning(t(`photo_${photoResult}`));
+      }
       setState('done');
+      setFeeStatus('');
+      setPriceText('');
+      setParkingNote('');
+      setParkingPhoto(null);
       if (!isParking) {
         setNameHr('');
         setNameEn('');
@@ -138,11 +182,66 @@ export default function SubmitBeachForm({
     'w-full rounded-lg border border-sea-200 bg-white px-3 py-2 text-sm text-sea-950 outline-none focus:border-sea-600';
   const labelCls = 'block text-sm font-medium text-sea-800';
 
+  /**
+   * Naplata parkinga (stavka 4) — isti blok u oba moda. „Ne znam" je namjerno
+   * default: bolje prazan podatak nego pogrešna cijena na portalu.
+   */
+  const parkingFeeBlock = (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label htmlFor="sb-fee" className={labelCls}>
+          {t('parkingFee')}
+        </label>
+        <select
+          id="sb-fee"
+          value={feeStatus}
+          onChange={(e) => setFeeStatus(e.target.value as ParkingFeeStatus | '')}
+          className={`mt-1 ${field}`}
+        >
+          <option value="">{t('parkingFeeNoAnswer')}</option>
+          {PARKING_FEE_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {t(`parkingFee_${s}`)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="sb-price" className={labelCls}>
+          {t('parkingPrice')}
+        </label>
+        <input
+          id="sb-price"
+          value={priceText}
+          onChange={(e) => setPriceText(e.target.value)}
+          maxLength={120}
+          disabled={feeStatus !== 'paid'}
+          className={`mt-1 ${field} disabled:bg-sea-50 disabled:text-sea-800/50`}
+          placeholder={t('parkingPricePlaceholder')}
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="sb-parking-note" className={labelCls}>
+          {t('parkingNote')}
+        </label>
+        <input
+          id="sb-parking-note"
+          value={parkingNote}
+          onChange={(e) => setParkingNote(e.target.value)}
+          maxLength={500}
+          className={`mt-1 ${field}`}
+          placeholder={t('parkingNotePlaceholder')}
+        />
+      </div>
+    </div>
+  );
+
   if (state === 'done') {
     return (
       <div className="rounded-xl bg-crowd-empty/10 p-6 text-center ring-1 ring-crowd-empty/30">
         <p className="text-base font-semibold text-sea-950">{t('thanksTitle')}</p>
         <p className="mt-1 text-sm text-sea-800/80">{t('thanksBody')}</p>
+        {photoWarning && <p className="mt-2 text-xs text-red-600">{photoWarning}</p>}
         <button
           type="button"
           onClick={() => setState('idle')}
@@ -177,6 +276,22 @@ export default function SubmitBeachForm({
               onChange={setParkingPoint}
               markerColor={PARKING_MARKER}
               initialCenter={targetCenter ?? null}
+            />
+          </div>
+
+          {parkingFeeBlock}
+
+          <div>
+            <label htmlFor="sb-parking-photo" className={labelCls}>
+              {t('parkingPhoto')}
+            </label>
+            <p className="mb-2 text-xs text-sea-800/60">{t('parkingPhotoHint')}</p>
+            <input
+              id="sb-parking-photo"
+              type="file"
+              accept={PHOTO_ACCEPT}
+              onChange={(e) => setParkingPhoto(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-sea-800 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-sea-600 file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-sea-800"
             />
           </div>
         </>
@@ -353,6 +468,7 @@ export default function SubmitBeachForm({
               onChange={setParkingPoint}
               markerColor={PARKING_MARKER}
             />
+            {parkingPoint && <div className="mt-4">{parkingFeeBlock}</div>}
           </div>
         </>
       )}

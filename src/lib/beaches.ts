@@ -4,6 +4,14 @@ export type SurfaceType = 'sand' | 'pebble' | 'rock' | 'concrete';
 export type SeaAssessment = 'excellent' | 'good' | 'satisfactory' | 'unsatisfactory';
 export type CrowdLevel = 'empty' | 'moderate' | 'packed';
 
+/**
+ * Naplata parkinga (0010). `unknown` je punopravna vrijednost, a ne izostanak podatka:
+ * portal radije prizna da ne zna nego da posjetitelju prikaže izmišljenu cijenu.
+ */
+export type ParkingFeeStatus = 'free' | 'paid' | 'unknown';
+
+export const PARKING_FEE_STATUSES: ParkingFeeStatus[] = ['free', 'paid', 'unknown'];
+
 export interface BeachAmenities {
   showers?: boolean;
   wc?: boolean;
@@ -48,6 +56,9 @@ export interface Beach {
   parkingLat: number | null; // najbliži OSM parking (seed-parking.ts, 0006)
   parkingLng: number | null;
   parkingDistanceM: number | null; // zračna udaljenost plaža → parking, m
+  parkingFeeStatus: ParkingFeeStatus; // naplata (0010); 'unknown' dok se ne sazna
+  parkingPriceText: string | null; // slobodan iznos („2 EUR/hour") — samo prikaz
+  parkingNote: string | null;
   popularityScore: number; // kombinirani signal za default sort (beaches_geo, 0009)
 }
 
@@ -76,6 +87,9 @@ export interface BeachRow {
   parking_lat?: number | null;
   parking_lng?: number | null;
   parking_distance_m?: number | null;
+  parking_fee_status?: ParkingFeeStatus | null;
+  parking_price_text?: string | null;
+  parking_note?: string | null;
   popularity_score?: number | string | null; // numeric dolazi kao string preko PostgREST-a
 }
 
@@ -104,6 +118,9 @@ export function dbToBeach(row: BeachRow): Beach {
     parkingLat: row.parking_lat ?? null,
     parkingLng: row.parking_lng ?? null,
     parkingDistanceM: row.parking_distance_m ?? null,
+    parkingFeeStatus: row.parking_fee_status ?? 'unknown',
+    parkingPriceText: row.parking_price_text ?? null,
+    parkingNote: row.parking_note ?? null,
     popularityScore: row.popularity_score != null ? Number(row.popularity_score) : 0,
   };
 }

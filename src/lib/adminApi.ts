@@ -105,6 +105,9 @@ export interface PendingSubmission {
   flags: Record<string, boolean> | null;
   parking_lat: number | null;
   parking_lng: number | null;
+  parking_fee_status: 'free' | 'paid' | 'unknown' | null; // null = korisnik nije odgovorio
+  parking_price_text: string | null;
+  parking_note: string | null;
   created_at: string;
   // PostgREST vraća relaciju kao objekt, supabase-js je tipizira kao niz — pokrij oba.
   beach:
