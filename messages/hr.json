@@ -137,7 +137,8 @@
     "submit": "Pošalji recenziju",
     "thanksPending": "Hvala! Recenzija čeka odobrenje.",
     "error": "Greška pri slanju. Pokušajte ponovno.",
-    "moderationNote": "Recenzije se objavljuju nakon moderacije."
+    "moderationNote": "Recenzije se objavljuju nakon moderacije.",
+    "rateLimited": "Previše pokušaja u kratko vrijeme. Pokušaj ponovno za koju minutu."
   },
   "Photos": {
     "heading": "Fotografije",
@@ -153,7 +154,8 @@
     "tooLarge": "Datoteka je prevelika (najviše 5 MB).",
     "unsupported": "Podržani formati: JPG, PNG, WebP.",
     "error": "Greška pri slanju. Pokušajte ponovno.",
-    "moderationNote": "Fotografije se objavljuju nakon moderacije."
+    "moderationNote": "Fotografije se objavljuju nakon moderacije.",
+    "rateLimited": "Previše učitavanja u kratko vrijeme. Pokušaj ponovno za koju minutu."
   },
   "Auth": {
     "signInGoogle": "Prijava Google računom",
@@ -250,7 +252,8 @@
     "photo_auth": "Prijava je zaprimljena, ali fotografiju nismo poslali jer je sesija istekla. Prijavi se i dodaj je ponovno.",
     "rating": "Tvoja ocjena (nije obavezno)",
     "ratingHint": "Kad prijavu odobrimo, ocjena postaje prva recenzija plaže.",
-    "ratingClear": "Klikni istu zvjezdicu da poništiš."
+    "ratingClear": "Klikni istu zvjezdicu da poništiš.",
+    "rateLimited": "Previše prijava u kratko vrijeme. Pokušaj ponovno kasnije."
   },
   "NotFound": {
     "title": "Stranica nije pronađena",

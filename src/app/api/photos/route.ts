@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getSupabaseServer } from '@/lib/supabaseServer';
+import { checkRateLimit, tooManyRequests } from '@/lib/rateLimit';
 import {
   PHOTO_BUCKET,
   MAX_PHOTO_BYTES,
@@ -26,6 +27,10 @@ export async function POST(request: Request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'server_not_configured' }, { status: 503 });
   }
+
+  // Kvota ide prije sesije i prije bajtova — odbijen pokušaj ne smije ništa uploadati.
+  const rl = await checkRateLimit(request, 'photos');
+  if (!rl.allowed) return tooManyRequests(rl);
 
   // Fotka TRAŽI prijavljenog korisnika — sesija iz kolačića, prije čitanja bajtova.
   const sb = await getSupabaseServer();

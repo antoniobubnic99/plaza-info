@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getSupabaseServer } from '@/lib/supabaseServer';
+import { checkRateLimit, tooManyRequests } from '@/lib/rateLimit';
 
 // Prijava nove plaže / parkinga. Upis ide serverski preko service_role (zaobilazi
 // RLS), status ostaje 'pending' (čeka moderaciju u adminu). Za razliku od
@@ -92,6 +93,9 @@ export async function POST(request: Request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'server_not_configured' }, { status: 503 });
   }
+
+  const rl = await checkRateLimit(request, 'submissions');
+  if (!rl.allowed) return tooManyRequests(rl);
 
   let json: unknown;
   try {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getSupabaseServer } from '@/lib/supabaseServer';
+import { checkRateLimit, tooManyRequests } from '@/lib/rateLimit';
 
 // Upis ide serverski preko service_role (zaobilazi RLS), status ostaje 'pending'
 // (javno se prikazuje tek nakon moderacije). PRIJAVA JE OBAVEZNA (odluka
@@ -20,6 +21,9 @@ export async function POST(request: Request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'server_not_configured' }, { status: 503 });
   }
+
+  const rl = await checkRateLimit(request, 'reviews');
+  if (!rl.allowed) return tooManyRequests(rl);
 
   let json: unknown;
   try {

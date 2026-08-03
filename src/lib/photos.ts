@@ -4,7 +4,13 @@
 import { MAX_PHOTO_BYTES, isAllowedPhotoType } from '@/lib/photoConfig';
 
 /** `auth` = server je odbio jer nema prijave (401), nije kvar — traži drukčiju poruku. */
-export type SubmitPhotoResult = 'ok' | 'auth' | 'too_large' | 'unsupported' | 'error';
+export type SubmitPhotoResult =
+  | 'ok'
+  | 'auth'
+  | 'too_large'
+  | 'unsupported'
+  | 'rate_limited'
+  | 'error';
 
 /** Vrsta fotke (0010): galerija plaže ili fotka njezina parkinga. */
 export type PhotoKind = 'beach' | 'parking';
@@ -29,6 +35,7 @@ export async function submitPhoto(
     if (res.status === 401) return 'auth';
     if (res.status === 413) return 'too_large';
     if (res.status === 415) return 'unsupported';
+    if (res.status === 429) return 'rate_limited';
     return 'error';
   } catch {
     return 'error';

@@ -137,7 +137,8 @@
     "submit": "Submit review",
     "thanksPending": "Thanks! Your review is awaiting approval.",
     "error": "Failed to send. Please try again.",
-    "moderationNote": "Reviews are published after moderation."
+    "moderationNote": "Reviews are published after moderation.",
+    "rateLimited": "Too many attempts in a short time. Please try again in a few minutes."
   },
   "Photos": {
     "heading": "Photos",
@@ -153,7 +154,8 @@
     "tooLarge": "File is too large (5 MB max).",
     "unsupported": "Supported formats: JPG, PNG, WebP.",
     "error": "Upload failed. Please try again.",
-    "moderationNote": "Photos are published after moderation."
+    "moderationNote": "Photos are published after moderation.",
+    "rateLimited": "Too many uploads in a short time. Please try again in a few minutes."
   },
   "Auth": {
     "signInGoogle": "Sign in with Google",
@@ -250,7 +252,8 @@
     "photo_auth": "Your report was received, but the photo was not uploaded because your session expired. Sign in and add it again.",
     "rating": "Your rating (optional)",
     "ratingHint": "Once we approve the submission, your rating becomes the beach's first review.",
-    "ratingClear": "Click the same star to clear."
+    "ratingClear": "Click the same star to clear.",
+    "rateLimited": "Too many submissions in a short time. Please try again later."
   },
   "NotFound": {
     "title": "Page not found",

@@ -29,7 +29,9 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [body, setBody] = useState('');
-  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth'>('idle');
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth' | 'rate'>(
+    'idle',
+  );
   // Recenzija traži prijavu (stavka 2). `null` = još ne znamo → ne blokiraj gumb
   // prije prve provjere sesije, inače bi prijavljeni korisnik nakratko vidio
   // onemogućenu formu.
@@ -48,7 +50,9 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
       setRating(0);
       setBody('');
     } else {
-      setState(result.reason === 'auth' ? 'auth' : 'error');
+      setState(
+        result.reason === 'auth' ? 'auth' : result.reason === 'rate_limited' ? 'rate' : 'error',
+      );
     }
   }
 
@@ -126,6 +130,7 @@ export default function ReviewsSection({ beachId, initialReviews, locale }: Revi
             <span className="text-xs text-sea-800/70">{tAuth('mustSignIn')}</span>
           )}
           {state === 'auth' && <span className="text-xs text-red-600">{tAuth('mustSignIn')}</span>}
+          {state === 'rate' && <span className="text-xs text-red-600">{t('rateLimited')}</span>}
           {state === 'error' && <span className="text-xs text-red-600">{t('error')}</span>}
         </div>
 

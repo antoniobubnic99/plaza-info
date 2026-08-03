@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { issueToken, verifyPin } from '@/lib/adminAuth';
+import { checkRateLimit, tooManyRequests } from '@/lib/rateLimit';
 
 // POST { pin } -> { token } | 401. Token ide u `x-admin-token` header za admin API.
 export const runtime = 'nodejs';
@@ -11,6 +12,11 @@ export async function POST(request: Request) {
   if (!process.env.ADMIN_PIN) {
     return NextResponse.json({ error: 'server_not_configured' }, { status: 503 });
   }
+
+  // 4-znamenkasti PIN ima mali prostor pretrage; timing-safe usporedba štiti od
+  // side-channela, ali NE od brute-forcea. Kvota je ta zaštita.
+  const rl = await checkRateLimit(request, 'verify-pin');
+  if (!rl.allowed) return tooManyRequests(rl);
 
   let json: unknown;
   try {

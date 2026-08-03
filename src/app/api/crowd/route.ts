@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { checkRateLimit, tooManyRequests } from '@/lib/rateLimit';
 
 // Prijava gužve MORA ići serverski: crowd_reports nema anon/authenticated grant,
 // pa upis ide preko service_role (supabaseAdmin zaobilazi RLS).
@@ -18,6 +19,10 @@ export async function POST(request: Request) {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'server_not_configured' }, { status: 503 });
   }
+
+  // Anoniman endpoint koji piše u bazu — kvota ide PRIJE parsiranja tijela.
+  const rl = await checkRateLimit(request, 'crowd');
+  if (!rl.allowed) return tooManyRequests(rl);
 
   let json: unknown;
   try {

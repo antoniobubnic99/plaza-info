@@ -45,8 +45,10 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
           ? t('tooLarge')
           : state === 'unsupported'
             ? t('unsupported')
-            : state === 'error'
-              ? t('error')
+            : state === 'rate_limited'
+              ? t('rateLimited')
+              : state === 'error'
+                ? t('error')
               : null;
 
   return (
@@ -104,6 +106,7 @@ export default function PhotosSection({ beachId, beachName, initialPhotos }: Pho
           {(state === 'auth' ||
             state === 'too_large' ||
             state === 'unsupported' ||
+            state === 'rate_limited' ||
             state === 'error') && <span className="text-red-600">{statusMessage}</span>}
           {/* Kad se zna da nema prijave, reci to prije odabira datoteke — a ne tek
               nakon što korisnik odabere fotku i dobije odbijenicu. */}

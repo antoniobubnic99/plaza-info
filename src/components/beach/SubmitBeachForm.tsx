@@ -85,7 +85,9 @@ export default function SubmitBeachForm({
   const [parkingPhoto, setParkingPhoto] = useState<File | null>(null);
   const [photoWarning, setPhotoWarning] = useState<string | null>(null);
 
-  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth'>('idle');
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error' | 'auth' | 'rate'>(
+    'idle',
+  );
 
   const isParking = mode === 'parking';
   const surface =
@@ -164,7 +166,9 @@ export default function SubmitBeachForm({
       }
       setParkingPoint(null);
     } else {
-      setState(result.reason === 'auth' ? 'auth' : 'error');
+      setState(
+        result.reason === 'auth' ? 'auth' : result.reason === 'rate_limited' ? 'rate' : 'error',
+      );
     }
   }
 
@@ -501,6 +505,7 @@ export default function SubmitBeachForm({
         </button>
         {signedIn === false && <span className="text-xs text-sea-800/70">{t('mustSignIn')}</span>}
         {state === 'auth' && <span className="text-xs text-red-600">{t('mustSignIn')}</span>}
+        {state === 'rate' && <span className="text-xs text-red-600">{t('rateLimited')}</span>}
         {state === 'error' && <span className="text-xs text-red-600">{t('error')}</span>}
       </div>
 

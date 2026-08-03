@@ -12,7 +12,9 @@ export interface SubmitReviewInput {
  * Ishod slanja. `auth` je odvojen od `error` jer traži drukčiju poruku: nije kvar
  * nego poziv na prijavu (isti oblik kao kod prijava plaža u `submissions.ts`).
  */
-export type SubmitReviewResult = { ok: true } | { ok: false; reason: 'auth' | 'error' };
+export type SubmitReviewResult =
+  | { ok: true }
+  | { ok: false; reason: 'auth' | 'rate_limited' | 'error' };
 
 /** Šalje recenziju. `{ok:true}` na 201; `reason:'auth'` na 401 (treba se prijaviti). */
 export async function submitReview(input: SubmitReviewInput): Promise<SubmitReviewResult> {
@@ -24,6 +26,7 @@ export async function submitReview(input: SubmitReviewInput): Promise<SubmitRevi
     });
     if (res.status === 201) return { ok: true };
     if (res.status === 401) return { ok: false, reason: 'auth' };
+    if (res.status === 429) return { ok: false, reason: 'rate_limited' };
     return { ok: false, reason: 'error' };
   } catch {
     return { ok: false, reason: 'error' };

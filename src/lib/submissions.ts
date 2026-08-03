@@ -45,7 +45,9 @@ export interface SubmitParkingInput extends ParkingFeeInput {
 export type SubmitInput = SubmitBeachInput | SubmitParkingInput;
 
 /** Ishod slanja: uspjeh, potreba za prijavom (401), ili opća greška. */
-export type SubmitResult = { ok: true } | { ok: false; reason: 'auth' | 'error' };
+export type SubmitResult =
+  | { ok: true }
+  | { ok: false; reason: 'auth' | 'rate_limited' | 'error' };
 
 /** Šalje prijavu. Vraća `{ok:true}` na 201; `reason:'auth'` na 401 (treba se prijaviti). */
 export async function submitSubmission(input: SubmitInput): Promise<SubmitResult> {
@@ -57,6 +59,7 @@ export async function submitSubmission(input: SubmitInput): Promise<SubmitResult
     });
     if (res.status === 201) return { ok: true };
     if (res.status === 401) return { ok: false, reason: 'auth' };
+    if (res.status === 429) return { ok: false, reason: 'rate_limited' };
     return { ok: false, reason: 'error' };
   } catch {
     return { ok: false, reason: 'error' };
