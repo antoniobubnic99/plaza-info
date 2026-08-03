@@ -1,0 +1,65 @@
+name: Supabase keep-alive
+
+# Sprječava automatsko pauziranje Supabase free projekta (7 dana neaktivnosti).
+# Zašto je to kritično baš ovdje: stranice plaža su SSG (1706 stranica) i
+# generateStaticParams čita Supabase u BUILD-timeu — pauzirana baza znači da
+# sljedeći push ne builda, a push je ujedno i deploy u produkciju.
+#
+# Ping ide na DVA mjesta:
+#   1. Supabase REST izravno — drži bazu živom čak i ako Vercel padne
+#   2. /api/health na produkciji — dokazuje da i aplikacija doseže bazu
+#
+# Trebani repo secreti (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL       npr. https://<ref>.supabase.co
+#   SUPABASE_ANON_KEY  javni anon/publishable ključ
+#   SITE_URL           (opcionalno) npr. https://plaza-info.vercel.app
+
+on:
+  schedule:
+    # 05:23 UTC svaki dan (izvan vrha sata gdje GitHub najviše kasni)
+    - cron: '23 5 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "::error::SUPABASE_URL ili SUPABASE_ANON_KEY nije postavljen kao repo secret."
+            exit 1
+          fi
+          # Publishable ključevi nisu JWT -> 'apikey' header, ne 'Authorization: Bearer'.
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            "${SUPABASE_URL}/rest/v1/beaches?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}")
+          echo "Supabase REST -> HTTP ${code}"
+          if [ "${code}" != "200" ]; then
+            echo "::error::Supabase nije vratio 200 (dobiveno ${code}) — provjeri je li projekt pauziran."
+            exit 1
+          fi
+
+      - name: Ping produkcijski /api/health
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          set -euo pipefail
+          url="${SITE_URL:-https://plaza-info.vercel.app}"
+          code=$(curl -sS -o /tmp/health.json -w '%{http_code}' "${url}/api/health" || echo "000")
+          echo "GET ${url}/api/health -> HTTP ${code}"
+          cat /tmp/health.json || true
+          echo
+          if [ "${code}" != "200" ]; then
+            echo "::error::/api/health nije vratio 200 (dobiveno ${code})."
+            exit 1
+          fi
