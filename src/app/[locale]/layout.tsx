@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -37,6 +38,13 @@ export default async function LocaleLayout({
     <html lang={locale} className="h-full antialiased">
       <body className="min-h-full">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {/*
+          Vercel Analytics: agregirani pregledi stranica bez kolačića i bez pohrane na
+          uređaju — zato nema banner za pristanak (nema čemu pristajati po ePrivacy).
+          Postojeći obrazac pristanka ostaje samo ondje gdje se pohranjuje ili traži
+          osobni podatak (geolokacija). Politika privatnosti to navodi u odjeljku 5.
+        */}
+        <Analytics />
       </body>
     </html>
   );

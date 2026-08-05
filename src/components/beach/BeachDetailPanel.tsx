@@ -9,12 +9,12 @@ import {
   getBeachPhotos,
   getBeachReviews,
   getBeachSeaQuality,
-  getLatestCrowdLevels,
   type BeachPhoto,
   type BeachReview,
   type SeaQualitySample,
 } from '@/lib/queries';
 import { reportCrowd } from '@/lib/crowd';
+import { setLocalCrowdLevel, useCrowdLevels } from '@/lib/crowdStore';
 import OsmAttribution from '@/components/legal/OsmAttribution';
 import type { MapFocus } from './MapView';
 import PhotosSection from './PhotosSection';
@@ -89,7 +89,8 @@ export default function BeachDetailPanel({
   const [sea, setSea] = useState<SeaQualitySample | null>(initialSeaQuality ?? null);
   const [photos, setPhotos] = useState<BeachPhoto[]>(initialPhotos ?? []);
   const [reviews, setReviews] = useState<BeachReview[]>(initialReviews ?? []);
-  const [crowd, setCrowd] = useState<CrowdLevel | null>(null);
+  // Živa gužva za ovu plažu — iz dijeljenog izvora (RPC vraća sve plaže, uzmi svoju).
+  const crowd = useCrowdLevels()[beach.id] ?? null;
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
   const [shared, setShared] = useState(false);
@@ -130,21 +131,6 @@ export default function BeachDetailPanel({
     };
   }, [beach.id, initialReviews]);
 
-  // Živa gužva za ovu plažu (RPC vraća sve; uzmi svoju), osvježavaj svakih 60 s.
-  useEffect(() => {
-    let active = true;
-    const load = () =>
-      getLatestCrowdLevels()
-        .then((levels) => active && setCrowd(levels[beach.id] ?? null))
-        .catch(() => {});
-    load();
-    const id = window.setInterval(load, 60_000);
-    return () => {
-      active = false;
-      window.clearInterval(id);
-    };
-  }, [beach.id]);
-
   // Fokus mini-karte na plažu pri montiranju (init jednom; panel se remounta po beach.id).
   const [mapFocus] = useState<MapFocus>(() => ({
     lng: beach.lng,
@@ -159,7 +145,8 @@ export default function BeachDetailPanel({
     const ok = await reportCrowd(beach.id, level, null);
     setReporting(false);
     if (ok) {
-      setCrowd(level);
+      // Optimistično u dijeljeni izvor → osvježi i marker na karti, ne samo panel.
+      setLocalCrowdLevel(beach.id, level);
       setReported(true);
     }
   }

@@ -28,7 +28,7 @@ import {
   type BeachFilterState,
   type FilterFlag,
 } from '@/lib/beachFilters';
-import { getLatestCrowdLevels } from '@/lib/queries';
+import { useCrowdLevels } from '@/lib/crowdStore';
 import { locateOnce } from '@/lib/geolocate';
 import { useGeoConsent } from '@/lib/geoConsent';
 import { buildPlaceIndex, suggestPlaces, type PlaceSuggestion } from '@/lib/placeIndex';
@@ -70,30 +70,14 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   // Parking nije zaseban entitet nego dio plaže, pa dijeli `selectedId`.
   const [selectedKind, setSelectedKind] = useState<'beach' | 'parking'>('beach');
   const [focus, setFocus] = useState<MapFocus | null>(null);
-  const [crowdLevels, setCrowdLevels] = useState<Record<string, CrowdLevel>>({});
+  // Zadnje razine gužve (za bojanje markera) — dijeljeni izvor, jedan poll na 60 s po klijentu
+  // bez obzira na to je li panel otvoren.
+  const crowdLevels = useCrowdLevels();
   // Središte odabranog mjesta iz pretrage (mjesto/županija) — sidro za sortiranje po blizini.
   const [placeAnchor, setPlaceAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const hydratedRef = useRef(false);
   // Pristanak prije geolokacije — dijeli ga i forma za prijavu plaže (LocationPicker).
   const geo = useGeoConsent();
-
-  // Zadnje razine gužve (za bojanje markera na karti), osvježavanje svakih 60 s.
-  useEffect(() => {
-    let active = true;
-    const load = () => {
-      getLatestCrowdLevels()
-        .then((levels) => {
-          if (active) setCrowdLevels(levels);
-        })
-        .catch(() => {});
-    };
-    load();
-    const id = window.setInterval(load, 60_000);
-    return () => {
-      active = false;
-      window.clearInterval(id);
-    };
-  }, []);
 
   // URL → stanje (mount + back/forward): filteri + odabrana plaža su dijeljivi.
   useEffect(() => {
