@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import SubmitBeachForm from '@/components/beach/SubmitBeachForm';
+import SiteFooter from '@/components/legal/SiteFooter';
 
 // Javna forma za prijavu nove plaže. Prijava traži Google prijavu; ide u moderaciju.
 export const dynamic = 'force-dynamic';
@@ -39,6 +40,8 @@ export default async function SubmitPage({
         <p className="mt-1 text-sm text-sea-800/80">{t('intro')}</p>
       </div>
       <SubmitBeachForm mode="new_beach" />
+
+      <SiteFooter />
     </main>
   );
 }

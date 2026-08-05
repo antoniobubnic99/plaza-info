@@ -15,6 +15,7 @@ import {
   type SeaQualitySample,
 } from '@/lib/queries';
 import { reportCrowd } from '@/lib/crowd';
+import OsmAttribution from '@/components/legal/OsmAttribution';
 import type { MapFocus } from './MapView';
 import PhotosSection from './PhotosSection';
 import PhotoCredit from './PhotoCredit';
@@ -426,6 +427,8 @@ export default function BeachDetailPanel({
                 </div>
               )}
             </dl>
+            {/* ODbL: podloga, duljina i parking izvedeni su iz OSM-a → atribucija ide uz njih. */}
+            <OsmAttribution className="mt-3" />
           </section>
         )}
 

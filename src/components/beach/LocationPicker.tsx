@@ -6,6 +6,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useTranslations } from 'next-intl';
 import { getMapStyleUrl, PILOT_CENTER, PILOT_ZOOM } from '@/lib/mapStyle';
 import { locateOnce } from '@/lib/geolocate';
+import { useGeoConsent } from '@/lib/geoConsent';
+import GeoConsentDialog from '@/components/legal/GeoConsentDialog';
 
 export interface PickedPoint {
   lat: number;
@@ -36,6 +38,8 @@ export default function LocationPicker({
   const onChangeRef = useRef(onChange);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
+  // Isti pristanak kao u pretrazi („Blizu mene") — pita se jednom po uređaju.
+  const geo = useGeoConsent();
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -113,7 +117,13 @@ export default function LocationPicker({
    * ovdje — dovoljno je javiti novu vrijednost roditelju, a effect na `value` niže
    * ga postavi/pomakne (jedan put stvaranja markera, bez treće kopije koda).
    */
-  async function handleLocate() {
+  function handleLocate() {
+    geo.withConsent(() => {
+      void runLocate();
+    });
+  }
+
+  async function runLocate() {
     setLocating(true);
     setGeoError(null);
     try {
@@ -144,6 +154,7 @@ export default function LocationPicker({
         </button>
       </div>
       {geoError && <p className="text-xs text-red-600">{geoError}</p>}
+      {geo.asking && <GeoConsentDialog onAccept={geo.accept} onDecline={geo.decline} />}
     </div>
   );
 }

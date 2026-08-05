@@ -29,7 +29,10 @@ import {
 } from '@/lib/beachFilters';
 import { getLatestCrowdLevels } from '@/lib/queries';
 import { locateOnce } from '@/lib/geolocate';
+import { useGeoConsent } from '@/lib/geoConsent';
 import { buildPlaceIndex, suggestPlaces, type PlaceSuggestion } from '@/lib/placeIndex';
+import GeoConsentDialog from '@/components/legal/GeoConsentDialog';
+import SiteFooter from '@/components/legal/SiteFooter';
 import type { MapFocus } from './MapView';
 import FilterBar from './FilterBar';
 import BeachList from './BeachList';
@@ -70,6 +73,8 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
   // Središte odabranog mjesta iz pretrage (mjesto/županija) — sidro za sortiranje po blizini.
   const [placeAnchor, setPlaceAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const hydratedRef = useRef(false);
+  // Pristanak prije geolokacije — dijeli ga i forma za prijavu plaže (LocationPicker).
+  const geo = useGeoConsent();
 
   // Zadnje razine gužve (za bojanje markera na karti), osvježavanje svakih 60 s.
   useEffect(() => {
@@ -166,7 +171,17 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     setFocus({ lng: b.parkingLng, lat: b.parkingLat, zoom: 16, nonce: Date.now() });
   }
 
-  async function handleNearMe() {
+  /**
+   * „Blizu mene": prvo naš pristanak (zašto tražimo lokaciju), pa tek onda
+   * `locateOnce()` koji okida preglednikov upit za dopuštenje.
+   */
+  function handleNearMe() {
+    geo.withConsent(() => {
+      void runNearMe();
+    });
+  }
+
+  async function runNearMe() {
     setLocating(true);
     setGeoError(null);
     try {
@@ -286,6 +301,10 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
             crowdLevels={crowdLevels}
           />
         </div>
+
+        {/* Naslovnica je karta preko cijelog ekrana → pravne poveznice i ODbL atribucija
+            idu na dno bočne trake; klasičan footer ovdje nema kamo stati. */}
+        <SiteFooter variant="compact" />
       </aside>
 
       {/* Zona 2 — detalj-panel (treći stupac desktop; preko liste na mobitelu) */}
@@ -358,6 +377,10 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           </ul>
         </div>
       </div>
+
+      {geo.asking && (
+        <GeoConsentDialog onAccept={geo.accept} onDecline={geo.decline} />
+      )}
     </main>
   );
 }

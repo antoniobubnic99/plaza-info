@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { beachName, type Beach, type ParkingFeeStatus } from '@/lib/beaches';
 import { formatDistance, parkingFeeColor } from '@/lib/beachFilters';
 import { getParkingPhotos, type BeachPhoto } from '@/lib/queries';
+import OsmAttribution from '@/components/legal/OsmAttribution';
 import PhotoCredit from './PhotoCredit';
 import PhotoLightbox from './PhotoLightbox';
 import SubmitBeachForm from './SubmitBeachForm';
@@ -105,6 +106,8 @@ export default function ParkingDetailPanel({
         </dl>
 
         <p className="mt-3 text-xs text-sea-800/60">{t('sourceNote')}</p>
+        {/* ODbL: podaci o parkingu su izvedeni iz OSM-a. */}
+        <OsmAttribution className="mt-1" />
 
         {/* Fotografije parkinga (odvojene od galerije plaže — photos.kind) */}
         <section aria-labelledby="parking-photos-heading" className="mt-6">

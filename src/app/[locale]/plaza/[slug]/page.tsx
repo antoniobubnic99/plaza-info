@@ -13,6 +13,7 @@ import {
 } from '@/lib/queries';
 import { beachName, type Beach } from '@/lib/beaches';
 import BeachDetailPanel from '@/components/beach/BeachDetailPanel';
+import SiteFooter from '@/components/legal/SiteFooter';
 
 // Podaci plaža se rijetko mijenjaju — ISR: regeneriraj najviše jednom na sat.
 export const revalidate = 3600;
@@ -224,6 +225,8 @@ export default async function BeachPage({
           initialReviews={reviews}
         />
       </div>
+
+      <SiteFooter />
     </main>
   );
 }
