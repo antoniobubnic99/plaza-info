@@ -6,6 +6,10 @@ export interface DropdownOption {
   value: string;
   label: string;
   color?: string;
+  /** Opcija bez ijedne plaže u podacima — vidljiva, ali se ne može uključiti. */
+  disabled?: boolean;
+  /** Kratko objašnjenje uz onemogućenu opciju (npr. „nema podataka"). */
+  note?: string;
 }
 
 interface FilterDropdownProps {
@@ -83,25 +87,39 @@ export default function FilterDropdown({
         >
           {options.map((opt) => {
             const on = selected.includes(opt.value);
+            // Onemogućena opcija se i dalje prikazuje — skriveni filter izgleda kao da
+            // funkcionalnost ne postoji, a ovako je jasno da samo nema podataka.
+            const off = opt.disabled === true;
             return (
               <label
                 key={opt.value}
-                className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-sea-900 hover:bg-sea-50"
+                aria-disabled={off}
+                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm ${
+                  off
+                    ? 'cursor-not-allowed text-sea-800/45'
+                    : 'cursor-pointer text-sea-900 hover:bg-sea-50'
+                }`}
               >
                 <input
                   type="checkbox"
                   checked={on}
+                  disabled={off}
                   onChange={() => onToggle(opt.value)}
                   className="h-4 w-4 shrink-0 accent-sea-600"
                 />
                 {opt.color && (
                   <span
                     aria-hidden
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    className={`h-2.5 w-2.5 shrink-0 rounded-full ${off ? 'opacity-40' : ''}`}
                     style={{ background: opt.color }}
                   />
                 )}
                 <span className="min-w-0 flex-1 truncate">{opt.label}</span>
+                {off && opt.note && (
+                  <span className="shrink-0 text-[10px] uppercase tracking-wide text-sea-800/40">
+                    {opt.note}
+                  </span>
+                )}
               </label>
             );
           })}

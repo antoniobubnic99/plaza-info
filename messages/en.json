@@ -31,6 +31,7 @@
     "filterAmenities": "Amenities",
     "filterRating": "Rating",
     "filterCrowd": "Crowd",
+    "filterNoData": "no data",
     "placeKind_beach": "Beach",
     "placeKind_municipality": "Town",
     "placeKind_region": "County",
@@ -56,6 +57,7 @@
     "moderate": "Moderate",
     "packed": "Packed",
     "question": "Crowd now:",
+    "beFirst": "No one has reported the crowd yet — be the first.",
     "thanks": "Thanks for reporting!"
   },
   "Beach": {
@@ -100,7 +102,7 @@
     "legend": "Parking",
     "fee_free": "Free",
     "fee_paid": "Paid",
-    "fee_unknown": "Unknown",
+    "fee_unknown": "No data",
     "feeLabel": "Parking fee",
     "distanceValue": "{distance} to the beach",
     "priceLabel": "Price",

@@ -15,6 +15,7 @@ import {
 import {
   CROWD_LEVELS,
   EMPTY_FILTERS,
+  computeFilterCoverage,
   crowdColor,
   filterBeaches,
   filtersFromSearchParams,
@@ -134,6 +135,10 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
     () => filterBeaches(beaches, filters, crowdLevels),
     [beaches, filters, crowdLevels],
   );
+
+  // Pokrivenost oznaka/sadržaja — filter s nultom pokrivenošću se gasi umjesto da nudi
+  // zajamčeno prazan rezultat (npr. „Spasilac": 0 od 844 plaža ima taj OSM podatak).
+  const coverage = useMemo(() => computeFilterCoverage(beaches), [beaches]);
 
   // Indeks županija/mjesta iz učitanih plaža — gradi se jednom, bez vanjskog geokodera.
   const placeIndex = useMemo(() => buildPlaceIndex(beaches), [beaches]);
@@ -289,6 +294,7 @@ export default function BeachExplorer({ beaches, locale }: BeachExplorerProps) {
           locating={locating}
           geoError={geoError}
           resultCount={filtered.length}
+          coverage={coverage}
         />
 
         <div className="min-h-0 flex-1 overflow-y-auto">

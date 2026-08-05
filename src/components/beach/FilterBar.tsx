@@ -16,6 +16,7 @@ import {
   surfaceColor,
   type AmenityFilter,
   type BeachFilterState,
+  type FilterCoverage,
   type FilterFlag,
 } from '@/lib/beachFilters';
 import type { PlaceSuggestion } from '@/lib/placeIndex';
@@ -39,6 +40,8 @@ interface FilterBarProps {
   locating: boolean;
   geoError: string | null;
   resultCount: number;
+  /** Pokrivenost prisutnost-filtera u podacima — nulta gasi opciju umjesto praznog rezultata. */
+  coverage: FilterCoverage;
 }
 
 export default function FilterBar({
@@ -59,6 +62,7 @@ export default function FilterBar({
   locating,
   geoError,
   resultCount,
+  coverage,
 }: FilterBarProps) {
   const t = useTranslations('Map');
   const tSurface = useTranslations('Surface');
@@ -69,6 +73,12 @@ export default function FilterBar({
   const active = hasActiveFilters(filters);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const showSuggestions = suggestOpen && suggestions.length > 0;
+
+  // Prisutnost-filter bez ijedne plaže u podacima uvijek vraća prazan popis. Gasi se —
+  // osim ako je već uključen (npr. iz dijeljenog URL-a), da ga korisnik može ugasiti.
+  const noData = t('filterNoData');
+  const emptyOption = (isSelected: boolean, count: number) =>
+    count === 0 && !isSelected ? { disabled: true, note: noData } : {};
 
   return (
     <div className="flex flex-col gap-3 border-b border-sea-100 bg-white/95 p-4 backdrop-blur">
@@ -159,14 +169,22 @@ export default function FilterBar({
           ariaLabel={t('filterFlags')}
           selected={filters.flags}
           onToggle={(v) => onToggleFlag(v as FilterFlag)}
-          options={FILTER_FLAGS.map((f) => ({ value: f, label: tFlags(f) }))}
+          options={FILTER_FLAGS.map((f) => ({
+            value: f,
+            label: tFlags(f),
+            ...emptyOption(filters.flags.includes(f), coverage.flags[f]),
+          }))}
         />
         <FilterDropdown
           label={t('filterAmenities')}
           ariaLabel={t('filterAmenities')}
           selected={filters.amenities}
           onToggle={(v) => onToggleAmenity(v as AmenityFilter)}
-          options={AMENITY_FILTERS.map((a) => ({ value: a, label: tAmenities(a) }))}
+          options={AMENITY_FILTERS.map((a) => ({
+            value: a,
+            label: tAmenities(a),
+            ...emptyOption(filters.amenities.includes(a), coverage.amenities[a]),
+          }))}
         />
         <FilterDropdown
           label={t('filterRating')}

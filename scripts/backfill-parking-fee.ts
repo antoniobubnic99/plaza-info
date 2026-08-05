@@ -182,6 +182,29 @@ async function fetchChunkCached(
   return [points, true];
 }
 
+/**
+ * Spoji duplikate iz preklapajućih županijskih bboxeva u jedan zapis po parkingu.
+ *
+ * Ključ je koordinata (5 decimala, ~1 m) PLUS `fee` — namjerno ne samo koordinata:
+ * spajanje po samoj koordinati bi zadržalo prvu kopiju i bacilo `charge` one druge,
+ * što je točno kvar popravljen u `92db3d3` (Velika Raduča je izgubila cijenu). Ovako se
+ * `charge` prenosi na spojeni zapis, a proturječne `fee` vrijednosti na istoj točki
+ * ostaju odvojene — `matchFee()` ih dalje razrješava po blizini, bez izmišljanja.
+ */
+function dedupeFeePoints(points: FeePoint[]): FeePoint[] {
+  const byKey = new Map<string, FeePoint>();
+  for (const p of points) {
+    const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)},${p.fee.trim().toLowerCase()}`;
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, { ...p });
+      continue;
+    }
+    if (!existing.charge && p.charge) existing.charge = p.charge;
+  }
+  return [...byKey.values()];
+}
+
 async function collectFeePoints(): Promise<FeePoint[]> {
   const all: FeePoint[] = [];
   for (const chunk of COAST_CHUNKS) {
@@ -190,7 +213,9 @@ async function collectFeePoints(): Promise<FeePoint[]> {
     console.log(`[fee] ${chunk.name}: s naplatom ${points.length} (ukupno ${all.length})`);
     if (wasNetwork) await sleep(INTER_CHUNK_DELAY_MS);
   }
-  return all;
+  const unique = dedupeFeePoints(all);
+  console.log(`[fee] Nakon deduplikacije: ${unique.length} (od ${all.length}).`);
+  return unique;
 }
 
 type BeachRow = {

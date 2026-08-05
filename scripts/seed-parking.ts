@@ -166,7 +166,26 @@ async function fetchChunkCached(
   return [points, true];
 }
 
-/** Dohvati sve chunkove i agregiraj parking točke cijele obale. */
+/**
+ * Ukloni duplikate iz preklapajućih županijskih bboxeva.
+ *
+ * ZAŠTO: susjedni chunkovi se namjerno preklapaju da nijedna plaža ne ispadne (npr.
+ * Šibenik i Split oba pokrivaju Raduču), pa isti OSM parking uđe u zbroj dva-tri puta.
+ * Cache čuva samo {lat,lng} (bez OSM id-a), pa je koordinata zaokružena na 5 decimala
+ * (~1 m) jedini raspoloživi identitet. Ishod seedanja je isti — najbliži parking ostaje
+ * najbliži — ali brojke u logu prestaju lagati, a pretraga radi nad manjim skupom.
+ */
+function dedupePoints(points: ParkingPoint[]): ParkingPoint[] {
+  const seen = new Set<string>();
+  return points.filter((p) => {
+    const key = `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** Dohvati sve chunkove i agregiraj parking točke cijele obale (bez duplikata). */
 async function collectParking(): Promise<ParkingPoint[]> {
   const all: ParkingPoint[] = [];
   for (const chunk of COAST_CHUNKS) {
@@ -175,7 +194,9 @@ async function collectParking(): Promise<ParkingPoint[]> {
     console.log(`[parking] ${chunk.name}: parkinga ${points.length} (ukupno ${all.length})`);
     if (wasNetwork) await sleep(INTER_CHUNK_DELAY_MS);
   }
-  return all;
+  const unique = dedupePoints(all);
+  console.log(`[parking] Nakon deduplikacije: ${unique.length} (od ${all.length}).`);
+  return unique;
 }
 
 type BeachRow = {

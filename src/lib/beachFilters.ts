@@ -111,6 +111,39 @@ export const EMPTY_FILTERS: BeachFilterState = {
   region: null,
 };
 
+/** Broj plaža koje stvarno nose svaku prisutnost-oznaku/sadržaj. */
+export interface FilterCoverage {
+  flags: Record<FilterFlag, number>;
+  amenities: Record<AmenityFilter, number>;
+}
+
+/**
+ * Pokrivenost prisutnost-filtera u učitanom skupu plaža.
+ *
+ * ZAŠTO: oznake i sadržaji su prisutnost-filtri — izostanak podatka se tretira kao „nema
+ * toga" (za razliku od kategorijskih, gdje nepoznato ostaje vidljivo). Filter s nultom
+ * pokrivenošću zato uvijek vraća prazan popis, što se čita kao pokvarena aplikacija.
+ * Primjer: `lifeguard` je 0/844 jer cijela HR ima jednu OSM točku sa spasiocem.
+ *
+ * Računa se iz podataka, ne iz tvrdog popisa isključenja — filter se sam vrati čim prva
+ * korisnička prijava donese podatak, bez izmjene koda.
+ */
+export function computeFilterCoverage(beaches: Beach[]): FilterCoverage {
+  const flags = Object.fromEntries(FILTER_FLAGS.map((f) => [f, 0])) as Record<
+    FilterFlag,
+    number
+  >;
+  const amenities = Object.fromEntries(AMENITY_FILTERS.map((a) => [a, 0])) as Record<
+    AmenityFilter,
+    number
+  >;
+  for (const b of beaches) {
+    for (const f of FILTER_FLAGS) if (b.flags[f]) flags[f] += 1;
+    for (const a of AMENITY_FILTERS) if (b.amenities[a]) amenities[a] += 1;
+  }
+  return { flags, amenities };
+}
+
 export function hasActiveFilters(f: BeachFilterState): boolean {
   return (
     f.query.trim() !== '' ||

@@ -321,9 +321,15 @@ export default function BeachDetailPanel({
             </h2>
             <span className="text-xs text-sea-800/60">{t('crowdNote')}</span>
           </div>
-          <p className="mt-1 text-xs font-medium text-sea-800/70">
-            {crowd ? `${tCrowd('question')} ${tCrowd(crowd)}` : tCrowd('question')}
-          </p>
+          {/* Bez ijedne prijave (točno stanje na ~840 od 844 plaža) prazan indikator se čita
+              kao „aplikacija je mrtva". Umjesto toga: poziv da korisnik bude prvi. */}
+          {crowd ? (
+            <p className="mt-1 text-xs font-medium text-sea-800/70">
+              {`${tCrowd('question')} ${tCrowd(crowd)}`}
+            </p>
+          ) : (
+            <p className="mt-1 text-xs font-medium text-sea-600">{tCrowd('beFirst')}</p>
+          )}
           <div className="mt-2 flex gap-2">
             {CROWD_LEVELS.map((lvl) => {
               const isCurrent = crowd === lvl;

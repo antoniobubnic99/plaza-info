@@ -31,6 +31,7 @@
     "filterAmenities": "Sadržaji",
     "filterRating": "Rejting",
     "filterCrowd": "Gužva",
+    "filterNoData": "nema podataka",
     "placeKind_beach": "Plaža",
     "placeKind_municipality": "Mjesto",
     "placeKind_region": "Županija",
@@ -56,6 +57,7 @@
     "moderate": "Umjereno",
     "packed": "Krcato",
     "question": "Gužva sada:",
+    "beFirst": "Još nitko nije javio gužvu — budi prvi.",
     "thanks": "Hvala na prijavi!"
   },
   "Beach": {
@@ -100,7 +102,7 @@
     "legend": "Parking",
     "fee_free": "Besplatan",
     "fee_paid": "Naplata",
-    "fee_unknown": "Nepoznato",
+    "fee_unknown": "Nema podatka",
     "feeLabel": "Naplata parkinga",
     "distanceValue": "{distance} do plaže",
     "priceLabel": "Cijena",
