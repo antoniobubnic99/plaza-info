@@ -29,7 +29,8 @@ Grana `master`. Radni dir `C:\Users\anton\plaza-info`.
 5. Spremi → kopiraj **Client ID** i **Client secret**.
 
 ## Korak 2 — Supabase dashboard (upali Google provider)
-1. https://supabase.com/dashboard → projekt `qlcukvafzdttjqfpjypl` (račun „btoni159@gmail.com's Org").
+1. https://supabase.com/dashboard → PlažaInfo projekt (vlastita organizacija; ref projekta stoji
+   u `NEXT_PUBLIC_SUPABASE_URL`).
 2. **Authentication → Sign In / Providers → Google** → Enable → zalijepi **Client ID** + **Client secret** → Save.
    *(Supabase je izbornik preimenovao iz „Providers"; NE traži „OAuth Apps" ni „OAuth Server" — to je obrnuti smjer, gdje Supabase glumi davatelja prijave drugim aplikacijama.)*
 3. **Authentication → URL Configuration:**
