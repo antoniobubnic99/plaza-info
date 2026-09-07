@@ -45,3 +45,6 @@ next-env.d.ts
 /scripts/data/osm-cache/
 /scripts/data/parking-cache/
 /scripts/data/parking-fee-cache/
+
+# interne handoff bilješke razvojnog procesa — ne idu u javni repo
+/docs/internal/
