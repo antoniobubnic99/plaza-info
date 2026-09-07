@@ -4,6 +4,10 @@
 
 export const CONTACT_EMAIL = 'antonio.bubnic.ets@gmail.com';
 
+/** Voditelj obrade (GDPR čl. 13.1.a) — fizička osoba, bez OIB-a (nema registriran obrt). */
+export const CONTROLLER_NAME = 'Antonio Bubnić';
+export const CONTROLLER_ADDRESS = 'Zagreb, Hrvatska';
+
 /** Datum zadnje izmjene pravnih stranica (ISO). Prikazuje se lokalizirano. */
 export const LEGAL_UPDATED = '2026-08-05';
 

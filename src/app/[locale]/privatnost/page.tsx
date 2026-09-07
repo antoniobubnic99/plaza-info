@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { CONTACT_EMAIL, LEGAL_UPDATED } from '@/lib/legal';
+import { CONTACT_EMAIL, CONTROLLER_ADDRESS, CONTROLLER_NAME, LEGAL_UPDATED } from '@/lib/legal';
 import SiteFooter from '@/components/legal/SiteFooter';
 
 // Statična pravna stranica — isti slug na oba lokala (`/hr/privatnost`, `/en/privatnost`),
@@ -138,7 +138,13 @@ export default async function PrivacyPage({
           <h2 id="privacy-contact" className="text-lg font-semibold text-sea-950">
             {t('contactTitle')}
           </h2>
-          <p className="mt-2">{t('contactBody', { email: CONTACT_EMAIL })}</p>
+          <p className="mt-2">
+            {t('contactBody', {
+              name: CONTROLLER_NAME,
+              address: CONTROLLER_ADDRESS,
+              email: CONTACT_EMAIL,
+            })}
+          </p>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="mt-1 inline-block font-medium text-sea-600 hover:underline"

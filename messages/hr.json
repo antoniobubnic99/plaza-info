@@ -314,7 +314,7 @@
     "changesTitle": "8. Izmjene",
     "changesBody": "Politiku možemo mijenjati; datum zadnje izmjene uvijek stoji na vrhu stranice. Bitne promjene najavit ćemo u samoj aplikaciji.",
     "contactTitle": "9. Kontakt",
-    "contactBody": "Za sva pitanja o privatnosti piši na {email}."
+    "contactBody": "Voditelj obrade: {name}, {address}. Za sva pitanja o privatnosti piši na {email}."
   },
   "Terms": {
     "metaTitle": "Uvjeti korištenja — PlažaInfo",

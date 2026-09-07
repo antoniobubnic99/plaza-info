@@ -314,7 +314,7 @@
     "changesTitle": "8. Changes",
     "changesBody": "We may change this policy; the date of the last change is always at the top of the page. Significant changes will be announced in the app itself.",
     "contactTitle": "9. Contact",
-    "contactBody": "For any privacy question, write to {email}."
+    "contactBody": "Data controller: {name}, {address}. For any privacy question, write to {email}."
   },
   "Terms": {
     "metaTitle": "Terms of use — PlažaInfo",
